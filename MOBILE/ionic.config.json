@@ -1,0 +1,7 @@
+{
+  "name": "MOBILE",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
