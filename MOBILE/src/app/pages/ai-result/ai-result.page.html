@@ -1,0 +1,129 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Laporan Deteksi Bakat AI</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="ion-margin-bottom">
+    <ion-button expand="block" color="primary" (click)="onRunAnalysis()">
+      Perbarui / Picu Analisis AI Baru
+    </ion-button>
+  </div>
+
+  <div *ngIf="!aiAnalysis">
+    <ion-card>
+      <ion-card-content class="ion-text-center">
+        <p>Belum ada hasil analisis bakat AI tersimpan.</p>
+        <p>Silakan klik tombol di atas untuk memulai analisis.</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="aiAnalysis">
+    <!-- Bakat Utama -->
+    <ion-card style="--background: #f4f8ff;">
+      <ion-card-header>
+        <ion-card-subtitle>Hasil Deteksi Utama</ion-card-subtitle>
+        <ion-card-title style="color: #3880ff; font-size: 24px;">
+          {{ aiAnalysis.primary_talent }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Tingkat Keyakinan AI: <strong>{{ aiAnalysis.confidence_score }}%</strong></p>
+        <p><small>Model Versi: {{ aiAnalysis.model_version }} | Dianalisis Pada: {{ aiAnalysis.analyzed_at }}</small></p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Bakat Pendukung -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Bakat Pendukung Lainnya</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list lines="none">
+          <ion-item *ngFor="let st of aiAnalysis.supporting_talents" style="--padding-start:0;">
+            <ion-label>
+              <h3>{{ st.talent }}</h3>
+              <p>Keyakinan: {{ st.confidence }}%</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Penjelasan (XAI) -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Penjelasan Analisis (XAI)</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ul>
+          <li *ngFor="let reason of aiAnalysis.reasoning" class="ion-margin-bottom">
+            {{ reason }}
+          </li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Rekomendasi Karir -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Rekomendasi Karir Masa Depan</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ul>
+          <li *ngFor="let career of aiAnalysis.career_recommendations">
+            {{ career }}
+          </li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Rekomendasi Lomba -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Rekomendasi Perlombaan</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ul>
+          <li *ngFor="let comp of aiAnalysis.competition_recommendations">
+            {{ comp }}
+          </li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Rekomendasi Ekstrakurikuler -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Rekomendasi Ekstrakurikuler</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ul *ngIf="aiAnalysis.extracurricular_recommendations && aiAnalysis.extracurricular_recommendations.length > 0">
+          <li *ngFor="let extra of aiAnalysis.extracurricular_recommendations">
+            {{ extra }}
+          </li>
+        </ul>
+        <p *ngIf="!aiAnalysis.extracurricular_recommendations || aiAnalysis.extracurricular_recommendations.length === 0">-</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Target Pengembangan Diri -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Target Pengembangan Diri</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ul>
+          <li *ngFor="let target of aiAnalysis.development_targets">
+            {{ target }}
+          </li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

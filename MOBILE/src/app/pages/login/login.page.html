@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Login - Lost Talent Detector</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h2>Masuk ke Akun Anda</h2>
+  
+  <form (ngSubmit)="onLogin()">
+    <ion-item>
+      <ion-label position="stacked">Email</ion-label>
+      <ion-input type="email" name="email" [(ngModel)]="credentials.email" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Password</ion-label>
+      <ion-input type="password" name="password" [(ngModel)]="credentials.password" required></ion-input>
+    </ion-item>
+
+    <div class="ion-margin-top">
+      <ion-button expand="block" type="submit">Masuk</ion-button>
+    </div>
+  </form>
+
+  <div class="ion-margin-top ion-text-center">
+    <p>Belum punya akun? <a routerLink="/register">Daftar Akun Baru</a></p>
+  </div>
+</ion-content>

@@ -1,20 +1,144 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>Dashboard Siswa</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="danger" (click)="onLogout()">Logout</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding" *ngIf="student">
+  <!-- 1. Data Profil -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Data Profil</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Nama: <strong>{{ student.user?.name }}</strong></p>
+      <p>Email: {{ student.user?.email }}</p>
+      <p>No. Telp: {{ student.user?.phone || '-' }}</p>
+      <p>Asal Sekolah: {{ student.institution?.name || 'Pengguna Umum (Mandiri)' }}</p>
+      <p>Kelas: {{ student.classroom?.name || '-' }}</p>
+      <p>Kepribadian MBTI: {{ student.personality || '-' }}</p>
+      <p>Hobi: {{ student.hobbies ? student.hobbies.join(', ') : '-' }}</p>
+      <p>Minat: {{ student.interests ? student.interests.join(', ') : '-' }}</p>
+    </ion-card-content>
+  </ion-card>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <!-- Form Update Hobi & Minat -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Update Minat & Hobi</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <form (ngSubmit)="onUpdateProfile()">
+        <ion-item>
+          <ion-label position="stacked">Hobi (Pisahkan dengan koma)</ion-label>
+          <ion-input type="text" name="hobbies" [(ngModel)]="profileData.hobbies" placeholder="Coding, Robotik, Basket"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Minat (Pisahkan dengan koma)</ion-label>
+          <ion-input type="text" name="interests" [(ngModel)]="profileData.interests" placeholder="AI, Data Science, Kripto"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Kepribadian / MBTI</ion-label>
+          <ion-input type="text" name="personality" [(ngModel)]="profileData.personality" placeholder="INTJ"></ion-input>
+        </ion-item>
+        <ion-button expand="block" class="ion-margin-top" type="submit">Simpan Profil Minat</ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- 2. Nilai Rapor -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Riwayat Nilai Rapor</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div *ngIf="grades.length === 0">
+        <p>Belum ada nilai akademik yang diinput.</p>
+      </div>
+      <ion-list *ngIf="grades.length > 0">
+        <ion-item *ngFor="let grade of grades">
+          <ion-label>
+            <h3>Semester {{ grade.semester }} - {{ grade.subject_name }}</h3>
+            <p>Nilai: {{ grade.score }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- 3. Prestasi -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Prestasi & Sertifikat</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div *ngIf="achievements.length === 0">
+        <p>Belum ada sertifikat diajukan.</p>
+      </div>
+      <ion-list *ngIf="achievements.length > 0">
+        <ion-item *ngFor="let ach of achievements">
+          <ion-label>
+            <h3>{{ ach.title }}</h3>
+            <p>Kategori: {{ ach.category }} | Tingkat: {{ ach.level }} | Peringkat: {{ ach.rank }}</p>
+            <p>Status: 
+              <strong [style.color]="ach.is_verified ? 'green' : 'orange'">
+                {{ ach.is_verified ? 'Terverifikasi' : 'Menunggu Verifikasi' }}
+              </strong>
+            </p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+
+      <hr>
+      <h4>Ajukan Sertifikat Prestasi Baru</h4>
+      <form (ngSubmit)="onSubmitAchievement()">
+        <ion-item>
+          <ion-label position="stacked">Judul Prestasi</ion-label>
+          <ion-input type="text" name="ach_title" [(ngModel)]="newAchievement.title" required placeholder="Juara 1 Lomba Coding"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Kategori</ion-label>
+          <ion-select name="ach_category" [(ngModel)]="newAchievement.category">
+            <option value="teknologi">Teknologi / IT</option>
+            <option value="sains">Sains / Matematika</option>
+            <option value="olahraga">Olahraga</option>
+            <option value="seni">Seni & Desain</option>
+            <option value="lainnya">Lainnya</option>
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Tingkat</ion-label>
+          <ion-select name="ach_level" [(ngModel)]="newAchievement.level">
+            <option value="sekolah">Sekolah</option>
+            <option value="kabupaten">Kabupaten/Kota</option>
+            <option value="nasional">Nasional</option>
+            <option value="internasional">Internasional</option>
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Peringkat / Juara</ion-label>
+          <ion-input type="text" name="ach_rank" [(ngModel)]="newAchievement.rank" required placeholder="Juara 1"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Deskripsi Singkat</ion-label>
+          <ion-input type="text" name="ach_desc" [(ngModel)]="newAchievement.description" placeholder="Deskripsi lomba..."></ion-input>
+        </ion-item>
+        <ion-button expand="block" class="ion-margin-top" type="submit">Ajukan Prestasi</ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- 4. Menu & Navigasi -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Navigasi Kuesioner & AI</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-button expand="block" routerLink="/riasec-test">Isi Kuesioner Minat RIASEC</ion-button>
+      <ion-button expand="block" color="secondary" class="ion-margin-top" routerLink="/ai-result">Lihat Laporan Deteksi Bakat AI</ion-button>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

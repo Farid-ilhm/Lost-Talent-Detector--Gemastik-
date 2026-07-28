@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Tes Minat RIASEC</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div *ngIf="!test">
+    <ion-text>Memuat instrumen kuesioner...</ion-text>
+  </div>
+
+  <div *ngIf="test">
+    <h2>{{ test.title }}</h2>
+    <p>{{ test.description }}</p>
+    <p><em>Pilih angka 1 (Sangat Tidak Suka) sampai 5 (Sangat Suka) untuk setiap pernyataan di bawah:</em></p>
+
+    <form (ngSubmit)="onSubmitTest()">
+      <div *ngFor="let q of test.questions" class="ion-margin-bottom" style="border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+        <p><strong>{{ q.question_text }}</strong></p>
+        <p><small>Kategori: {{ q.category }}</small></p>
+        
+        <ion-radio-group [(ngModel)]="answers[q.id]" [name]="'q_' + q.id" required>
+          <ion-item lines="none" style="--padding-start:0;">
+            <ion-label>1</ion-label>
+            <ion-radio value="1" slot="start"></ion-radio>
+            
+            <ion-label>2</ion-label>
+            <ion-radio value="2" slot="start"></ion-radio>
+            
+            <ion-label>3</ion-label>
+            <ion-radio value="3" slot="start"></ion-radio>
+            
+            <ion-label>4</ion-label>
+            <ion-radio value="4" slot="start"></ion-radio>
+            
+            <ion-label>5</ion-label>
+            <ion-radio value="5" slot="start"></ion-radio>
+          </ion-item>
+        </ion-radio-group>
+      </div>
+
+      <ion-button expand="block" type="submit" [disabled]="!isFormValid()">Kirim Jawaban Tes</ion-button>
+    </form>
+  </div>
+</ion-content>

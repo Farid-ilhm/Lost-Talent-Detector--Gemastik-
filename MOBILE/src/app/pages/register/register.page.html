@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Register - Lost Talent Detector</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h2>Pendaftaran Akun Baru</h2>
+  
+  <form (ngSubmit)="onRegister()">
+    <ion-item>
+      <ion-label position="stacked">Nama Lengkap</ion-label>
+      <ion-input type="text" name="name" [(ngModel)]="userData.name" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Email</ion-label>
+      <ion-input type="email" name="email" [(ngModel)]="userData.email" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">No. Telepon / WhatsApp</ion-label>
+      <ion-input type="text" name="phone" [(ngModel)]="userData.phone"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Role Pengguna</ion-label>
+      <ion-select name="role" [(ngModel)]="userData.role" required>
+        <ion-select-option value="siswa">Siswa / Mahasiswa</ion-select-option>
+        <ion-select-option value="umum">Pengguna Umum / Mandiri</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Password (Min. 8 karakter)</ion-label>
+      <ion-input type="password" name="password" [(ngModel)]="userData.password" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Konfirmasi Password</ion-label>
+      <ion-input type="password" name="password_confirmation" [(ngModel)]="userData.password_confirmation" required></ion-input>
+    </ion-item>
+
+    <div class="ion-margin-top">
+      <ion-button expand="block" type="submit">Daftar Akun</ion-button>
+    </div>
+  </form>
+
+  <div class="ion-margin-top ion-text-center">
+    <p>Sudah punya akun? <a routerLink="/login">Masuk disini</a></p>
+  </div>
+</ion-content>
