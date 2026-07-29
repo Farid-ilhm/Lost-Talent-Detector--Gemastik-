@@ -30,7 +30,7 @@ class DashboardController extends Controller
 
         if ($user->role === 'siswa' || $user->role === 'umum') {
             $student = Student::where('user_id', $user->id)
-                ->with(['classroom', 'institution'])
+                ->with(['classroom', 'institution.user'])
                 ->first();
 
             $grades = AcademicGrade::where('student_id', $student->id)->get();
@@ -319,6 +319,52 @@ class DashboardController extends Controller
         );
 
         return redirect('/dashboard')->with('success', 'Catatan perkembangan berhasil disimpan.');
+    }
+
+    /**
+     * Teacher saves both student grades and notes in a single request.
+     */
+    public function teacherSaveStudentData(Request $request)
+    {
+        $request->validate([
+            'student_id' => 'required',
+            'semester' => 'nullable|integer',
+            'subject_name' => 'nullable|string',
+            'score' => 'nullable|numeric|min:0|max:100',
+            'notes' => 'nullable|string',
+        ]);
+
+        $teacher = Teacher::where('user_id', Auth::id())->first();
+
+        // 1. Save Grade if filled
+        if ($request->filled('subject_name') && $request->filled('score') && $request->filled('semester')) {
+            AcademicGrade::updateOrCreate(
+                [
+                    'student_id' => $request->student_id,
+                    'semester' => $request->semester,
+                    'subject_name' => $request->subject_name,
+                ],
+                [
+                    'score' => $request->score,
+                    'created_by' => Auth::id(),
+                ]
+            );
+        }
+
+        // 2. Save Note if filled
+        if ($request->filled('notes')) {
+            TeacherNote::updateOrCreate(
+                [
+                    'student_id' => $request->student_id,
+                    'teacher_id' => $teacher->id,
+                ],
+                [
+                    'notes' => $request->notes,
+                ]
+            );
+        }
+
+        return redirect('/dashboard')->with('success', 'Data nilai dan catatan murid berhasil disimpan.');
     }
 
     /**

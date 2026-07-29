@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('institution_id')->nullable()->constrained('institutions')->onDelete('cascade');
             $table->foreignId('classroom_id')->nullable()->constrained('classrooms')->onDelete('set null');
             $table->string('nisn')->unique()->nullable();
+            $table->string('nim')->unique()->nullable();
+            $table->integer('semester')->nullable();
             $table->date('birth_date')->nullable();
             $table->enum('gender', ['L', 'P'])->nullable();
             $table->json('hobbies')->nullable();

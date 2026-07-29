@@ -61,8 +61,7 @@
                 <th>Nama Siswa</th>
                 <th>NISN</th>
                 <th>Kelas</th>
-                <th>Input Nilai</th>
-                <th>Input Catatan BK / Perkembangan</th>
+                <th>Kelola Nilai & Catatan Perkembangan</th>
             </tr>
         </thead>
         <tbody>
@@ -72,13 +71,16 @@
                     <td>{{ $st->nisn ?? '-' }}</td>
                     <td>{{ $st->classroom->name ?? '-' }}</td>
                     <td>
-                        <!-- Form Input Nilai -->
-                        <form action="/teacher/grades" method="POST" style="margin: 0;">
+                        <!-- Form Input Nilai & Catatan -->
+                        <form action="/teacher/student-data" method="POST" style="margin: 0;">
                             @csrf
                             <input type="hidden" name="student_id" value="{{ $st->id }}">
                             
+                            <!-- Input Nilai (Optional) -->
+                            <strong>Input Nilai:</strong>
                             <label>Sem:</label>
-                            <select name="semester" required>
+                            <select name="semester">
+                                <option value="">--</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                                 <option value="3">3</option>
@@ -88,7 +90,7 @@
                             </select>
                             
                             <label>Mapel:</label>
-                            <input type="text" name="subject_name" required placeholder="Nama Mapel / Matkul" list="subjects-{{ $st->id }}" style="width: 150px;">
+                            <input type="text" name="subject_name" placeholder="Nama Mapel / Matkul" list="subjects-{{ $st->id }}" style="width: 140px;">
                             <datalist id="subjects-{{ $st->id }}">
                                 <option value="Matematika">
                                 <option value="Informatika">
@@ -97,19 +99,15 @@
                             </datalist>
                             
                             <label>Nilai:</label>
-                            <input type="number" name="score" step="0.01" min="0" max="100" style="width: 50px;" required>
+                            <input type="number" name="score" step="0.01" min="0" max="100" style="width: 50px;">
                             
-                            <button type="submit">Simpan</button>
-                        </form>
-                    </td>
-                    <td>
-                        <!-- Form Input Catatan -->
-                        <form action="/teacher/notes" method="POST" style="margin: 0;">
-                            @csrf
-                            <input type="hidden" name="student_id" value="{{ $st->id }}">
+                            <span style="margin: 0 10px;">|</span>
                             
-                            <input type="text" name="notes" placeholder="Catatan kepribadian/minat..." required>
-                            <button type="submit">Simpan</button>
+                            <!-- Input Catatan (Optional) -->
+                            <strong>Catatan:</strong>
+                            <input type="text" name="notes" placeholder="Catatan kepribadian/minat..." style="width: 200px;">
+                            
+                            <button type="submit" style="margin-left: 10px;">Simpan Semua</button>
                         </form>
                     </td>
                 </tr>

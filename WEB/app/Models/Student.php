@@ -14,6 +14,8 @@ class Student extends Model
         'institution_id',
         'classroom_id',
         'nisn',
+        'nim',
+        'semester',
         'birth_date',
         'gender',
         'hobbies',

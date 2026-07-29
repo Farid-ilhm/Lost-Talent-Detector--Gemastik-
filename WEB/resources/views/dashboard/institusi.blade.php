@@ -13,7 +13,7 @@
 
 <!-- Profil Institusi -->
 <h3>Profil Institusi</h3>
-<p>Nama Institusi: <strong>{{ $institution->name }}</strong></p>
+<p>Nama Institusi: <strong>{{ $institution->user->name }}</strong></p>
 <p>NPSN / Identitas: {{ $institution->npsn ?? '-' }}</p>
 <p>Alamat: {{ $institution->address ?? '-' }}</p>
 <p>Website: {{ $institution->website ?? '-' }}</p>

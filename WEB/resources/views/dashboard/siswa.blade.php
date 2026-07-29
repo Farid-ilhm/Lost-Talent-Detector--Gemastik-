@@ -9,8 +9,14 @@
 <p>Nama: <strong>{{ $student->user->name }}</strong></p>
 <p>Email: {{ $student->user->email }}</p>
 <p>No. Telp: {{ $student->user->phone ?? '-' }}</p>
-<p>Asal Institusi: {{ $student->institution->name ?? 'Pengguna Umum (Mandiri)' }}</p>
-<p>Kelas: {{ $student->classroom->name ?? '-' }}</p>
+<p>Asal Institusi: {{ $student->institution->user->name ?? 'Pengguna Umum (Mandiri)' }}</p>
+@if($student->user->role === 'siswa')
+    <p>NISN: {{ $student->nisn ?? '-' }}</p>
+    <p>Kelas: {{ $student->classroom->name ?? '-' }}</p>
+@elseif($student->user->role === 'mahasiswa')
+    <p>NIM: {{ $student->nim ?? '-' }}</p>
+    <p>Semester Saat Ini: {{ $student->semester ?? '-' }}</p>
+@endif
 <p>Kepribadian MBTI: {{ $student->personality ?? '-' }}</p>
 <p>Hobi saat ini: {{ $student->hobbies ? implode(', ', $student->hobbies) : '-' }}</p>
 <p>Minat saat ini: {{ $student->interests ? implode(', ', $student->interests) : '-' }}</p>
