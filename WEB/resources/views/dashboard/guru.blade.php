@@ -88,12 +88,13 @@
                             </select>
                             
                             <label>Mapel:</label>
-                            <select name="subject_name" required>
-                                <option value="Matematika">Matematika</option>
-                                <option value="Informatika">Informatika</option>
-                                <option value="Fisika">Fisika</option>
-                                <option value="Bahasa Inggris">Bahasa Inggris</option>
-                            </select>
+                            <input type="text" name="subject_name" required placeholder="Nama Mapel / Matkul" list="subjects-{{ $st->id }}" style="width: 150px;">
+                            <datalist id="subjects-{{ $st->id }}">
+                                <option value="Matematika">
+                                <option value="Informatika">
+                                <option value="Fisika">
+                                <option value="Bahasa Inggris">
+                            </datalist>
                             
                             <label>Nilai:</label>
                             <input type="number" name="score" step="0.01" min="0" max="100" style="width: 50px;" required>

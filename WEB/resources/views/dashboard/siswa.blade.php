@@ -64,6 +64,43 @@
     </table>
 @endif
 
+@if($student->institution_id === null)
+    <br>
+    <form action="/student/grades" method="POST">
+        @csrf
+        <h4>Input Nilai Akademik Mandiri</h4>
+        <div>
+            <label for="semester">Semester:</label>
+            <select id="semester" name="semester" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+            </select>
+        </div>
+        <br>
+        <div>
+            <label for="subject_name">Nama Mapel / Matkul:</label><br>
+            <input type="text" id="subject_name" name="subject_name" required placeholder="Contoh: Matematika, Algoritma, Fisika" list="student-subject-suggestions">
+            <datalist id="student-subject-suggestions">
+                <option value="Matematika">
+                <option value="Informatika">
+                <option value="Fisika">
+                <option value="Bahasa Inggris">
+            </datalist>
+        </div>
+        <br>
+        <div>
+            <label for="score">Nilai (0 - 100):</label><br>
+            <input type="number" id="score" name="score" step="0.01" min="0" max="100" required>
+        </div>
+        <br>
+        <button type="submit">Simpan Nilai Mandiri</button>
+    </form>
+@endif
+
 <hr>
 
 <!-- 3. Prestasi -->

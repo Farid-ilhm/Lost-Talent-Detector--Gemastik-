@@ -135,6 +135,39 @@ class DashboardController extends Controller
     }
 
     /**
+     * Student self-inputs academic grade (for Public / Mandiri users).
+     */
+    public function studentSaveGrade(Request $request)
+    {
+        $user = Auth::user();
+        $student = Student::where('user_id', $user->id)->first();
+
+        if ($student->institution_id !== null) {
+            return redirect('/dashboard')->with('error', 'Murid sekolah hanya dapat diinput nilainya oleh Guru.');
+        }
+
+        $request->validate([
+            'semester' => 'required|integer',
+            'subject_name' => 'required|string',
+            'score' => 'required|numeric|min:0|max:100',
+        ]);
+
+        AcademicGrade::updateOrCreate(
+            [
+                'student_id' => $student->id,
+                'semester' => $request->semester,
+                'subject_name' => $request->subject_name,
+            ],
+            [
+                'score' => $request->score,
+                'created_by' => $user->id,
+            ]
+        );
+
+        return redirect('/dashboard')->with('success', 'Nilai akademik mandiri berhasil disimpan.');
+    }
+
+    /**
      * Submit RIASEC Test answers from the web dashboard.
      */
     public function saveTest(Request $request)

@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/student/achievements', [DashboardController::class, 'saveAchievement']);
     Route::post('/student/test', [DashboardController::class, 'saveTest']);
     Route::post('/student/analyze', [DashboardController::class, 'triggerAi']);
+    Route::post('/student/grades', [DashboardController::class, 'studentSaveGrade']);
 
     // Teacher Actions
     Route::post('/teacher/grades', [DashboardController::class, 'teacherSaveGrade']);

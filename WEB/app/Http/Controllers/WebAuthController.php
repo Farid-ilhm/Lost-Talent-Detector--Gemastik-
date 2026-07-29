@@ -41,17 +41,25 @@ class WebAuthController extends Controller
         if (Auth::check()) {
             return redirect('/dashboard');
         }
-        return view('auth.register');
+        $institutions = \App\Models\Institution::where('is_verified', true)->get();
+        return view('auth.register', compact('institutions'));
     }
 
     public function register(Request $request)
     {
+        // Clean empty string for institution_id to pass nullable rule
+        if ($request->input('institution_id') === '') {
+            $request->merge(['institution_id' => null]);
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'in:siswa,umum'],
+            'role' => ['required', 'in:siswa,umum,institusi'],
             'phone' => ['nullable', 'string'],
+            'npsn' => ['required_if:role,institusi', 'nullable', 'string', 'unique:institutions,npsn'],
+            'institution_id' => ['nullable', 'exists:institutions,id'],
         ]);
 
         $user = User::create([
@@ -60,15 +68,25 @@ class WebAuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'phone' => $request->phone,
-            'status' => 'active', // default active for simple web testing
+            'status' => 'active',
         ]);
 
-        // Create student profile
-        Student::create([
-            'user_id' => $user->id,
-            'institution_id' => null,
-            'classroom_id' => null,
-        ]);
+        if ($request->role === 'institusi') {
+            \App\Models\Institution::create([
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'npsn' => $request->npsn,
+                'type' => 'sekolah',
+                'is_verified' => false, // Set false until approved by Admin
+            ]);
+        } else {
+            // Create student profile for siswa / umum
+            Student::create([
+                'user_id' => $user->id,
+                'institution_id' => $request->role === 'siswa' ? $request->institution_id : null,
+                'classroom_id' => null,
+            ]);
+        }
 
         Auth::login($user);
 
