@@ -16,10 +16,13 @@ export class AuthService {
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((res: any) => {
-        if (res && res.token) {
-          localStorage.setItem('auth_token', res.token);
-          localStorage.setItem('user_role', res.user.role);
-          localStorage.setItem('user_name', res.user.name);
+        const token = res && (res.access_token || res.token);
+        if (token) {
+          localStorage.setItem('auth_token', token);
+          if (res.user) {
+            localStorage.setItem('user_role', res.user.role);
+            localStorage.setItem('user_name', res.user.name);
+          }
         }
       })
     );

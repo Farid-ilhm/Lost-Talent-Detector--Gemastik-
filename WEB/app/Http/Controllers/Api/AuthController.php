@@ -22,7 +22,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:siswa,umum',
+            'role' => 'required|in:siswa,mahasiswa,umum',
             'phone' => 'nullable|string',
         ]);
 
@@ -171,7 +171,7 @@ class AuthController extends Controller
 
         // Eager load institutional profiles if applicable
         $profile = null;
-        if ($user->role === 'siswa' || $user->role === 'umum') {
+        if ($user->role === 'siswa' || $user->role === 'mahasiswa' || $user->role === 'umum') {
             $profile = Student::where('user_id', $user->id)->with(['classroom', 'institution'])->first();
         } elseif ($user->role === 'institusi') {
             $profile = Institution::where('user_id', $user->id)->first();
@@ -205,7 +205,7 @@ class AuthController extends Controller
         $user = $request->user();
         
         $profile = null;
-        if ($user->role === 'siswa' || $user->role === 'umum') {
+        if ($user->role === 'siswa' || $user->role === 'mahasiswa' || $user->role === 'umum') {
             $profile = Student::where('user_id', $user->id)
                 ->with(['classroom', 'institution', 'parent'])
                 ->first();

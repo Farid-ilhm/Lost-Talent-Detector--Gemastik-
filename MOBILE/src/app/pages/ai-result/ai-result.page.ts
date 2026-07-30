@@ -24,7 +24,8 @@ export class AiResultPage implements OnInit {
     this.apiService.getDashboard().subscribe({
       next: (res) => {
         if (res.success) {
-          this.aiAnalysis = res.ai_analysis;
+          const data = res.data || res;
+          this.aiAnalysis = data.ai_analysis;
         }
       },
       error: () => {

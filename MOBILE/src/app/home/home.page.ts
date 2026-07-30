@@ -52,16 +52,19 @@ export class HomePage {
     this.apiService.getDashboard().subscribe({
       next: (res) => {
         if (res.success) {
-          this.student = res.student;
-          this.grades = res.grades || [];
-          this.achievements = res.achievements || [];
-          this.testResult = res.test_result;
-          this.aiAnalysis = res.ai_analysis;
+          const data = res.data || res;
+          this.student = data.student;
+          this.grades = data.grades || [];
+          this.achievements = data.achievements || [];
+          this.testResult = data.test_result;
+          this.aiAnalysis = data.ai_analysis;
 
           // Fill inputs
-          this.profileData.hobbies = this.student.hobbies ? this.student.hobbies.join(', ') : '';
-          this.profileData.interests = this.student.interests ? this.student.interests.join(', ') : '';
-          this.profileData.personality = this.student.personality || '';
+          if (this.student) {
+            this.profileData.hobbies = this.student.hobbies ? this.student.hobbies.join(', ') : '';
+            this.profileData.interests = this.student.interests ? this.student.interests.join(', ') : '';
+            this.profileData.personality = this.student.personality || '';
+          }
         }
       },
       error: async (err) => {

@@ -22,8 +22,9 @@ export class RiasecTestPage implements OnInit {
   ngOnInit() {
     this.apiService.getRiasecTest().subscribe({
       next: (res) => {
-        if (res.success && res.active_test) {
-          this.test = res.active_test;
+        const activeTest = res.test || res.active_test;
+        if (res.success && activeTest) {
+          this.test = activeTest;
           // Initialize answers
           this.test.questions.forEach((q: any) => {
             this.answers[q.id] = '';

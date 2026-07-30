@@ -36,9 +36,13 @@ export class ApiService {
 
   submitRiasecTest(testId: number, answers: { [key: number]: number }): Observable<any> {
     const headers = this.authService.getAuthHeaders();
+    const formattedAnswers = Object.keys(answers).map(qId => ({
+      question_id: parseInt(qId, 10),
+      value: answers[parseInt(qId, 10)]
+    }));
     const body = {
       test_id: testId,
-      answers: answers
+      answers: formattedAnswers
     };
     return this.http.post(`${this.apiUrl}/student/test/submit`, body, { headers });
   }

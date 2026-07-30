@@ -28,10 +28,15 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role === 'siswa' || $user->role === 'umum') {
-            $student = Student::where('user_id', $user->id)
-                ->with(['classroom', 'institution.user'])
-                ->first();
+        if ($user->role === 'siswa' || $user->role === 'mahasiswa' || $user->role === 'umum') {
+            $student = Student::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'institution_id' => null,
+                    'classroom_id' => null,
+                ]
+            );
+            $student->load(['classroom', 'institution.user']);
 
             $grades = AcademicGrade::where('student_id', $student->id)->get();
             $achievements = Achievement::where('student_id', $student->id)->orderBy('created_at', 'desc')->get();
