@@ -126,6 +126,8 @@ class DashboardController extends Controller
             'rank' => 'required|string',
         ]);
 
+        $autoVerify = is_null($student->institution_id);
+
         Achievement::create([
             'student_id' => $student->id,
             'title' => $request->title,
@@ -133,10 +135,14 @@ class DashboardController extends Controller
             'level' => $request->level,
             'rank' => $request->rank,
             'description' => $request->description,
-            'is_verified' => false,
+            'is_verified' => $autoVerify,
         ]);
 
-        return redirect('/dashboard')->with('success', 'Sertifikat prestasi berhasil diajukan untuk verifikasi.');
+        $msg = $autoVerify 
+            ? 'Sertifikat prestasi berhasil disimpan.' 
+            : 'Sertifikat prestasi berhasil diajukan untuk verifikasi Guru.';
+
+        return redirect('/dashboard')->with('success', $msg);
     }
 
     /**

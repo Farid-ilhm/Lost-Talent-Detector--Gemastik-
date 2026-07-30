@@ -130,6 +130,8 @@ class StudentApiController extends Controller
             $certPath = 'certificates/' . uniqid() . '.pdf';
         }
 
+        $autoVerify = is_null($student->institution_id);
+
         $achievement = Achievement::create([
             'student_id' => $student->id,
             'title' => $request->title,
@@ -138,7 +140,7 @@ class StudentApiController extends Controller
             'rank' => $request->rank,
             'certificate_path' => $certPath,
             'description' => $request->description,
-            'is_verified' => false, // Requires teacher or admin verification
+            'is_verified' => $autoVerify,
         ]);
 
         return response()->json([
