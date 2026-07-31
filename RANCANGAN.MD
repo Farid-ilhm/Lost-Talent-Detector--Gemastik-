@@ -121,7 +121,7 @@ Melakukan analisis bakat secara mandiri.
 
 # 6. Teknologi
 
-Frontend
+Frontend:
 
 HTML
 
@@ -131,15 +131,15 @@ JavaScript
 
 Bootstrap
 
-Backend
+Backend:
 
 Laravel
 
-Database
+Database:
 
 MySQL
 
-Artificial Intelligence
+Artificial Intelligence:
 
 Python
 
@@ -487,19 +487,13 @@ Laporan
 
 # 11. Output AI
 
-Contoh
+Contoh:                      
 
-Nama
+Nama: Andi
 
-Andi
+AI Recommendation: Robotik 96%
 
-AI Recommendation
-
-Robotik
-
-96%
-
-Alasan
+Alasan:
 
 - Nilai Matematika tinggi
 
@@ -511,19 +505,13 @@ Alasan
 
 - Memiliki hobi Coding
 
-Bakat Lain
+Bakat Lain: 
 
-Programming
+Programming 90%
 
-90%
+Engineering 87%
 
-Engineering
-
-87%
-
-Research
-
-74%
+Research 74%
 
 ---
 
