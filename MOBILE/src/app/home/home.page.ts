@@ -17,12 +17,20 @@ export class HomePage {
   testResult: any = null;
   aiAnalysis: any = null;
 
+  // Active tab state for mobile navigation
+  selectedTab: string = 'home';
+
   // Form binds
   profileData = {
     hobbies: '',
     interests: '',
     personality: ''
   };
+
+  selectTab(tabName: string) {
+    this.selectedTab = tabName;
+  }
+
 
   newAchievement = {
     title: '',

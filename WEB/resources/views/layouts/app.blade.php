@@ -9,13 +9,10 @@
         <h1>Lost Talent Detector</h1>
         @auth
             <p>Selamat datang, <strong>{{ Auth::user()->name }}</strong> (Role: {{ Auth::user()->role }})</p>
-            <nav>
-                <a href="/dashboard">Dashboard</a> | 
-                <form action="/logout" method="POST" style="display:inline;">
-                    @csrf
-                    <button type="submit">Logout</button>
-                </form>
-            </nav>
+            <form action="/logout" method="POST" style="display:inline;">
+                @csrf
+                <button type="submit">Logout</button>
+            </form>
         @else
             <nav>
                 <a href="/">Home</a> | 
@@ -29,19 +26,19 @@
     <main>
         <!-- Alerts -->
         @if(session('success'))
-            <div style="background-color: #d4edda; color: #155724; padding: 10px; border: 1px solid #c3e6cb;">
+            <div style="background-color: #d4edda; color: #155724; padding: 10px; border: 1px solid #c3e6cb; margin-bottom: 10px;">
                 {{ session('success') }}
             </div>
         @endif
 
         @if(session('error'))
-            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb;">
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; margin-bottom: 10px;">
                 {{ session('error') }}
             </div>
         @endif
 
         @if ($errors->any())
-            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb;">
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; margin-bottom: 10px;">
                 <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -59,3 +56,5 @@
     </footer>
 </body>
 </html>
+
+
