@@ -54,6 +54,9 @@ class WebAuthController extends Controller
         if ($request->input('classroom') === '') {
             $request->merge(['classroom' => null]);
         }
+        if ($request->input('major') === '') {
+            $request->merge(['major' => null]);
+        }
         if ($request->input('semester') === '') {
             $request->merge(['semester' => null]);
         }
@@ -68,6 +71,7 @@ class WebAuthController extends Controller
             'institution_id' => ['nullable', 'exists:institutions,id'],
             'nisn' => ['required_if:role,siswa', 'nullable', 'string', 'unique:students,nisn'],
             'classroom' => ['required_if:role,siswa', 'nullable', 'string', 'max:50'],
+            'major' => ['required_if:role,siswa', 'required_if:role,mahasiswa', 'nullable', 'string', 'max:50'],
             'nim' => ['required_if:role,mahasiswa', 'nullable', 'string', 'unique:students,nim'],
             'semester' => ['required_if:role,mahasiswa', 'nullable', 'integer', 'min:1', 'max:14'],
         ]);
@@ -90,8 +94,8 @@ class WebAuthController extends Controller
             ]);
         } else {
             $classroomId = null;
-            if ($request->role === 'siswa' && $request->filled('classroom') && $request->filled('institution_id')) {
-                // Find or create default academic year for this school
+            if (($request->role === 'siswa' || $request->role === 'mahasiswa') && $request->filled('institution_id')) {
+                // Find or create default academic year for this school/university
                 $academicYear = \App\Models\AcademicYear::firstOrCreate(
                     [
                         'institution_id' => $request->institution_id,
@@ -102,13 +106,29 @@ class WebAuthController extends Controller
                     ]
                 );
 
+                // Find or create Major if filled
+                $majorId = null;
+                if ($request->filled('major')) {
+                    $major = \App\Models\Major::firstOrCreate([
+                        'name' => $request->major,
+                        'institution_id' => $request->institution_id,
+                    ]);
+                    $majorId = $major->id;
+                }
+
+                // For mahasiswa, classroom name defaults to "Semester [Number]"
+                $classroomName = $request->role === 'mahasiswa' ? ("Semester " . $request->semester) : $request->classroom;
+
                 // Find or create classroom
-                $classroom = \App\Models\Classroom::firstOrCreate([
-                    'name' => $request->classroom,
-                    'institution_id' => $request->institution_id,
-                    'academic_year_id' => $academicYear->id,
-                ]);
-                $classroomId = $classroom->id;
+                if ($classroomName) {
+                    $classroom = \App\Models\Classroom::firstOrCreate([
+                        'name' => $classroomName,
+                        'institution_id' => $request->institution_id,
+                        'academic_year_id' => $academicYear->id,
+                        'major_id' => $majorId,
+                    ]);
+                    $classroomId = $classroom->id;
+                }
             }
 
             // Create student profile

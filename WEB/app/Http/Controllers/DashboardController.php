@@ -26,6 +26,11 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        // Automatically clean up expired competitions
+        \App\Models\Competition::whereNotNull('registration_deadline')
+            ->where('registration_deadline', '<', \Carbon\Carbon::now()->toDateString())
+            ->delete();
+
         $user = Auth::user();
 
         if ($user->role === 'siswa' || $user->role === 'mahasiswa' || $user->role === 'umum') {
@@ -66,8 +71,9 @@ class DashboardController extends Controller
             $teachersCount = Teacher::where('institution_id', $institution->id)->count();
             $classrooms = Classroom::where('institution_id', $institution->id)->with('students')->get();
             $studentsCount = Student::where('institution_id', $institution->id)->count();
+            $teachers = Teacher::where('institution_id', $institution->id)->with('user')->get();
 
-            return view('dashboard.institusi', compact('institution', 'teachersCount', 'classrooms', 'studentsCount'));
+            return view('dashboard.institusi', compact('institution', 'teachersCount', 'classrooms', 'studentsCount', 'teachers'));
         }
 
         if ($user->role === 'admin') {
@@ -105,7 +111,6 @@ class DashboardController extends Controller
 
         $student->hobbies = $hobbies;
         $student->interests = $interests;
-        $student->personality = $request->input('personality');
         $student->save();
 
         return redirect('/dashboard')->with('success', 'Minat dan hobi berhasil diperbarui.');
@@ -422,6 +427,64 @@ class DashboardController extends Controller
     }
 
     /**
+     * Admin rejects and deletes an institution registration.
+     */
+    /**
+     * Show edit page for an institution.
+     */
+    public function adminEditInstitution($id)
+    {
+        $institution = Institution::with('user')->findOrFail($id);
+        return view('dashboard.admin_edit_institution', compact('institution'));
+    }
+
+    /**
+     * Update an institution's data.
+     */
+    public function adminUpdateInstitution(Request $request, $id)
+    {
+        $inst = Institution::findOrFail($id);
+        $user = $inst->user;
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string',
+            'npsn' => 'required|string|unique:institutions,npsn,' . $inst->id,
+            'type' => 'required|in:sekolah,universitas',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
+
+        $inst->update([
+            'npsn' => $request->npsn,
+            'type' => $request->type,
+        ]);
+
+        return redirect('/dashboard')->with('success', 'Data institusi berhasil diperbarui.');
+    }
+
+    /**
+     * Admin deletes an institution (unified delete for verified/unverified).
+     */
+    public function adminDeleteInstitution($id)
+    {
+        $inst = Institution::findOrFail($id);
+        $user = $inst->user;
+        
+        $inst->delete();
+        if ($user) {
+            $user->delete();
+        }
+
+        return redirect('/dashboard')->with('success', 'Institusi berhasil dihapus.');
+    }
+
+    /**
      * Admin saves a new competition master entry.
      */
     public function adminSaveCompetition(Request $request)
@@ -444,5 +507,261 @@ class DashboardController extends Controller
         ]);
 
         return redirect('/dashboard')->with('success', 'Kompetisi berhasil ditambahkan ke database master.');
+    }
+
+    /**
+     * Show edit page for a competition.
+     */
+    public function adminEditCompetition($id)
+    {
+        $competition = \App\Models\Competition::findOrFail($id);
+        return view('dashboard.admin_edit_competition', compact('competition'));
+    }
+
+    /**
+     * Update a competition's data.
+     */
+    public function adminUpdateCompetition(Request $request, $id)
+    {
+        $competition = \App\Models\Competition::findOrFail($id);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required',
+            'organizer' => 'nullable|string',
+            'registration_deadline' => 'nullable|date',
+            'link' => 'nullable|url',
+        ]);
+
+        $competition->update([
+            'title' => $request->title,
+            'category' => $request->category,
+            'organizer' => $request->organizer,
+            'registration_deadline' => $request->registration_deadline,
+            'link' => $request->link,
+            'description' => $request->description,
+        ]);
+
+        return redirect('/dashboard')->with('success', 'Kompetisi berhasil diperbarui.');
+    }
+
+    /**
+     * Delete a competition.
+     */
+    public function adminDeleteCompetition($id)
+    {
+        $competition = \App\Models\Competition::findOrFail($id);
+        $competition->delete();
+
+        return redirect('/dashboard')->with('success', 'Kompetisi berhasil dihapus.');
+    }
+
+    /**
+     * Show edit page for a teacher.
+     */
+    public function institutionEditTeacher($id)
+    {
+        $teacher = Teacher::with('user')->findOrFail($id);
+        
+        $inst = Institution::where('user_id', Auth::id())->first();
+        if ($teacher->institution_id !== $inst->id) {
+            abort(403);
+        }
+
+        return view('dashboard.institusi_edit_teacher', compact('teacher'));
+    }
+
+    /**
+     * Update a teacher's data.
+     */
+    public function institutionUpdateTeacher(Request $request, $id)
+    {
+        $teacher = Teacher::findOrFail($id);
+        $user = $teacher->user;
+
+        $inst = Institution::where('user_id', Auth::id())->first();
+        if ($teacher->institution_id !== $inst->id) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'nip' => 'nullable|string',
+            'subject' => 'nullable|string',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $userUpdate = [
+            'name' => $request->name,
+            'email' => $request->email,
+        ];
+
+        if ($request->filled('password')) {
+            $userUpdate['password'] = Hash::make($request->password);
+        }
+
+        $user->update($userUpdate);
+
+        $teacher->update([
+            'nip' => $request->nip,
+            'subject' => $request->subject,
+        ]);
+
+        return redirect('/dashboard')->with('success', 'Data guru berhasil diperbarui.');
+    }
+
+    /**
+     * Delete a teacher from the institution.
+     */
+    public function institutionDeleteTeacher($id)
+    {
+        $teacher = Teacher::findOrFail($id);
+        
+        $inst = Institution::where('user_id', Auth::id())->first();
+        if ($teacher->institution_id !== $inst->id) {
+            abort(403);
+        }
+
+        $user = $teacher->user;
+        $teacher->delete();
+        if ($user) {
+            $user->delete();
+        }
+
+        return redirect('/dashboard')->with('success', 'Guru berhasil dihapus.');
+    }
+
+    /**
+     * Show edit page for a student (Teacher panel).
+     */
+    public function teacherEditStudent($id)
+    {
+        $student = Student::with(['user', 'classroom.major'])->findOrFail($id);
+
+        $teacher = Teacher::where('user_id', Auth::id())->first();
+        if ($student->institution_id !== $teacher->institution_id) {
+            abort(403);
+        }
+
+        return view('dashboard.guru_edit_student', compact('student'));
+    }
+
+    /**
+     * Update a student's profile (Teacher panel).
+     */
+    public function teacherUpdateStudent(Request $request, $id)
+    {
+        $student = Student::findOrFail($id);
+        $user = $student->user;
+
+        $teacher = Teacher::where('user_id', Auth::id())->first();
+        if ($student->institution_id !== $teacher->institution_id) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'nisn' => 'nullable|string|unique:students,nisn,' . $student->id,
+            'nim' => 'nullable|string|unique:students,nim,' . $student->id,
+            'classroom' => 'nullable|string|max:50',
+            'major' => 'nullable|string|max:50',
+            'semester' => 'nullable|integer|min:1|max:14',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $userUpdate = [
+            'name' => $request->name,
+            'email' => $request->email,
+        ];
+        if ($request->filled('password')) {
+            $userUpdate['password'] = Hash::make($request->password);
+        }
+        $user->update($userUpdate);
+
+        $studentUpdate = [
+            'nisn' => $request->nisn,
+            'nim' => $request->nim,
+            'semester' => $request->semester,
+        ];
+
+        if ($request->filled('classroom') || ($student->user->role === 'mahasiswa' && $request->filled('major'))) {
+            $academicYear = \App\Models\AcademicYear::firstOrCreate(
+                [
+                    'institution_id' => $teacher->institution_id,
+                    'name' => '2026/2027',
+                ],
+                [
+                    'is_active' => true,
+                ]
+            );
+
+            $majorId = null;
+            if ($request->filled('major')) {
+                $major = \App\Models\Major::firstOrCreate([
+                    'name' => $request->major,
+                    'institution_id' => $teacher->institution_id,
+                ]);
+                $majorId = $major->id;
+            }
+
+            $classroomName = $student->user->role === 'mahasiswa' ? ("Semester " . $request->semester) : $request->classroom;
+
+            if ($classroomName) {
+                $classroom = \App\Models\Classroom::firstOrCreate([
+                    'name' => $classroomName,
+                    'institution_id' => $teacher->institution_id,
+                    'academic_year_id' => $academicYear->id,
+                    'major_id' => $majorId,
+                ]);
+                $studentUpdate['classroom_id'] = $classroom->id;
+            }
+        }
+
+        $student->update($studentUpdate);
+
+        return redirect('/dashboard')->with('success', 'Data murid berhasil diperbarui.');
+    }
+
+    /**
+     * Delete a student account (Teacher panel).
+     */
+    public function teacherDeleteStudent($id)
+    {
+        $student = Student::findOrFail($id);
+        
+        $teacher = Teacher::where('user_id', Auth::id())->first();
+        if ($student->institution_id !== $teacher->institution_id) {
+            abort(403);
+        }
+
+        $user = $student->user;
+        $student->delete();
+        if ($user) {
+            $user->delete();
+        }
+
+        return redirect('/dashboard')->with('success', 'Akun murid berhasil dihapus.');
+    }
+
+    /**
+     * Delete a classroom from the institution.
+     */
+    public function institutionDeleteClassroom($id)
+    {
+        $classroom = Classroom::findOrFail($id);
+
+        $inst = Institution::where('user_id', Auth::id())->first();
+        if ($classroom->institution_id !== $inst->id) {
+            abort(403);
+        }
+
+        // Dissociate students in this classroom
+        Student::where('classroom_id', $classroom->id)->update(['classroom_id' => null]);
+
+        $classroom->delete();
+
+        return redirect('/dashboard')->with('success', 'Kelas berhasil dihapus.');
     }
 }

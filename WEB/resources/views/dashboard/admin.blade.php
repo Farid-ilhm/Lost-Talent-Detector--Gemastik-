@@ -35,11 +35,11 @@
         <tbody>
             @foreach($institutions as $inst)
                 <tr>
-                    <td>{{ $inst->name }}</td>
+                    <td>{{ $inst->user->name }}</td>
                     <td>{{ $inst->user->email }}</td>
                     <td>{{ $inst->npsn ?? '-' }}</td>
                     <td>{{ $inst->type }}</td>
-                    <td>{{ $inst->phone ?? '-' }}</td>
+                    <td>{{ $inst->user->phone ?? '-' }}</td>
                     <td>
                         @if($inst->is_verified)
                             <span style="color: green;">Aktif (Terverifikasi)</span>
@@ -49,12 +49,24 @@
                     </td>
                     <td>
                         @if(!$inst->is_verified)
-                            <form action="/admin/institutions/{{ $inst->id }}/verify" method="POST" style="margin:0;">
-                                @csrf
-                                <button type="submit">Setujui & Verifikasi</button>
-                            </form>
+                            <div style="display: flex; gap: 5px;">
+                                <form action="/admin/institutions/{{ $inst->id }}/verify" method="POST" style="margin:0;">
+                                    @csrf
+                                    <button type="submit">Setujui & Verifikasi</button>
+                                </form>
+                                <form action="/admin/institutions/{{ $inst->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Yakin ingin menolak pendaftaran institusi ini?');">
+                                    @csrf
+                                    <button type="submit">Tolak</button>
+                                </form>
+                            </div>
                         @else
-                            -
+                            <div style="display: flex; gap: 5px;">
+                                <a href="/admin/institutions/{{ $inst->id }}/edit"><button type="button">Edit</button></a>
+                                <form action="/admin/institutions/{{ $inst->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus institusi ini secara permanen dari database?');">
+                                    @csrf
+                                    <button type="submit">Hapus</button>
+                                </form>
+                            </div>
                         @endif
                     </td>
                 </tr>
@@ -75,6 +87,7 @@
             <th>Penyelenggara</th>
             <th>Batas Pendaftaran</th>
             <th>Deskripsi</th>
+            <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
@@ -85,6 +98,15 @@
                 <td>{{ $comp->organizer ?? '-' }}</td>
                 <td>{{ $comp->registration_deadline ? $comp->registration_deadline->format('d-m-Y') : '-' }}</td>
                 <td>{{ $comp->description ?? '-' }}</td>
+                <td>
+                    <div style="display: flex; gap: 5px;">
+                        <a href="/admin/competitions/{{ $comp->id }}/edit"><button type="button">Edit</button></a>
+                        <form action="/admin/competitions/{{ $comp->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Yakin ingin menghapus kompetisi ini?');">
+                            @csrf
+                            <button type="submit">Hapus</button>
+                        </form>
+                    </div>
+                </td>
             </tr>
         @endforeach
     </tbody>

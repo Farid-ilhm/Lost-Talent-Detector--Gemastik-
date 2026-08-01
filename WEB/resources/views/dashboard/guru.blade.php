@@ -115,4 +115,61 @@
         </tbody>
     </table>
 @endif
+
+    <hr>
+
+    <!-- Daftar Murid Terdaftar -->
+    <h3>3. Daftar Murid (Siswa/Mahasiswa) Terdaftar</h3>
+    @if($students->isEmpty())
+        <p>Belum ada murid yang terdaftar di sekolah ini.</p>
+    @else
+        <table border="1" cellpadding="5">
+            <thead>
+                <tr>
+                    <th>Nama Murid</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>NISN / NIM</th>
+                    <th>Kelas / Semester</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($students as $st)
+                    <tr>
+                        <td>{{ $st->user->name }}</td>
+                        <td>{{ $st->user->email }}</td>
+                        <td>{{ ucfirst($st->user->role) }}</td>
+                        <td>
+                            @if($st->user->role === 'siswa')
+                                {{ $st->nisn ?? '-' }}
+                            @elseif($st->user->role === 'mahasiswa')
+                                {{ $st->nim ?? '-' }}
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td>
+                            @if($st->user->role === 'siswa')
+                                {{ $st->classroom->name ?? '-' }} ({{ $st->classroom->major->name ?? '-' }})
+                            @elseif($st->user->role === 'mahasiswa')
+                                Semester {{ $st->semester ?? '-' }}
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a href="/teacher/students/{{ $st->id }}/edit"><button type="button">Edit</button></a>
+                                <form action="/teacher/students/{{ $st->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun murid ini secara permanen?');">
+                                    @csrf
+                                    <button type="submit">Hapus</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
 @endsection

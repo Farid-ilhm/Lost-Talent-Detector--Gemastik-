@@ -23,18 +23,19 @@
     @if($student->user->role === 'siswa')
         <p>NISN: {{ $student->nisn ?? '-' }}</p>
         <p>Kelas: {{ $student->classroom->name ?? '-' }}</p>
+        <p>Jurusan: {{ $student->classroom->major->name ?? '-' }}</p>
     @elseif($student->user->role === 'mahasiswa')
         <p>NIM: {{ $student->nim ?? '-' }}</p>
         <p>Semester Saat Ini: {{ $student->semester ?? '-' }}</p>
+        <p>Jurusan: {{ $student->classroom->major->name ?? '-' }}</p>
     @endif
-    <p>Kepribadian MBTI: {{ $student->personality ?? '-' }}</p>
     <p>Hobi saat ini: {{ $student->hobbies ? implode(', ', $student->hobbies) : '-' }}</p>
     <p>Minat saat ini: {{ $student->interests ? implode(', ', $student->interests) : '-' }}</p>
 
     <!-- Form update minat & hobi -->
     <form action="/student/interests" method="POST">
         @csrf
-        <h4>Update Minat, Hobi & MBTI</h4>
+        <h4>Update Minat & Hobi</h4>
         <div>
             <label for="hobbies">Hobi (Pisahkan dengan koma):</label><br>
             <input type="text" id="hobbies" name="hobbies" value="{{ $student->hobbies ? implode(', ', $student->hobbies) : '' }}" placeholder="contoh: Coding, Robotik, Basket">
@@ -43,11 +44,6 @@
         <div>
             <label for="interests">Minat / Ketertarikan (Pisahkan dengan koma):</label><br>
             <input type="text" id="interests" name="interests" value="{{ $student->interests ? implode(', ', $student->interests) : '' }}" placeholder="contoh: AI, Data Science">
-        </div>
-        <br>
-        <div>
-            <label for="personality">Kepribadian / MBTI:</label><br>
-            <input type="text" id="personality" name="personality" value="{{ $student->personality }}" placeholder="contoh: INTJ">
         </div>
         <br>
         <button type="submit">Simpan Profil Minat</button>
@@ -325,43 +321,5 @@
     @endif
 </div>
 
-<script>
-    function switchTab(tabName) {
-        // Sembunyikan semua section halaman
-        var sections = document.querySelectorAll('.page-section');
-        sections.forEach(function(sec) {
-            sec.style.display = 'none';
-        });
-
-        // Reset font weight tombol navigasi
-        var buttons = document.querySelectorAll('[id^="btn-"]');
-        buttons.forEach(function(btn) {
-            btn.style.fontWeight = 'normal';
-        });
-
-        // Tampilkan section yang dipilih
-        var activeSec = document.getElementById('page-' + tabName);
-        if (activeSec) {
-            activeSec.style.display = 'block';
-        }
-
-        // Tebalkan font tombol aktif
-        var activeBtn = document.getElementById('btn-' + tabName);
-        if (activeBtn) {
-            activeBtn.style.fontWeight = 'bold';
-        }
-
-        window.location.hash = tabName;
-    }
-
-    // Auto load halaman dari URL hash saat refresh
-    document.addEventListener('DOMContentLoaded', function() {
-        var hash = window.location.hash.replace('#', '');
-        if (hash && document.getElementById('page-' + hash)) {
-            switchTab(hash);
-        } else {
-            switchTab('profil');
-        }
-    });
-</script>
+<script src="{{ asset('js/siswa_dashboard.js') }}"></script>
 @endsection

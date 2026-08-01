@@ -43,6 +43,7 @@
                     <th>Jurusan</th>
                     <th>Tahun Akademik</th>
                     <th>Jumlah Siswa</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -52,6 +53,51 @@
                         <td>{{ $room->major->name ?? '-' }}</td>
                         <td>{{ $room->academicYear->name ?? '-' }}</td>
                         <td>{{ $room->students->count() }} Murid</td>
+                        <td>
+                            <form action="/institution/classrooms/{{ $room->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelas ini? Murid di kelas ini akan dipindahkan ke status belum memiliki kelas.');">
+                                @csrf
+                                <button type="submit">Hapus</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
+
+    <hr>
+
+    <!-- Daftar Guru Pendamping -->
+    <h3>3. Daftar Guru Pendamping Terdaftar</h3>
+    @if($teachers->isEmpty())
+        <p>Belum ada guru pendamping yang didaftarkan.</p>
+    @else
+        <table border="1" cellpadding="5">
+            <thead>
+                <tr>
+                    <th>Nama Guru</th>
+                    <th>Email</th>
+                    <th>NIP</th>
+                    <th>Mata Pelajaran Utama</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($teachers as $t)
+                    <tr>
+                        <td>{{ $t->user->name }}</td>
+                        <td>{{ $t->user->email }}</td>
+                        <td>{{ $t->nip ?? '-' }}</td>
+                        <td>{{ $t->subject ?? '-' }}</td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a href="/institution/teachers/{{ $t->id }}/edit"><button type="button">Edit</button></a>
+                                <form action="/institution/teachers/{{ $t->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus guru ini?');">
+                                    @csrf
+                                    <button type="submit">Hapus</button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -61,7 +107,7 @@
     <hr>
 
     <!-- Daftarkan Guru Baru -->
-    <h3>3. Daftarkan Guru Pendamping Baru</h3>
+    <h3>4. Daftarkan Guru Pendamping Baru</h3>
     <form action="/institution/teachers" method="POST">
         @csrf
         <div>

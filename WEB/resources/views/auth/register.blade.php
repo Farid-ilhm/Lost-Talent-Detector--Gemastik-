@@ -5,7 +5,17 @@
 <form action="/register" method="POST">
     @csrf
     <div>
-        <label for="name">Nama Lengkap:</label><br>
+        <label for="role">Role Pengguna:</label><br>
+        <select id="role" name="role" required>
+            <option value="siswa" {{ old('role') == 'siswa' ? 'selected' : '' }}>Siswa (Sekolah Menengah)</option>
+            <option value="mahasiswa" {{ old('role') == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa (Perguruan Tinggi)</option>
+            <option value="umum" {{ old('role') == 'umum' ? 'selected' : '' }}>Pengguna Umum / Mandiri</option>
+            <option value="institusi" {{ old('role') == 'institusi' ? 'selected' : '' }}>Institusi (Sekolah/Universitas)</option>
+        </select>
+    </div>
+    <br>
+    <div>
+        <label for="name" id="label-name">Nama Lengkap:</label><br>
         <input type="text" id="name" name="name" value="{{ old('name') }}" required>
     </div>
     <br>
@@ -17,16 +27,6 @@
     <div>
         <label for="phone">No. Telepon/WhatsApp:</label><br>
         <input type="text" id="phone" name="phone" value="{{ old('phone') }}">
-    </div>
-    <br>
-    <div>
-        <label for="role">Role Pengguna:</label><br>
-        <select id="role" name="role" required>
-            <option value="siswa" {{ old('role') == 'siswa' ? 'selected' : '' }}>Siswa (Sekolah Menengah)</option>
-            <option value="mahasiswa" {{ old('role') == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa (Perguruan Tinggi)</option>
-            <option value="umum" {{ old('role') == 'umum' ? 'selected' : '' }}>Pengguna Umum / Mandiri</option>
-            <option value="institusi" {{ old('role') == 'institusi' ? 'selected' : '' }}>Institusi (Sekolah/Universitas)</option>
-        </select>
     </div>
     <br>
     
@@ -54,8 +54,14 @@
     </div>
 
     <div id="class-container" style="display: none;">
-        <label for="classroom">Nama Kelas / Jurusan:</label><br>
-        <input type="text" id="classroom" name="classroom" value="{{ old('classroom') }}">
+        <label for="classroom">Nama Kelas (Tingkat/Kelompok):</label><br>
+        <input type="text" id="classroom" name="classroom" value="{{ old('classroom') }}" placeholder="Contoh: XII, XI, X, atau 10-A, 11-B">
+        <br><br>
+    </div>
+
+    <div id="major-container" style="display: none;">
+        <label for="major">Jurusan:</label><br>
+        <input type="text" id="major" name="major" value="{{ old('major') }}">
         <br><br>
     </div>
 
@@ -84,67 +90,7 @@
     <button type="submit">Daftar Akun</button>
 </form>
 
-<script>
-    function toggleFormFields() {
-        var roleSelect = document.getElementById('role');
-        var role = roleSelect.value;
-
-        // Container Elements
-        var npsnContainer = document.getElementById('npsn-container');
-        var schoolContainer = document.getElementById('school-container');
-        var nisnContainer = document.getElementById('nisn-container');
-        var classContainer = document.getElementById('class-container');
-        var nimContainer = document.getElementById('nim-container');
-        var semesterContainer = document.getElementById('semester-container');
-
-        // Input Elements
-        var npsnInput = document.getElementById('npsn');
-        var nisnInput = document.getElementById('nisn');
-        var classroomInput = document.getElementById('classroom');
-        var nimInput = document.getElementById('nim');
-        var semSelect = document.getElementById('semester');
-
-        // Default: Hide all conditional blocks
-        npsnContainer.style.display = 'none';
-        schoolContainer.style.display = 'none';
-        nisnContainer.style.display = 'none';
-        classContainer.style.display = 'none';
-        nimContainer.style.display = 'none';
-        semesterContainer.style.display = 'none';
-
-        // Clear required tags
-        npsnInput.removeAttribute('required');
-        nisnInput.removeAttribute('required');
-        classroomInput.removeAttribute('required');
-        nimInput.removeAttribute('required');
-        semSelect.removeAttribute('required');
-
-        if (role === 'institusi') {
-            npsnContainer.style.display = 'block';
-            npsnInput.setAttribute('required', 'required');
-        } else if (role === 'siswa') {
-            schoolContainer.style.display = 'block';
-            nisnContainer.style.display = 'block';
-            classContainer.style.display = 'block';
-            
-            nisnInput.setAttribute('required', 'required');
-            classroomInput.setAttribute('required', 'required');
-        } else if (role === 'mahasiswa') {
-            schoolContainer.style.display = 'block';
-            nimContainer.style.display = 'block';
-            semesterContainer.style.display = 'block';
-            
-            nimInput.setAttribute('required', 'required');
-            semSelect.setAttribute('required', 'required');
-        }
-    }
-    
-    document.getElementById('role').addEventListener('change', toggleFormFields);
-    
-    window.addEventListener('load', function() {
-        toggleFormFields();
-    });
-</script>
+<script src="{{ asset('js/register.js') }}"></script>
 
 <p>Sudah punya akun? <a href="/login">Masuk disini</a></p>
 @endsection

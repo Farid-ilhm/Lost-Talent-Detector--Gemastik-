@@ -32,11 +32,24 @@ Route::middleware('auth')->group(function () {
     Route::post('/teacher/achievements/{id}/verify', [DashboardController::class, 'teacherVerify']);
     Route::post('/teacher/notes', [DashboardController::class, 'teacherSaveNote']);
     Route::post('/teacher/student-data', [DashboardController::class, 'teacherSaveStudentData']);
+    Route::get('/teacher/students/{id}/edit', [DashboardController::class, 'teacherEditStudent']);
+    Route::post('/teacher/students/{id}/update', [DashboardController::class, 'teacherUpdateStudent']);
+    Route::post('/teacher/students/{id}/delete', [DashboardController::class, 'teacherDeleteStudent']);
 
     // Institution Actions
     Route::post('/institution/teachers', [DashboardController::class, 'institutionSaveTeacher']);
+    Route::get('/institution/teachers/{id}/edit', [DashboardController::class, 'institutionEditTeacher']);
+    Route::post('/institution/teachers/{id}/update', [DashboardController::class, 'institutionUpdateTeacher']);
+    Route::post('/institution/teachers/{id}/delete', [DashboardController::class, 'institutionDeleteTeacher']);
+    Route::post('/institution/classrooms/{id}/delete', [DashboardController::class, 'institutionDeleteClassroom']);
 
     // Admin Actions
     Route::post('/admin/institutions/{id}/verify', [DashboardController::class, 'adminVerifyInstitution']);
+    Route::get('/admin/institutions/{id}/edit', [DashboardController::class, 'adminEditInstitution']);
+    Route::post('/admin/institutions/{id}/update', [DashboardController::class, 'adminUpdateInstitution']);
+    Route::post('/admin/institutions/{id}/delete', [DashboardController::class, 'adminDeleteInstitution']);
     Route::post('/admin/competitions', [DashboardController::class, 'adminSaveCompetition']);
+    Route::get('/admin/competitions/{id}/edit', [DashboardController::class, 'adminEditCompetition']);
+    Route::post('/admin/competitions/{id}/update', [DashboardController::class, 'adminUpdateCompetition']);
+    Route::post('/admin/competitions/{id}/delete', [DashboardController::class, 'adminDeleteCompetition']);
 });
