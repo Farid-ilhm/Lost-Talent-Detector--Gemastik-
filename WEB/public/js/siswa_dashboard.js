@@ -5,10 +5,10 @@ function switchTab(tabName) {
         sec.style.display = 'none';
     });
 
-    // Reset font weight tombol navigasi
-    var buttons = document.querySelectorAll('[id^="btn-"]');
+    // Reset class active pada semua tombol category pill
+    var buttons = document.querySelectorAll('.cat-pill');
     buttons.forEach(function(btn) {
-        btn.style.fontWeight = 'normal';
+        btn.classList.remove('active');
     });
 
     // Tampilkan section yang dipilih
@@ -17,10 +17,10 @@ function switchTab(tabName) {
         activeSec.style.display = 'block';
     }
 
-    // Tebalkan font tombol aktif
+    // Tambahkan class active pada tombol pill yang dipilih
     var activeBtn = document.getElementById('btn-' + tabName);
     if (activeBtn) {
-        activeBtn.style.fontWeight = 'bold';
+        activeBtn.classList.add('active');
     }
 
     window.location.hash = tabName;

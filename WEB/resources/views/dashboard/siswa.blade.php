@@ -1,333 +1,508 @@
 @extends('layouts.app')
 
 @section('content')
-<h2>Dashboard Siswa / Pengguna Mandiri</h2>
+<div class="main-header">
+    <div class="hero-title-section">
+        <h1 class="hero-title">Invest in your talent</h1>
+        <p class="hero-subtitle">Dashboard Siswa & Pengguna Mandiri - Lost Talent Detector</p>
+    </div>
 
-<!-- Navigasi Halaman / Pages -->
-<div style="margin-bottom: 15px; padding: 10px; background-color: #f8f9fa; border: 1px solid #ddd;">
-    <strong>Navigasi Halaman:</strong> 
-    <button type="button" onclick="switchTab('profil')" id="btn-profil" style="font-weight: bold;">1. Data Profil</button> | 
-    <button type="button" onclick="switchTab('akademik')" id="btn-akademik">2. Nilai Akademik</button> | 
-    <button type="button" onclick="switchTab('prestasi')" id="btn-prestasi">3. Prestasi & Sertifikat</button> | 
-    <button type="button" onclick="switchTab('riasec')" id="btn-riasec">4. Tes RIASEC</button> | 
-    <button type="button" onclick="switchTab('ai')" id="btn-ai">5. Hasil Analisis AI</button>
+    <!-- Category Filter Pills (Matching Photo Navigation) -->
+    <div class="category-pills-container">
+        <button type="button" class="cat-pill active" onclick="switchTab('profil')" id="btn-profil">
+            <span class="cat-pill-icon"><i class="fa-solid fa-user" style="font-size: 0.75rem;"></i></span>
+            1. Data Profil
+        </button>
+        <button type="button" class="cat-pill" onclick="switchTab('akademik')" id="btn-akademik">
+            <span class="cat-pill-icon"><i class="fa-solid fa-graduation-cap" style="font-size: 0.75rem;"></i></span>
+            2. Nilai Akademik
+        </button>
+        <button type="button" class="cat-pill" onclick="switchTab('prestasi')" id="btn-prestasi">
+            <span class="cat-pill-icon"><i class="fa-solid fa-award" style="font-size: 0.75rem;"></i></span>
+            3. Prestasi & Sertifikat
+        </button>
+        <button type="button" class="cat-pill" onclick="switchTab('riasec')" id="btn-riasec">
+            <span class="cat-pill-icon"><i class="fa-solid fa-compass" style="font-size: 0.75rem;"></i></span>
+            4. Tes RIASEC
+        </button>
+        <button type="button" class="cat-pill" onclick="switchTab('ai')" id="btn-ai">
+            <span class="cat-pill-icon"><i class="fa-solid fa-wand-magic-sparkles" style="font-size: 0.75rem;"></i></span>
+            5. Hasil Analisis AI
+        </button>
+    </div>
+</div>
+
+<!-- Overview Stats Cards (4 Pastel Cards Grid) -->
+<div class="cards-grid" style="margin-top: 8px; margin-bottom: 8px;">
+    <!-- Card 1: Pink - User Info -->
+    <div class="pastel-card card-pink">
+        <div class="card-header-row">
+            <span class="card-cat-badge"><i class="fa-solid fa-user-graduate"></i> Status Siswa</span>
+            <span class="card-rating-badge"><i class="fa-solid fa-check" style="color: #10B981;"></i> Aktif</span>
+        </div>
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Nama Pengguna</div>
+            <h3 class="card-title" style="margin-bottom: 4px;">{{ $student->user->name }}</h3>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">{{ $student->institution->user->name ?? 'Pengguna Mandiri' }}</div>
+        </div>
+        <div class="card-footer-row" style="margin-top: 12px;">
+            <span class="card-meta-text">{{ $student->user->email }}</span>
+        </div>
+    </div>
+
+    <!-- Card 2: Sand - Academic Grades Count -->
+    <div class="pastel-card card-sand">
+        <div class="card-header-row">
+            <span class="card-cat-badge"><i class="fa-solid fa-book"></i> Nilai Akademik</span>
+            <span class="card-rating-badge"><i class="fa-solid fa-star" style="color: #F59E0B;"></i> {{ $grades->count() }} Mapel</span>
+        </div>
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Rata-rata Nilai</div>
+            <h3 class="card-title" style="margin-bottom: 4px;">
+                {{ $grades->isEmpty() ? 'Belum Ada' : number_format($grades->avg('score'), 1) }}
+            </h3>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Riwayat Rapor Terdaftar</div>
+        </div>
+        <div class="card-footer-row" style="margin-top: 12px;">
+            <span class="card-meta-text">Semester {{ $student->semester ?? 'Aktif' }}</span>
+        </div>
+    </div>
+
+    <!-- Card 3: Lavender - Achievements Count -->
+    <div class="pastel-card card-lavender">
+        <div class="card-header-row">
+            <span class="card-cat-badge"><i class="fa-solid fa-trophy"></i> Prestasi</span>
+            <span class="card-rating-badge"><i class="fa-solid fa-certificate"></i> {{ $achievements->count() }} Total</span>
+        </div>
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Status Sertifikat</div>
+            <h3 class="card-title" style="margin-bottom: 4px;">
+                {{ $achievements->where('is_verified', true)->count() }} Terverifikasi
+            </h3>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Piagam & Penghargaan</div>
+        </div>
+        <div class="card-footer-row" style="margin-top: 12px;">
+            <span class="card-meta-text">{{ $achievements->where('is_verified', false)->count() }} Menunggu</span>
+        </div>
+    </div>
+
+    <!-- Card 4: Mint - AI Talent Prediction -->
+    <div class="pastel-card card-mint">
+        <div class="card-header-row">
+            <span class="card-cat-badge"><i class="fa-solid fa-brain"></i> Prediksi Bakat AI</span>
+            <span class="card-rating-badge" style="background-color: #FEF3C7; color: #92400E;">⚡ AI Ready</span>
+        </div>
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Bakat Dominan</div>
+            <h3 class="card-title" style="margin-bottom: 4px;">
+                {{ $aiAnalysis ? $aiAnalysis->primary_talent : 'Belum Dianalisis' }}
+            </h3>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                {{ $aiAnalysis ? 'Confidence: '.$aiAnalysis->confidence_score.'%' : 'Klik Hasil Analisis AI' }}
+            </div>
+        </div>
+        <div class="card-footer-row" style="margin-top: 12px;">
+            <span class="card-meta-text">Model: {{ $aiAnalysis->model_version ?? 'v1.0-gemini' }}</span>
+        </div>
+    </div>
 </div>
 
 <!-- PAGE 1: PROFIL PENGGUNA -->
-<div id="page-profil" class="page-section">
-    <h3>1. Data Profil</h3>
-    <p>Nama: <strong>{{ $student->user->name }}</strong></p>
-    <p>Email: {{ $student->user->email }}</p>
-    <p>No. Telp: {{ $student->user->phone ?? '-' }}</p>
-    <p>Asal Institusi: {{ $student->institution->user->name ?? 'Pengguna Umum (Mandiri)' }}</p>
-    @if($student->user->role === 'siswa')
-        <p>NISN: {{ $student->nisn ?? '-' }}</p>
-        <p>Kelas: {{ $student->classroom->name ?? '-' }}</p>
-        <p>Jurusan: {{ $student->classroom->major->name ?? '-' }}</p>
-    @elseif($student->user->role === 'mahasiswa')
-        <p>NIM: {{ $student->nim ?? '-' }}</p>
-        <p>Semester Saat Ini: {{ $student->semester ?? '-' }}</p>
-        <p>Jurusan: {{ $student->classroom->major->name ?? '-' }}</p>
-    @endif
-    <p>Hobi saat ini: {{ $student->hobbies ? implode(', ', $student->hobbies) : '-' }}</p>
-    <p>Minat saat ini: {{ $student->interests ? implode(', ', $student->interests) : '-' }}</p>
+<div id="page-profil" class="page-section content-box">
+    <div class="section-title-row" style="margin-top: 0;">
+        <h3 class="section-title"><i class="fa-solid fa-id-card"></i> 1. Data Profil Pengguna</h3>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Nama Lengkap</div>
+            <div style="font-weight: 700; font-size: 1.05rem;">{{ $student->user->name }}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Email</div>
+            <div style="font-weight: 600;">{{ $student->user->email }}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">No. Telepon</div>
+            <div style="font-weight: 600;">{{ $student->user->phone ?? '-' }}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Institusi</div>
+            <div style="font-weight: 600;">{{ $student->institution->user->name ?? 'Pengguna Umum (Mandiri)' }}</div>
+        </div>
+
+        @if($student->user->role === 'siswa')
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">NISN</div>
+                <div style="font-weight: 600;">{{ $student->nisn ?? '-' }}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Kelas</div>
+                <div style="font-weight: 600;">{{ $student->classroom->name ?? '-' }}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Jurusan</div>
+                <div style="font-weight: 600;">{{ $student->classroom->major->name ?? '-' }}</div>
+            </div>
+        @elseif($student->user->role === 'mahasiswa')
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">NIM</div>
+                <div style="font-weight: 600;">{{ $student->nim ?? '-' }}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Semester Saat Ini</div>
+                <div style="font-weight: 600;">Semester {{ $student->semester ?? '-' }}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Jurusan / Program Studi</div>
+                <div style="font-weight: 600;">{{ $student->classroom->major->name ?? '-' }}</div>
+            </div>
+        @endif
+
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Hobi Saat Ini</div>
+            <div style="font-weight: 600;">{{ $student->hobbies ? implode(', ', $student->hobbies) : '-' }}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Minat saat ini</div>
+            <div style="font-weight: 600;">{{ $student->interests ? implode(', ', $student->interests) : '-' }}</div>
+        </div>
+    </div>
 
     <!-- Form update minat & hobi -->
     <form action="/student/interests" method="POST">
         @csrf
-        <h4>Update Minat & Hobi</h4>
-        <div>
-            <label for="hobbies">Hobi (Pisahkan dengan koma):</label><br>
-            <input type="text" id="hobbies" name="hobbies" value="{{ $student->hobbies ? implode(', ', $student->hobbies) : '' }}" placeholder="contoh: Coding, Robotik, Basket">
+        <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;">Update Minat & Hobi</h4>
+        <div style="margin-bottom: 16px;">
+            <label for="hobbies" class="form-label">Hobi (Pisahkan dengan koma):</label>
+            <input type="text" id="hobbies" name="hobbies" class="form-control" value="{{ $student->hobbies ? implode(', ', $student->hobbies) : '' }}" placeholder="contoh: Coding, Robotik, Basket, Desain Grafis">
         </div>
-        <br>
-        <div>
-            <label for="interests">Minat / Ketertarikan (Pisahkan dengan koma):</label><br>
-            <input type="text" id="interests" name="interests" value="{{ $student->interests ? implode(', ', $student->interests) : '' }}" placeholder="contoh: AI, Data Science">
+        <div style="margin-bottom: 20px;">
+            <label for="interests" class="form-label">Minat / Ketertarikan (Pisahkan dengan koma):</label>
+            <input type="text" id="interests" name="interests" class="form-control" value="{{ $student->interests ? implode(', ', $student->interests) : '' }}" placeholder="contoh: Artificial Intelligence, Data Science, UI/UX Design">
         </div>
-        <br>
-        <button type="submit">Simpan Profil Minat</button>
+        <button type="submit" class="btn-primary-dark">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan Profil Minat
+        </button>
     </form>
 </div>
 
 <!-- PAGE 2: NILAI AKADEMIK -->
-<div id="page-akademik" class="page-section" style="display: none;">
-    <h3>2. Riwayat Nilai Akademik (Rapor)</h3>
+<div id="page-akademik" class="page-section content-box" style="display: none;">
+    <div class="section-title-row" style="margin-top: 0;">
+        <h3 class="section-title"><i class="fa-solid fa-graduation-cap"></i> 2. Riwayat Nilai Akademik (Rapor)</h3>
+    </div>
+
     @if($grades->isEmpty())
-        <p>Belum ada nilai akademik yang diinput oleh Guru/Admin.</p>
+        <div class="alert-custom alert-warning">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Belum ada nilai akademik yang diinput.</span>
+        </div>
     @else
-        <table border="1" cellpadding="5">
-            <thead>
-                <tr>
-                    <th>Semester</th>
-                    <th>Mata Pelajaran</th>
-                    <th>Nilai</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($grades as $grade)
-                    <tr>
-                        <td>{{ $grade->semester }}</td>
-                        <td>{{ $grade->subject_name }}</td>
-                        <td>{{ $grade->score }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @endif
-
-    @if($student->institution_id === null)
-        <br>
-        <form action="/student/grades" method="POST">
-            @csrf
-            <h4>Input Nilai Akademik Mandiri</h4>
-            <div>
-                <label for="semester">Semester:</label>
-                <select id="semester" name="semester" required>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                </select>
-            </div>
-            <br>
-            <div>
-                <label for="subject_name">Nama Mapel / Matkul:</label><br>
-                <input type="text" id="subject_name" name="subject_name" required placeholder="Contoh: Matematika, Algoritma, Fisika" list="student-subject-suggestions">
-                <datalist id="student-subject-suggestions">
-                    <option value="Matematika">
-                    <option value="Informatika">
-                    <option value="Fisika">
-                    <option value="Bahasa Inggris">
-                </datalist>
-            </div>
-            <br>
-            <div>
-                <label for="score">Nilai (0 - 100):</label><br>
-                <input type="number" id="score" name="score" step="0.01" min="0" max="100" required>
-            </div>
-            <br>
-            <button type="submit">Simpan Nilai Mandiri</button>
-        </form>
-    @endif
-</div>
-
-<!-- PAGE 3: PRESTASI & SERTIFIKAT -->
-<div id="page-prestasi" class="page-section" style="display: none;">
-    <h3>3. Riwayat Prestasi & Sertifikat</h3>
-    @if($achievements->isEmpty())
-        <p>Belum ada sertifikat prestasi yang diajukan.</p>
-    @else
-        <table border="1" cellpadding="5">
-            <thead>
-                <tr>
-                    <th>Judul Prestasi</th>
-                    <th>Kategori</th>
-                    <th>Tingkat</th>
-                    <th>Peringkat</th>
-                    <th>Status Verifikasi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($achievements as $ach)
-                    <tr>
-                        <td>{{ $ach->title }}</td>
-                        <td>{{ $ach->category }}</td>
-                        <td>{{ $ach->level }}</td>
-                        <td>{{ $ach->rank }}</td>
-                        <td>
-                            @if($ach->is_verified)
-                                <strong style="color: green;">Terverifikasi</strong>
-                            @else
-                                <span style="color: orange;">Menunggu Verifikasi</span>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @endif
-
-    <br>
-    <!-- Form upload prestasi -->
-    <form action="/student/achievements" method="POST">
-        @csrf
-        <h4>Ajukan Sertifikat Prestasi Baru</h4>
-        <div>
-            <label for="title">Nama / Judul Prestasi:</label><br>
-            <input type="text" id="title" name="title" required placeholder="contoh: Juara 1 Lomba Coding">
-        </div>
-        <br>
-        <div>
-            <label for="category">Kategori Prestasi:</label><br>
-            <select id="category" name="category" required>
-                <option value="teknologi">Teknologi / IT</option>
-                <option value="sains">Sains / Matematika</option>
-                <option value="olahraga">Olahraga</option>
-                <option value="seni">Seni & Desain</option>
-                <option value="keagamaan">Keagamaan</option>
-                <option value="akademik">Akademik Lainnya</option>
-                <option value="lainnya">Lainnya</option>
-            </select>
-        </div>
-        <br>
-        <div>
-            <label for="level">Tingkat Kompetisi:</label><br>
-            <select id="level" name="level" required>
-                <option value="sekolah">Sekolah</option>
-                <option value="kecamatan">Kecamatan</option>
-                <option value="kabupaten">Kabupaten/Kota</option>
-                <option value="provinsi">Provinsi</option>
-                <option value="nasional">Nasional</option>
-                <option value="internasional">Internasional</option>
-            </select>
-        </div>
-        <br>
-        <div>
-            <label for="rank">Peringkat / Juara:</label><br>
-            <input type="text" id="rank" name="rank" required placeholder="contoh: Juara 1, Harapan 2, Partisipan">
-        </div>
-        <br>
-        <div>
-            <label for="description">Deskripsi Singkat:</label><br>
-            <textarea id="description" name="description" placeholder="Deskripsikan lomba secara singkat..."></textarea>
-        </div>
-        <br>
-        <button type="submit">Ajukan Prestasi</button>
-    </form>
-</div>
-
-<!-- PAGE 4: TES RIASEC -->
-<div id="page-riasec" class="page-section" style="display: none;">
-    <h3>4. Kuesioner Minat Bakat RIASEC</h3>
-    @if($testResult)
-        <p>Anda sudah menyelesaikan Tes RIASEC.</p>
-        <p>Kategori Dominan: <strong>{{ $testResult->dominant_category }}</strong></p>
-        <p>Skor Hasil Tes:</p>
-        <ul>
-            @foreach($testResult->scores as $category => $score)
-                <li>{{ $category }}: {{ $score }}%</li>
-            @endforeach
-        </ul>
-        <p><em>*Anda dapat mengisi ulang tes di bawah ini untuk memperbarui minat Anda.</em></p>
-    @endif
-
-    @if($activeTest)
-        @if($errors->has('answers'))
-            <p style="color: red; font-weight: bold; background-color: #f8d7da; padding: 10px; border-radius: 4px; border: 1px solid #f5c6cb;">
-                ⚠️ {{ $errors->first('answers') }}
-            </p>
-        @endif
-
-        <p style="background-color: #e2f0d9; color: #385723; padding: 10px; border-radius: 4px; border: 1px solid #c5e0b4;">
-            💡 <strong>Petunjuk Kejujuran:</strong> Tes ini tidak memiliki jawaban benar/salah. Hasil tes mempengaruhi keakuratan rekomendasi bakat dan karir berbasis AI Anda. Mohon isi dengan sungguh-sungguh sesuai minat aktual Anda.
-        </p>
-
-        <form action="/student/test" method="POST">
-            @csrf
-            <input type="hidden" name="test_id" value="{{ $activeTest->id }}">
-            <h4>{{ $activeTest->title }}</h4>
-            <p>{{ $activeTest->description }}</p>
-            <p><em>Pilih skala penilaian dari 1 (Sangat Tidak Suka) sampai 5 (Sangat Suka) untuk setiap pernyataan berikut:</em></p>
-            
-            <table border="1" cellpadding="5">
+        <div class="table-responsive" style="margin-bottom: 24px;">
+            <table class="custom-table">
                 <thead>
                     <tr>
-                        <th>Pernyataan</th>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>3</th>
-                        <th>4</th>
-                        <th>5</th>
+                        <th>Semester</th>
+                        <th>Mata Pelajaran / Mata Kuliah</th>
+                        <th>Nilai (Score)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($activeTest->questions as $q)
+                    @foreach($grades as $grade)
                         <tr>
-                            <td>{{ $q->question_text }}</td>
-                            <td><input type="radio" name="answers[{{ $q->id }}]" value="1" required></td>
-                            <td><input type="radio" name="answers[{{ $q->id }}]" value="2"></td>
-                            <td><input type="radio" name="answers[{{ $q->id }}]" value="3"></td>
-                            <td><input type="radio" name="answers[{{ $q->id }}]" value="4"></td>
-                            <td><input type="radio" name="answers[{{ $q->id }}]" value="5"></td>
+                            <td><span class="card-cat-badge">Semester {{ $grade->semester }}</span></td>
+                            <td><strong>{{ $grade->subject_name }}</strong></td>
+                            <td><strong style="color: #059669; font-size: 1rem;">{{ $grade->score }}</strong></td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-            <br>
-            <button type="submit">Kirim Jawaban Tes</button>
+        </div>
+    @endif
+
+    @if($student->institution_id === null)
+        <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;">Input Nilai Akademik Mandiri</h4>
+            <form action="/student/grades" method="POST">
+                @csrf
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label for="semester" class="form-label">Semester:</label>
+                        <select id="semester" name="semester" class="form-control" required>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="subject_name" class="form-label">Nama Mapel / Matkul:</label>
+                        <input type="text" id="subject_name" name="subject_name" class="form-control" required placeholder="Contoh: Matematika, Algoritma, Fisika" list="student-subject-suggestions">
+                        <datalist id="student-subject-suggestions">
+                            <option value="Matematika">
+                            <option value="Informatika">
+                            <option value="Fisika">
+                            <option value="Bahasa Inggris">
+                        </datalist>
+                    </div>
+                    <div>
+                        <label for="score" class="form-label">Nilai (0 - 100):</label>
+                        <input type="number" id="score" name="score" step="0.01" min="0" max="100" class="form-control" required placeholder="85.50">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary-dark">
+                    <i class="fa-solid fa-plus"></i> Simpan Nilai Mandiri
+                </button>
+            </form>
+        </div>
+    @endif
+</div>
+
+<!-- PAGE 3: PRESTASI & SERTIFIKAT -->
+<div id="page-prestasi" class="page-section content-box" style="display: none;">
+    <div class="section-title-row" style="margin-top: 0;">
+        <h3 class="section-title"><i class="fa-solid fa-award"></i> 3. Riwayat Prestasi & Sertifikat</h3>
+    </div>
+
+    @if($achievements->isEmpty())
+        <div class="alert-custom alert-warning">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Belum ada sertifikat prestasi yang diajukan.</span>
+        </div>
+    @else
+        <div class="table-responsive" style="margin-bottom: 24px;">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Judul Prestasi</th>
+                        <th>Kategori</th>
+                        <th>Tingkat</th>
+                        <th>Peringkat</th>
+                        <th>Status Verifikasi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($achievements as $ach)
+                        <tr>
+                            <td><strong>{{ $ach->title }}</strong></td>
+                            <td><span class="card-cat-badge">{{ ucfirst($ach->category) }}</span></td>
+                            <td>{{ ucfirst($ach->level) }}</td>
+                            <td>{{ $ach->rank }}</td>
+                            <td>
+                                @if($ach->is_verified)
+                                    <span class="card-rating-badge" style="background-color: #D1F5E4; color: #065F46;">
+                                        <i class="fa-solid fa-circle-check"></i> Terverifikasi
+                                    </span>
+                                @else
+                                    <span class="card-rating-badge" style="background-color: #FEF3C7; color: #92400E;">
+                                        <i class="fa-solid fa-clock"></i> Menunggu Verifikasi
+                                    </span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
+
+    <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
+        <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;">Ajukan Sertifikat Prestasi Baru</h4>
+        <form action="/student/achievements" method="POST">
+            @csrf
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label for="title" class="form-label">Nama / Judul Prestasi:</label>
+                    <input type="text" id="title" name="title" class="form-control" required placeholder="contoh: Juara 1 Lomba Coding Gemastik">
+                </div>
+                <div>
+                    <label for="category" class="form-label">Kategori Prestasi:</label>
+                    <select id="category" name="category" class="form-control" required>
+                        <option value="teknologi">Teknologi / IT</option>
+                        <option value="sains">Sains / Matematika</option>
+                        <option value="olahraga">Olahraga</option>
+                        <option value="seni">Seni & Desain</option>
+                        <option value="keagamaan">Keagamaan</option>
+                        <option value="akademik">Akademik Lainnya</option>
+                        <option value="lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="level" class="form-label">Tingkat Kompetisi:</label>
+                    <select id="level" name="level" class="form-control" required>
+                        <option value="sekolah">Sekolah</option>
+                        <option value="kecamatan">Kecamatan</option>
+                        <option value="kabupaten">Kabupaten/Kota</option>
+                        <option value="provinsi">Provinsi</option>
+                        <option value="nasional">Nasional</option>
+                        <option value="internasional">Internasional</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="rank" class="form-label">Peringkat / Juara:</label>
+                    <input type="text" id="rank" name="rank" class="form-control" required placeholder="contoh: Juara 1, Harapan 2">
+                </div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label for="description" class="form-label">Deskripsi Singkat:</label>
+                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Deskripsikan kompetisi secara singkat..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary-dark">
+                <i class="fa-solid fa-paper-plane"></i> Ajukan Prestasi
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- PAGE 4: TES RIASEC -->
+<div id="page-riasec" class="page-section content-box" style="display: none;">
+    <div class="section-title-row" style="margin-top: 0;">
+        <h3 class="section-title"><i class="fa-solid fa-compass"></i> 4. Kuesioner Minat Bakat RIASEC</h3>
+    </div>
+
+    @if($testResult)
+        <div class="pastel-card card-lavender" style="margin-bottom: 24px; min-height: auto;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Hasil Tes RIASEC Terakhir</div>
+                    <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-dark);">Dominan: {{ $testResult->dominant_category }}</h3>
+                </div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    @foreach($testResult->scores as $category => $score)
+                        <span class="card-rating-badge" style="padding: 6px 12px; background-color: #FFFFFF;">
+                            {{ $category }}: <strong>{{ $score }}%</strong>
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($activeTest)
+        <div class="alert-custom alert-success" style="margin-bottom: 20px;">
+            <i class="fa-solid fa-lightbulb"></i>
+            <span><strong>Petunjuk:</strong> Tes ini tidak memiliki jawaban benar/salah. Pilih skala 1 (Sangat Tidak Suka) s/d 5 (Sangat Suka) sesuai minat aktual Anda.</span>
+        </div>
+
+        <form action="/student/test" method="POST">
+            @csrf
+            <input type="hidden" name="test_id" value="{{ $activeTest->id }}">
+            <h4 style="font-size: 1.1rem; font-weight: 800;">{{ $activeTest->title }}</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">{{ $activeTest->description }}</p>
+
+            <div class="table-responsive" style="margin-bottom: 24px;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Pernyataan</th>
+                            <th style="width: 50px; text-align: center;">1</th>
+                            <th style="width: 50px; text-align: center;">2</th>
+                            <th style="width: 50px; text-align: center;">3</th>
+                            <th style="width: 50px; text-align: center;">4</th>
+                            <th style="width: 50px; text-align: center;">5</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($activeTest->questions as $q)
+                            <tr>
+                                <td><strong>{{ $q->question_text }}</strong></td>
+                                <td style="text-align: center;"><input type="radio" name="answers[{{ $q->id }}]" value="1" required></td>
+                                <td style="text-align: center;"><input type="radio" name="answers[{{ $q->id }}]" value="2"></td>
+                                <td style="text-align: center;"><input type="radio" name="answers[{{ $q->id }}]" value="3"></td>
+                                <td style="text-align: center;"><input type="radio" name="answers[{{ $q->id }}]" value="4"></td>
+                                <td style="text-align: center;"><input type="radio" name="answers[{{ $q->id }}]" value="5"></td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn-primary-dark">
+                <i class="fa-solid fa-paper-plane"></i> Kirim Jawaban Tes
+            </button>
         </form>
     @else
-        <p>Tidak ada kuesioner minat bakat aktif saat ini.</p>
+        <p style="color: var(--text-muted);">Tidak ada kuesioner minat bakat aktif saat ini.</p>
     @endif
 </div>
 
 <!-- PAGE 5: HASIL AI -->
-<div id="page-ai" class="page-section" style="display: none;">
-    <h3>5. Hasil Analisis AI Detektor Bakat</h3>
-    <form action="/student/analyze" method="POST">
-        @csrf
-        <button type="submit" style="font-size: 16px; padding: 10px;">Mulai / Perbarui Analisis AI</button>
-    </form>
-    <br>
+<div id="page-ai" class="page-section content-box" style="display: none;">
+    <div class="section-title-row" style="margin-top: 0; align-items: center;">
+        <h3 class="section-title"><i class="fa-solid fa-wand-magic-sparkles"></i> 5. Hasil Analisis AI Detektor Bakat</h3>
+        <form action="/student/analyze" method="POST" style="margin: 0;">
+            @csrf
+            <button type="submit" class="btn-primary-dark">
+                <i class="fa-solid fa-rotate"></i> Mulai / Perbarui Analisis AI
+            </button>
+        </form>
+    </div>
 
     @if($aiAnalysis)
-        <div style="background-color: #f1f8ff; border: 1px solid #c8e1ff; padding: 15px;">
-            <h4>Prediksi Bakat Utama: <span style="color: blue; font-size: 20px;">{{ $aiAnalysis->primary_talent }}</span></h4>
-            <p>Tingkat Kepercayaan AI (Confidence Score): <strong>{{ $aiAnalysis->confidence_score }}%</strong></p>
-            
-            <p>Bakat Pendukung Lainnya:</p>
-            <ul>
-                @foreach($aiAnalysis->supporting_talents as $st)
-                    <li>{{ $st['talent'] }} (Kepercayaan: {{ $st['confidence'] }}%)</li>
-                @endforeach
-            </ul>
+        <div class="pastel-card card-mint" style="margin-top: 16px; min-height: auto;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <span class="card-cat-badge"><i class="fa-solid fa-brain"></i> Prediksi Bakat Utama</span>
+                    <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-dark); margin-top: 6px;">{{ $aiAnalysis->primary_talent }}</h2>
+                </div>
+                <div class="card-rating-badge" style="font-size: 1.1rem; padding: 8px 16px; background-color: #FFFFFF;">
+                    Tingkat Kepercayaan: <strong>{{ $aiAnalysis->confidence_score }}%</strong>
+                </div>
+            </div>
+        </div>
 
-            <p>Penjelasan Hasil Analisis (Explainable AI):</p>
-            <ul>
-                @foreach($aiAnalysis->reasoning as $reason)
-                    <li>{{ $reason }}</li>
-                @endforeach
-            </ul>
-
-            <p>Rekomendasi Karir Masa Depan:</p>
-            <ul>
-                @foreach($aiAnalysis->career_recommendations as $career)
-                    <li>{{ $career }}</li>
-                @endforeach
-            </ul>
-
-            <p>Rekomendasi Perlombaan (GEMASTIK, dll):</p>
-            <ul>
-                @foreach($aiAnalysis->competition_recommendations as $comp)
-                    <li>{{ $comp }}</li>
-                @endforeach
-            </ul>
-
-            <p>Rekomendasi Ekstrakurikuler Relevan:</p>
-            <ul>
-                @if(empty($aiAnalysis->extracurricular_recommendations))
-                    <li>-</li>
-                @else
-                    @foreach($aiAnalysis->extracurricular_recommendations as $extra)
-                        <li>{{ $extra }}</li>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+            <!-- Supporting Talents -->
+            <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-star"></i> Bakat Pendukung</h4>
+                <ul style="padding-left: 20px; color: var(--text-dark); line-height: 1.8;">
+                    @foreach($aiAnalysis->supporting_talents as $st)
+                        <li><strong>{{ $st['talent'] }}</strong> (Confidence: {{ $st['confidence'] }}%)</li>
                     @endforeach
-                @endif
-            </ul>
+                </ul>
+            </div>
 
-            <p>Target Pengembangan Diri Selanjutnya:</p>
-            <ul>
-                @foreach($aiAnalysis->development_targets as $target)
-                    <li>{{ $target }}</li>
-                @endforeach
-            </ul>
+            <!-- Career Recommendations -->
+            <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-briefcase"></i> Rekomendasi Karir</h4>
+                <ul style="padding-left: 20px; color: var(--text-dark); line-height: 1.8;">
+                    @foreach($aiAnalysis->career_recommendations as $career)
+                        <li>{{ $career }}</li>
+                    @endforeach
+                </ul>
+            </div>
 
-            <p><small>Model AI Versi: {{ $aiAnalysis->model_version }} | Dianalisis Pada: {{ $aiAnalysis->analyzed_at }}</small></p>
+            <!-- Competition Recommendations -->
+            <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-trophy"></i> Rekomendasi Lomba (GEMASTIK)</h4>
+                <ul style="padding-left: 20px; color: var(--text-dark); line-height: 1.8;">
+                    @foreach($aiAnalysis->competition_recommendations as $comp)
+                        <li>{{ $comp }}</li>
+                    @endforeach
+                </ul>
+            </div>
+
+            <!-- Explainable AI Reasoning -->
+            <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-info"></i> Penjelasan Analisis (XAI)</h4>
+                <ul style="padding-left: 20px; color: var(--text-dark); line-height: 1.8;">
+                    @foreach($aiAnalysis->reasoning as $reason)
+                        <li>{{ $reason }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+
+        <div style="margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); text-align: right;">
+            Model Version: {{ $aiAnalysis->model_version }} | Dianalisis Pada: {{ $aiAnalysis->analyzed_at }}
         </div>
     @else
-        <p>Belum ada hasil analisis AI. Silakan klik tombol <strong>"Mulai / Perbarui Analisis AI"</strong> di atas.</p>
+        <div class="alert-custom alert-warning" style="margin-top: 16px;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>Belum ada hasil analisis AI. Silakan klik tombol <strong>"Mulai / Perbarui Analisis AI"</strong> di atas.</span>
+        </div>
     @endif
 </div>
 

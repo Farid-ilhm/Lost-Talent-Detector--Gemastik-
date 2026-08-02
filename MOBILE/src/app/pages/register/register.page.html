@@ -1,112 +1,109 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header class="ion-no-border">
+  <ion-toolbar style="padding: 4px 8px;">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login"></ion-back-button>
+      <ion-back-button defaultHref="/login" color="dark"></ion-back-button>
     </ion-buttons>
-    <ion-title>Register - Lost Talent Detector</ion-title>
+    <ion-title style="font-size: 1rem; font-weight: 800;">Pendaftaran Akun</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h2>Pendaftaran Akun Baru</h2>
+  <div style="text-align: center; margin-top: 4px; margin-bottom: 20px;">
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: #1C1917; margin: 0; letter-spacing: -0.02em;">Buat Akun Baru</h1>
+    <div style="font-size: 0.85rem; font-weight: 600; color: #78716C; margin-top: 2px;">Aktifkan Akses Analisis Bakat AI</div>
+  </div>
   
-  <form (ngSubmit)="onRegister()">
-    <ion-item>
-      <ion-label position="stacked">Role Pengguna</ion-label>
-      <ion-select name="role" [(ngModel)]="userData.role" required>
-        <ion-select-option value="siswa">Siswa (Sekolah Menengah)</ion-select-option>
-        <ion-select-option value="mahasiswa">Mahasiswa (Perguruan Tinggi)</ion-select-option>
-        <ion-select-option value="umum">Pengguna Umum / Mandiri</ion-select-option>
-        <ion-select-option value="institusi">Institusi (Sekolah/Universitas)</ion-select-option>
-      </ion-select>
-    </ion-item>
+  <ion-card style="padding: 6px; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.04);">
+    <ion-card-content>
+      <form (ngSubmit)="onRegister()">
+        <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">Role Pengguna</ion-label>
+          <ion-select name="role" [(ngModel)]="userData.role" required>
+            <ion-select-option value="siswa">Siswa (Sekolah)</ion-select-option>
+            <ion-select-option value="mahasiswa">Mahasiswa (Kampus)</ion-select-option>
+            <ion-select-option value="umum">Pengguna Mandiri</ion-select-option>
+            <ion-select-option value="institusi">Institusi</ion-select-option>
+          </ion-select>
+        </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">
-        {{ userData.role === 'institusi' ? 'Nama Institusi' : 'Nama Lengkap' }}
-      </ion-label>
-      <ion-input type="text" name="name" [(ngModel)]="userData.name" required></ion-input>
-    </ion-item>
+        <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">
+            {{ userData.role === 'institusi' ? 'Nama Institusi' : 'Nama Lengkap' }}
+          </ion-label>
+          <ion-input type="text" name="name" [(ngModel)]="userData.name" placeholder="Nama..." required></ion-input>
+        </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Email</ion-label>
-      <ion-input type="email" name="email" [(ngModel)]="userData.email" required></ion-input>
-    </ion-item>
+        <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">Email</ion-label>
+          <ion-input type="email" name="email" [(ngModel)]="userData.email" placeholder="nama@email.com" required></ion-input>
+        </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">No. Telepon / WhatsApp</ion-label>
-      <ion-input type="text" name="phone" [(ngModel)]="userData.phone"></ion-input>
-    </ion-item>
+        <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">No. Telepon / WA</ion-label>
+          <ion-input type="text" name="phone" [(ngModel)]="userData.phone" placeholder="08..."></ion-input>
+        </ion-item>
 
-    <!-- KONDISIONAL ROLE: INSTITUSI -->
-    <ion-item *ngIf="userData.role === 'institusi'">
-      <ion-label position="stacked">NPSN (Nomor Pokok Sekolah Nasional)</ion-label>
-      <ion-input type="text" name="npsn" [(ngModel)]="userData.npsn" required></ion-input>
-    </ion-item>
+        <!-- KONDISIONAL ROLE: INSTITUSI -->
+        <ion-item *ngIf="userData.role === 'institusi'" style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">NPSN Sekolah/Kampus</ion-label>
+          <ion-input type="text" name="npsn" [(ngModel)]="userData.npsn" required></ion-input>
+        </ion-item>
 
-    <!-- KONDISIONAL DROPDOWN INSTITUSI (SISWA / MAHASISWA) -->
-    <ion-item *ngIf="userData.role === 'siswa' || userData.role === 'mahasiswa'">
-      <ion-label position="stacked">Pilih Sekolah / Universitas Anda</ion-label>
-      <ion-select name="institution_id" [(ngModel)]="userData.institution_id">
-        <ion-select-option value="">-- Pengguna Umum (Mandiri) --</ion-select-option>
-        <ion-select-option *ngFor="let inst of institutions" [value]="inst.id">
-          {{ inst.name }} (NPSN: {{ inst.npsn }})
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
+        <!-- KONDISIONAL DROPDOWN INSTITUSI -->
+        <ion-item *ngIf="userData.role === 'siswa' || userData.role === 'mahasiswa'" style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">Sekolah / Kampus Asal</ion-label>
+          <ion-select name="institution_id" [(ngModel)]="userData.institution_id">
+            <ion-select-option value="">-- Mandiri / Umum --</ion-select-option>
+            <ion-select-option *ngFor="let inst of institutions" [value]="inst.id">
+              {{ inst.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
 
-    <!-- KONDISIONAL ROLE: SISWA -->
-    <div *ngIf="userData.role === 'siswa'">
-      <ion-item>
-        <ion-label position="stacked">NISN (Nomor Induk Siswa Nasional)</ion-label>
-        <ion-input type="text" name="nisn" [(ngModel)]="userData.nisn" required></ion-input>
-      </ion-item>
+        <!-- KONDISIONAL SISWA -->
+        <div *ngIf="userData.role === 'siswa'">
+          <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+            <ion-label position="stacked">NISN</ion-label>
+            <ion-input type="text" name="nisn" [(ngModel)]="userData.nisn" required></ion-input>
+          </ion-item>
+          <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+            <ion-label position="stacked">Kelas</ion-label>
+            <ion-input type="text" name="classroom" [(ngModel)]="userData.classroom" placeholder="XII IPA 1" required></ion-input>
+          </ion-item>
+        </div>
 
-      <ion-item>
-        <ion-label position="stacked">Nama Kelas (Tingkat/Kelompok)</ion-label>
-        <ion-input type="text" name="classroom" [(ngModel)]="userData.classroom" placeholder="Contoh: XII, XI, X, atau 10-A, 11-B" required></ion-input>
-      </ion-item>
+        <!-- KONDISIONAL MAHASISWA -->
+        <div *ngIf="userData.role === 'mahasiswa'">
+          <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+            <ion-label position="stacked">NIM</ion-label>
+            <ion-input type="text" name="nim" [(ngModel)]="userData.nim" required></ion-input>
+          </ion-item>
+          <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+            <ion-label position="stacked">Semester</ion-label>
+            <ion-input type="number" name="semester" min="1" max="14" [(ngModel)]="userData.semester" required></ion-input>
+          </ion-item>
+        </div>
 
-      <ion-item>
-        <ion-label position="stacked">Jurusan</ion-label>
-        <ion-input type="text" name="major" [(ngModel)]="userData.major" required></ion-input>
-      </ion-item>
-    </div>
+        <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">Password</ion-label>
+          <ion-input type="password" name="password" [(ngModel)]="userData.password" placeholder="••••••••" required></ion-input>
+        </ion-item>
 
-    <!-- KONDISIONAL ROLE: MAHASISWA -->
-    <div *ngIf="userData.role === 'mahasiswa'">
-      <ion-item>
-        <ion-label position="stacked">NIM (Nomor Induk Mahasiswa)</ion-label>
-        <ion-input type="text" name="nim" [(ngModel)]="userData.nim" required></ion-input>
-      </ion-item>
+        <ion-item style="--border-radius: 14px; margin-bottom: 14px;">
+          <ion-label position="stacked">Konfirmasi Password</ion-label>
+          <ion-input type="password" name="password_confirmation" [(ngModel)]="userData.password_confirmation" placeholder="••••••••" required></ion-input>
+        </ion-item>
 
-      <ion-item>
-        <ion-label position="stacked">Semester Saat Ini</ion-label>
-        <ion-input type="number" name="semester" min="1" max="14" [(ngModel)]="userData.semester" required></ion-input>
-      </ion-item>
+        <ion-button expand="block" color="primary" type="submit" style="font-weight: 800; height: 50px; --border-radius: 16px;">
+          <i class="fa-solid fa-user-plus" style="margin-right: 8px;"></i> Daftar Akun
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
 
-      <ion-item>
-        <ion-label position="stacked">Jurusan</ion-label>
-        <ion-input type="text" name="major" [(ngModel)]="userData.major" required></ion-input>
-      </ion-item>
-    </div>
-
-    <ion-item>
-      <ion-label position="stacked">Password (Min. 8 karakter)</ion-label>
-      <ion-input type="password" name="password" [(ngModel)]="userData.password" required></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Konfirmasi Password</ion-label>
-      <ion-input type="password" name="password_confirmation" [(ngModel)]="userData.password_confirmation" required></ion-input>
-    </ion-item>
-
-    <div class="ion-margin-top">
-      <ion-button expand="block" type="submit">Daftar Akun</ion-button>
-    </div>
-  </form>
-
-  <div class="ion-margin-top ion-text-center">
-    <p>Sudah punya akun? <a routerLink="/login">Masuk disini</a></p>
+  <div style="margin-top: 16px; margin-bottom: 20px; text-align: center;">
+    <p style="color: #78716C; font-size: 0.88rem;">
+      Sudah ada akun? <a routerLink="/login" style="color: #1C1917; font-weight: 800; text-decoration: underline;">Masuk Disini</a>
+    </p>
   </div>
 </ion-content>

@@ -1,52 +1,50 @@
 @extends('layouts.app')
 
 @section('content')
-<h2>Edit Guru: {{ $teacher->user->name }}</h2>
-<hr>
+<div class="content-box" style="max-width: 600px; margin: 24px auto;">
+    <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 1.5rem; font-weight: 800;">Edit Data Guru: {{ $teacher->user->name }}</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Perbarui data profil & mata pelajaran pengajar.</p>
+    </div>
 
-@if ($errors->any())
-    <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; margin-bottom: 15px;">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+    <form action="/institution/teachers/{{ $teacher->id }}/update" method="POST">
+        @csrf
+        <div style="margin-bottom: 16px;">
+            <label for="name" class="form-label">Nama Guru:</label>
+            <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $teacher->user->name) }}" required>
+        </div>
 
-<form action="/institution/teachers/{{ $teacher->id }}/update" method="POST">
-    @csrf
-    <div>
-        <label for="name">Nama Guru:</label><br>
-        <input type="text" id="name" name="name" value="{{ old('name', $teacher->user->name) }}" required style="width: 300px;">
-    </div>
-    <br>
-    <div>
-        <label for="email">Email Login Guru:</label><br>
-        <input type="email" id="email" name="email" value="{{ old('email', $teacher->user->email) }}" required style="width: 300px;">
-    </div>
-    <br>
-    <div>
-        <label for="nip">NIP Guru:</label><br>
-        <input type="text" id="nip" name="nip" value="{{ old('nip', $teacher->nip) }}" style="width: 300px;">
-    </div>
-    <br>
-    <div>
-        <label for="subject">Mata Pelajaran Utama:</label><br>
-        <input type="text" id="subject" name="subject" value="{{ old('subject', $teacher->subject) }}" style="width: 300px;">
-    </div>
-    <br>
-    <div>
-        <label for="password">Password Baru (Kosongkan jika tidak ingin diubah):</label><br>
-        <input type="password" id="password" name="password" style="width: 300px;" placeholder="Minimal 8 karakter">
-    </div>
-    <br>
-    <div>
-        <label for="password_confirmation">Konfirmasi Password Baru:</label><br>
-        <input type="password" id="password_confirmation" name="password_confirmation" style="width: 300px;">
-    </div>
-    <br>
-    <button type="submit">Simpan Perubahan</button>
-    <a href="/dashboard" style="margin-left: 10px;">Batal</a>
-</form>
+        <div style="margin-bottom: 16px;">
+            <label for="email" class="form-label">Email Login Guru:</label>
+            <input type="email" id="email" name="email" class="form-control" value="{{ old('email', $teacher->user->email) }}" required>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="nip" class="form-label">NIP Guru:</label>
+            <input type="text" id="nip" name="nip" class="form-control" value="{{ old('nip', $teacher->nip) }}">
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="subject" class="form-label">Mata Pelajaran Utama:</label>
+            <input type="text" id="subject" name="subject" class="form-control" value="{{ old('subject', $teacher->subject) }}">
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="password" class="form-label">Password Baru (Kosongkan jika tidak diubah):</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Minimal 8 karakter">
+        </div>
+
+        <div style="margin-bottom: 24px;">
+            <label for="password_confirmation" class="form-label">Konfirmasi Password Baru:</label>
+            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control">
+        </div>
+
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <button type="submit" class="btn-primary-dark">
+                <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
+            </button>
+            <a href="/dashboard" class="btn-primary-dark" style="background-color: var(--bg-pill); color: var(--text-dark);">Batal</a>
+        </div>
+    </form>
+</div>
 @endsection

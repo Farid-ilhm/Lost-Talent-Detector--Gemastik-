@@ -1,29 +1,56 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Login - Lost Talent Detector</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar style="padding: 4px 8px;">
+    <div slot="start" style="display: flex; align-items: center; gap: 10px; margin-left: 8px;">
+      <div style="width: 36px; height: 36px; border-radius: 12px; background: #1C1917; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+        <i class="fa-solid fa-brain"></i>
+      </div>
+      <div style="font-weight: 800; font-size: 0.95rem; color: #1C1917;">Lost Talent Detector</div>
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h2>Masuk ke Akun Anda</h2>
-  
-  <form (ngSubmit)="onLogin()">
-    <ion-item>
-      <ion-label position="stacked">Email</ion-label>
-      <ion-input type="email" name="email" [(ngModel)]="credentials.email" required></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Password</ion-label>
-      <ion-input type="password" name="password" [(ngModel)]="credentials.password" required></ion-input>
-    </ion-item>
-
-    <div class="ion-margin-top">
-      <ion-button expand="block" type="submit">Masuk</ion-button>
+  <!-- Hero Branding Badge Card -->
+  <div style="text-align: center; margin-top: 10px; margin-bottom: 24px;">
+    <div style="width: 70px; height: 70px; border-radius: 22px; background: linear-gradient(135deg, #1C1917, #3730A3); color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 10px 25px rgba(28, 25, 23, 0.25); margin-bottom: 14px;">
+      <i class="fa-solid fa-brain"></i>
     </div>
-  </form>
+    <h1 style="font-size: 1.75rem; font-weight: 800; color: #1C1917; margin: 0; letter-spacing: -0.02em;">Selamat Datang</h1>
+    <div style="font-size: 0.85rem; font-weight: 600; color: #78716C; margin-top: 4px;">Masuk ke Akun Mobile Siswa / Mahasiswa</div>
+  </div>
 
-  <div class="ion-margin-top ion-text-center">
-    <p>Belum punya akun? <a routerLink="/register">Daftar Akun Baru</a></p>
+  <!-- Form Card -->
+  <ion-card style="padding: 6px; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.04);">
+    <ion-card-content>
+      <form (ngSubmit)="onLogin()">
+        <div style="margin-bottom: 14px;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #1C1917; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em;">Email</label>
+          <div style="display: flex; align-items: center; background: #F8F6F0; border: 1px solid #E8E5DC; border-radius: 16px; padding: 0 14px;">
+            <i class="fa-solid fa-envelope" style="color: #78716C; font-size: 1rem; margin-right: 10px;"></i>
+            <ion-input type="email" name="email" [(ngModel)]="credentials.email" placeholder="nama@email.com" required style="--padding-top: 14px; --padding-bottom: 14px; font-weight: 600; font-size: 0.95rem;"></ion-input>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #1C1917; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em;">Password</label>
+          <div style="display: flex; align-items: center; background: #F8F6F0; border: 1px solid #E8E5DC; border-radius: 16px; padding: 0 14px;">
+            <i class="fa-solid fa-lock" style="color: #78716C; font-size: 1rem; margin-right: 10px;"></i>
+            <ion-input type="password" name="password" [(ngModel)]="credentials.password" placeholder="••••••••" required style="--padding-top: 14px; --padding-bottom: 14px; font-weight: 600; font-size: 0.95rem;"></ion-input>
+          </div>
+        </div>
+
+        <ion-button expand="block" color="primary" type="submit" style="font-weight: 800; height: 52px; --border-radius: 16px;">
+          <i class="fa-solid fa-right-to-bracket" style="margin-right: 8px;"></i> Masuk Sekarang
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Register Card Link -->
+  <div style="margin-top: 20px; text-align: center;">
+    <div style="background: #FAF0E4; border: 1px solid #F3DBBE; padding: 14px 18px; border-radius: 20px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 700; color: #92400E;">
+      <span>Belum ada akun?</span>
+      <a routerLink="/register" style="color: #1C1917; font-weight: 800; text-decoration: underline;">Daftar Disini</a>
+    </div>
   </div>
 </ion-content>
