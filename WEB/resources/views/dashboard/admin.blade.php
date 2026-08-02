@@ -58,7 +58,7 @@
 <!-- 2. Kelola Verifikasi Institusi -->
 <div class="content-box" style="margin-top: 24px;">
     <div class="section-title-row" style="margin-top: 0;">
-        <h3 class="section-title"><i class="fa-solid fa-school-flag"></i> 2. Kelola Verifikasi Institusi</h3>
+        <h3 class="section-title"><i class="fa-solid fa-school-flag"></i> Kelola Verifikasi Institusi</h3>
     </div>
 
     @if($institutions->isEmpty())
@@ -140,7 +140,7 @@
 <!-- 3. Kelola Master Data Lomba -->
 <div class="content-box" style="margin-top: 24px;">
     <div class="section-title-row" style="margin-top: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
-        <h3 class="section-title" style="margin: 0;"><i class="fa-solid fa-trophy"></i> 3. Kelola Master Kompetisi Nasional (GEMASTIK, dll)</h3>
+        <h3 class="section-title" style="margin: 0;"><i class="fa-solid fa-trophy"></i> Kelola Master Kompetisi Nasional/Internasional</h3>
         <button type="button" id="btn-delete-selected" class="btn-primary-dark" style="background-color: #FBE3E2; color: #991B1B; padding: 8px 16px; font-weight: 700; border-radius: 12px; display: none; align-items: center; gap: 8px; border: none; cursor: pointer; font-size: 0.85rem; transition: all 0.2s ease;">
             <i class="fa-solid fa-trash"></i> Hapus Terpilih
         </button>
@@ -199,7 +199,7 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
                 <div>
                     <label for="title" class="form-label">Judul Kompetisi:</label>
-                    <input type="text" id="title" name="title" class="form-control" required placeholder="contoh: GEMASTIK - Keamanan Siber">
+                    <input type="text" id="title" name="title" class="form-control">
                 </div>
                 <div>
                     <label for="category" class="form-label">Kategori Lomba:</label>
@@ -220,7 +220,7 @@
                 </div>
                 <div>
                     <label for="link" class="form-label">Link Pendaftaran:</label>
-                    <input type="text" id="link" name="link" class="form-control" placeholder="https://gemastik.kemdikbud.go.id">
+                    <input type="text" id="link" name="link" class="form-control">
                 </div>
             </div>
             <div style="margin-bottom: 20px;">

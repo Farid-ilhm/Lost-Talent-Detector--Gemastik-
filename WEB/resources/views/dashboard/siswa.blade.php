@@ -281,7 +281,9 @@
                         <th>Kategori</th>
                         <th>Tingkat</th>
                         <th>Peringkat</th>
+                        <th>Bukti</th>
                         <th>Status Verifikasi</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -291,6 +293,15 @@
                             <td><span class="card-cat-badge">{{ ucfirst($ach->category) }}</span></td>
                             <td>{{ ucfirst($ach->level) }}</td>
                             <td>{{ $ach->rank }}</td>
+                            <td>
+                                @if($ach->certificate_path)
+                                    <a href="{{ asset($ach->certificate_path) }}" target="_blank" style="color: #2563EB; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fa-solid fa-file-image"></i> Lihat
+                                    </a>
+                                @else
+                                    <span style="color: var(--text-muted);">-</span>
+                                @endif
+                            </td>
                             <td>
                                 @if($ach->is_verified)
                                     <span class="card-rating-badge" style="background-color: #D1F5E4; color: #065F46;">
@@ -302,6 +313,15 @@
                                     </span>
                                 @endif
                             </td>
+                            <td>
+                                <form action="/student/achievements/{{ $ach->id }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus sertifikat prestasi ini?')" style="margin: 0; display: inline-block;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-primary-dark" style="background-color: #FBE3E2; color: #991B1B; border: none; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 10px; cursor: pointer; transition: all 0.2s;">
+                                        <i class="fa-solid fa-trash"></i> Hapus
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -311,7 +331,15 @@
 
     <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
         <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;">Ajukan Sertifikat Prestasi Baru</h4>
-        <form action="/student/achievements" method="POST">
+        
+        @if($student->institution_id)
+            <div style="background-color: #FFFBEB; border: 1px solid #FDE68A; color: #B45309; padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-info" style="font-size: 1.1rem; color: #D97706;"></i>
+                <span>Sertifikat prestasi ini memerlukan persetujuan dan verifikasi oleh Guru atau Dosen Anda sebelum dinyatakan sah.</span>
+            </div>
+        @endif
+
+        <form action="/student/achievements" method="POST" enctype="multipart/form-data">
             @csrf
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
                 <div>
@@ -345,6 +373,10 @@
                     <label for="rank" class="form-label">Peringkat / Juara:</label>
                     <input type="text" id="rank" name="rank" class="form-control" required placeholder="contoh: Juara 1, Harapan 2">
                 </div>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label for="certificate" class="form-label">Unggah Bukti Sertifikat (Gambar / PDF):</label>
+                <input type="file" id="certificate" name="certificate" class="form-control" accept="image/*,application/pdf" required style="padding: 8px;">
             </div>
             <div style="margin-bottom: 20px;">
                 <label for="description" class="form-label">Deskripsi Singkat:</label>

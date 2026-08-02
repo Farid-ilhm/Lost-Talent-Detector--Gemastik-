@@ -58,7 +58,7 @@
     <!-- 2. Tabel Kelas -->
     <div class="content-box" style="margin-top: 24px;">
         <div class="section-title-row" style="margin-top: 0;">
-            <h3 class="section-title"><i class="fa-solid fa-door-open"></i> 2. Daftar Kelas Terdaftar</h3>
+            <h3 class="section-title"><i class="fa-solid fa-door-open"></i> Daftar Kelas Terdaftar</h3>
         </div>
 
         @if($classrooms->isEmpty())
@@ -104,7 +104,7 @@
     <!-- 3. Daftar Guru Pendamping -->
     <div class="content-box" style="margin-top: 24px;">
         <div class="section-title-row" style="margin-top: 0;">
-            <h3 class="section-title"><i class="fa-solid fa-users-view-finder"></i> 3. Daftar Guru Pendamping Terdaftar</h3>
+            <h3 class="section-title"><i class="fa-solid fa-users-view-finder"></i> Daftar Guru Pendamping Terdaftar</h3>
         </div>
 
         @if($teachers->isEmpty())
@@ -155,7 +155,7 @@
     <!-- 4. Daftarkan Guru Baru -->
     <div class="content-box" style="margin-top: 24px;">
         <div class="section-title-row" style="margin-top: 0;">
-            <h3 class="section-title"><i class="fa-solid fa-user-plus"></i> 4. Daftarkan Guru Pendamping Baru</h3>
+            <h3 class="section-title"><i class="fa-solid fa-user-plus"></i> Daftarkan Guru Pendamping Baru</h3>
         </div>
 
         <form action="/institution/teachers" method="POST">

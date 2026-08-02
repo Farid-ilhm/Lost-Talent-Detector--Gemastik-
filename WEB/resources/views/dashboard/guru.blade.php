@@ -27,7 +27,7 @@
 <!-- 1. Verifikasi Prestasi Siswa -->
 <div class="content-box" style="margin-top: 24px;">
     <div class="section-title-row" style="margin-top: 0;">
-        <h3 class="section-title"><i class="fa-solid fa-circle-check"></i> 1. Verifikasi Sertifikat Prestasi Siswa</h3>
+        <h3 class="section-title"><i class="fa-solid fa-circle-check"></i> Verifikasi Sertifikat Prestasi Siswa</h3>
     </div>
 
     @if($pendingAchievements->isEmpty())
@@ -45,6 +45,7 @@
                         <th>Kategori</th>
                         <th>Tingkat</th>
                         <th>Peringkat</th>
+                        <th>Bukti</th>
                         <th>Aksi Verifikasi</th>
                     </tr>
                 </thead>
@@ -56,6 +57,15 @@
                             <td><span class="card-cat-badge">{{ ucfirst($ach->category) }}</span></td>
                             <td>{{ ucfirst($ach->level) }}</td>
                             <td>{{ $ach->rank }}</td>
+                            <td>
+                                @if($ach->certificate_path)
+                                    <a href="{{ asset($ach->certificate_path) }}" target="_blank" class="btn-primary-dark" style="background-color: #EEF2F6; color: #1C1917; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 10px; border: 1px solid #E2E8F0; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="fa-solid fa-image"></i> Lihat Bukti
+                                    </a>
+                                @else
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">Tidak ada bukti</span>
+                                @endif
+                            </td>
                             <td>
                                 <form action="/teacher/achievements/{{ $ach->id }}/verify" method="POST" style="margin: 0;">
                                     @csrf
@@ -75,7 +85,7 @@
 <!-- 2. Kelola Nilai & Catatan Murid -->
 <div class="content-box" style="margin-top: 24px;">
     <div class="section-title-row" style="margin-top: 0;">
-        <h3 class="section-title"><i class="fa-solid fa-pen-to-square"></i> 2. Kelola Nilai Rapor & Catatan Murid</h3>
+        <h3 class="section-title"><i class="fa-solid fa-pen-to-square"></i> Kelola Nilai Rapor & Catatan Murid</h3>
     </div>
 
     @if($students->isEmpty())
@@ -143,7 +153,7 @@
 <!-- 3. Daftar Murid Terdaftar -->
 <div class="content-box" style="margin-top: 24px;">
     <div class="section-title-row" style="margin-top: 0;">
-        <h3 class="section-title"><i class="fa-solid fa-users"></i> 3. Daftar Murid Terdaftar</h3>
+        <h3 class="section-title"><i class="fa-solid fa-users"></i> Daftar Murid Terdaftar</h3>
     </div>
 
     @if($students->isEmpty())

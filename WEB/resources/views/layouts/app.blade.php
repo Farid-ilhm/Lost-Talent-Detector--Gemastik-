@@ -27,7 +27,7 @@
             </div>
 
             <div class="sidebar-bottom">
-                <form action="/logout" method="POST" style="margin: 0;">
+                <form action="/logout" method="POST" style="margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin keluar dari sistem?')">
                     @csrf
                     <button type="submit" class="nav-item" title="Logout (Keluar Sistem)" style="color: #DC2626; cursor: pointer; border: none; background: transparent;">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -43,11 +43,7 @@
         <!-- 2. MAIN CONTENT AREA -->
         <main class="main-layout" style="{{ !Auth::check() ? 'max-width: 800px; margin: 0 auto; width: 100%;' : '' }}">
             <!-- Domain URL Header Bar -->
-            <div class="header-top-bar" style="margin-bottom: 16px;">
-                <div class="url-bar-mock">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>lost-talent-detector.gemastik.id</span>
-                </div>
+            <div class="header-top-bar" style="margin-bottom: 16px; display: flex; justify-content: flex-end;">
                 <div>
                     @auth
                         <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
@@ -114,75 +110,9 @@
                 </div>
             </div>
 
-            <!-- Activity Chart Card -->
-            <div class="activity-widget-card">
-                <div class="activity-header">
-                    <div>
-                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Aktivitas Analisis</div>
-                        <div style="font-size: 1.3rem; font-weight: 800; color: var(--text-dark);">Skor Bakat</div>
-                    </div>
-                    <div class="activity-val-tag">
-                        ✨ Terverifikasi AI
-                    </div>
-                </div>
 
-                <div class="activity-chart-bars">
-                    <div class="bar-col">
-                        <div class="bar-segmented" style="height: 55%;">
-                            <div class="bar-seg-pink" style="height: 40%;"></div>
-                            <div class="bar-seg-sand" style="height: 60%;"></div>
-                        </div>
-                        <span class="bar-label">Rapor</span>
-                    </div>
-                    <div class="bar-col">
-                        <div class="bar-segmented" style="height: 70%;">
-                            <div class="bar-seg-lavender" style="height: 50%;"></div>
-                            <div class="bar-seg-mint" style="height: 50%;"></div>
-                        </div>
-                        <span class="bar-label">Prestasi</span>
-                    </div>
-                    <div class="bar-col">
-                        <div class="bar-segmented" style="height: 85%;">
-                            <div class="bar-seg-mint" style="height: 70%;"></div>
-                            <div class="bar-seg-sand" style="height: 30%;"></div>
-                        </div>
-                        <span class="bar-label">RIASEC</span>
-                    </div>
-                    <div class="bar-col active">
-                        <div class="bar-segmented" style="height: 95%;">
-                            <div class="bar-seg-sand" style="height: 30%;"></div>
-                            <div class="bar-seg-mint" style="height: 40%;"></div>
-                            <div class="bar-seg-lavender" style="height: 30%;"></div>
-                        </div>
-                        <span class="bar-label">AI</span>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Mini Courses / Recommendations Widget -->
-            <div class="mini-courses-list">
-                <div class="section-title" style="font-size: 0.95rem;">Focus Area & Lomba</div>
-
-                <div class="mini-course-card card-pink">
-                    <div class="card-header-row" style="margin-bottom: 8px;">
-                        <span class="card-cat-badge"><i class="fa-solid fa-laptop"></i> Teknologi & IT</span>
-                        <span class="card-rating-badge"><i class="fa-solid fa-star" style="color: #F59E0B;"></i> 4.9</span>
-                    </div>
-                    <div style="font-weight: 700; font-size: 0.95rem;">Pengembangan Perangkat Lunak & AI</div>
-                    <div class="card-footer-row" style="margin-top: 8px;">
-                        <span class="card-meta-text">GEMASTIK Divisi IT</span>
-                    </div>
-                </div>
-
-                <div class="mini-course-card card-sand">
-                    <div class="card-header-row" style="margin-bottom: 8px;">
-                        <span class="card-cat-badge"><i class="fa-solid fa-shield-halved"></i> Cyber Security</span>
-                        <span class="card-rating-badge"><i class="fa-solid fa-star" style="color: #F59E0B;"></i> 5.0</span>
-                    </div>
-                    <div style="font-weight: 700; font-size: 0.95rem;">Keamanan Informasi & Data Science</div>
-                </div>
-            </div>
-        </aside>
+         </aside>
         @endauth
     </div>
 </body>

@@ -261,7 +261,9 @@
                   <ion-list *ngIf="grades.length > 0" lines="full" style="background: transparent;">
                     <ion-item *ngFor="let grade of grades" style="--border-radius: 12px; margin-bottom: 8px; --background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                       <ion-label style="margin: 8px 0;">
-                        <h3 style="font-weight: 800; color: #1C1917;">Sem {{ grade.semester }} • {{ grade.subject_name }}</h3>
+                        <h3 style="font-weight: 800; color: #1C1917;">
+                          <span *ngIf="userRole !== 'umum'">Sem {{ grade.semester }} • </span>{{ grade.subject_name }}
+                        </h3>
                       </ion-label>
                       <div slot="end" style="display: flex; align-items: center; gap: 8px;">
                         <div style="font-size: 1.2rem; font-weight: 800; color: #1C1917;">
@@ -286,7 +288,7 @@
           </ion-card-header>
           <ion-card-content style="padding: 0 16px 14px 16px;">
             <form (ngSubmit)="onSubmitIndependentGrade()">
-              <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+              <ion-item *ngIf="userRole !== 'umum'" style="--border-radius: 14px; margin-bottom: 10px;">
                 <ion-label position="stacked">Semester</ion-label>
                 <ion-select name="grade_semester" [(ngModel)]="newGrade.semester" required>
                   <ion-select-option *ngFor="let sem of [1,2,3,4,5,6,7,8,9,10,11,12,13,14]" [value]="sem">
@@ -306,6 +308,19 @@
                 <i class="fa-solid fa-plus" style="margin-right: 8px;"></i> Simpan Nilai Mandiri
               </ion-button>
             </form>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Keterangan Nilai Institusi (Hanya untuk Siswa/Mahasiswa yang terhubung institusi) -->
+        <ion-card *ngIf="student?.institution_id" style="border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background-color: #FEF3C7; border: 1px solid #FDE68A;">
+          <ion-card-content style="padding: 16px; display: flex; align-items: flex-start; gap: 12px;">
+            <ion-icon name="information-circle" style="font-size: 1.6rem; color: #D97706; flex-shrink: 0; margin-top: 2px;"></ion-icon>
+            <div>
+              <h3 style="font-weight: 800; color: #92400E; margin: 0 0 4px 0; font-size: 0.95rem;">Informasi Nilai Akademik</h3>
+              <p style="color: #B45309; font-size: 0.82rem; margin: 0; line-height: 1.45;">
+                Akun Anda terhubung dengan institusi <strong>{{ student?.institution?.name || 'Sekolah/Kampus' }}</strong>. Penginputan dan pengelolaan nilai akademik dikelola langsung oleh <strong>Guru Pembimbing atau Dosen</strong> Anda.
+              </p>
+            </div>
           </ion-card-content>
         </ion-card>
       </div>
@@ -343,11 +358,19 @@
                       <ion-label style="margin: 8px 0;">
                         <h3 style="font-weight: 800; color: #1C1917; margin-bottom: 4px;">{{ ach.title }}</h3>
                         <p style="font-size: 0.78rem; color: #78716C; margin-bottom: 2px;">Kategori: {{ ach.category }} • Tingkat: {{ ach.level }}</p>
-                        <p style="font-size: 0.78rem; color: #78716C;" *ngIf="ach.rank">Peringkat: {{ ach.rank }}</p>
+                        <p style="font-size: 0.78rem; color: #78716C; margin-bottom: 4px;" *ngIf="ach.rank">Peringkat: {{ ach.rank }}</p>
+                        <a *ngIf="ach.certificate_path" [href]="serverUrl + ach.certificate_path" target="_blank" style="font-size: 0.75rem; color: #3b82f6; text-decoration: none; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+                          <ion-icon name="image-outline"></ion-icon> Lihat Bukti
+                        </a>
                       </ion-label>
-                      <span slot="end" class="badge-pill" [style.background]="ach.is_verified ? '#D8F5E8' : '#FAF0E4'" [style.color]="ach.is_verified ? '#065F46' : '#92400E'" style="font-size: 0.7rem;">
-                        {{ ach.is_verified ? '✓ OK' : '⏳ Pending' }}
-                      </span>
+                      <div slot="end" style="display: flex; align-items: center; gap: 8px;">
+                        <span class="badge-pill" [style.background]="ach.is_verified ? '#D8F5E8' : '#FAF0E4'" [style.color]="ach.is_verified ? '#065F46' : '#92400E'" style="font-size: 0.7rem; margin: 0;">
+                          {{ ach.is_verified ? '✓ OK' : '⏳ Pending' }}
+                        </span>
+                        <ion-button (click)="onDeleteAchievement(ach.id)" fill="clear" color="danger" style="--padding-start: 4px; --padding-end: 4px; margin: 0; height: 32px;">
+                          <ion-icon name="trash-outline" style="font-size: 1.3rem; color: #DC2626;"></ion-icon>
+                        </ion-button>
+                      </div>
                     </ion-item>
                   </ion-list>
                 </ion-content>
@@ -357,6 +380,13 @@
             <div style="margin: 16px 0 10px 0; font-weight: 800; font-size: 0.95rem; color: #1C1917;">
               Tambah Sertifikat Baru
             </div>
+            
+            <!-- Info Approval Institusi (Hanya untuk Siswa/Mahasiswa yang terhubung institusi) -->
+            <p *ngIf="student?.institution_id" style="color: #D97706; font-size: 0.8rem; margin: 0 0 14px 0; font-weight: 700; line-height: 1.4; display: flex; align-items: center; gap: 6px;">
+              <ion-icon name="information-circle" style="font-size: 1.2rem; color: #D97706; flex-shrink: 0;"></ion-icon>
+              <span>Sertifikat ini memerlukan persetujuan Guru atau Dosen Anda.</span>
+            </p>
+
             <form (ngSubmit)="onSubmitAchievement()">
               <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
                 <ion-label position="stacked">Judul Prestasi</ion-label>
@@ -388,6 +418,10 @@
               <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
                 <ion-label position="stacked">Peringkat / Juara</ion-label>
                 <ion-input type="text" name="ach_rank" [(ngModel)]="newAchievement.rank" required placeholder="Juara 1"></ion-input>
+              </ion-item>
+              <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+                <ion-label position="stacked">Bukti Sertifikat / Foto (PDF/Gambar)</ion-label>
+                <input type="file" (change)="onFileChange($event)" accept="image/*,application/pdf" style="margin-top: 10px; margin-bottom: 10px; font-size: 0.95rem; width: 100%;" required />
               </ion-item>
               <ion-button expand="block" color="primary" class="ion-margin-top" type="submit" style="font-weight: 800; height: 50px; --border-radius: 16px;">
                 Submit Sertifikat

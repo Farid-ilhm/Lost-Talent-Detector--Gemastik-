@@ -117,9 +117,18 @@ class DashboardController extends Controller
             'category' => 'required',
             'level' => 'required',
             'rank' => 'required|string',
+            'certificate' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
-        $autoVerify = is_null($student->institution_id);
+        $certPath = null;
+        if ($request->hasFile('certificate')) {
+            $file = $request->file('certificate');
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/certificates'), $fileName);
+            $certPath = 'uploads/certificates/' . $fileName;
+        }
+
+        $autoVerify = ($user->role === 'umum') || is_null($student->institution_id);
 
         Achievement::create([
             'student_id' => $student->id,
@@ -127,6 +136,7 @@ class DashboardController extends Controller
             'category' => $request->category,
             'level' => $request->level,
             'rank' => $request->rank,
+            'certificate_path' => $certPath,
             'description' => $request->description,
             'is_verified' => $autoVerify,
         ]);
@@ -136,6 +146,27 @@ class DashboardController extends Controller
             : 'Sertifikat prestasi berhasil diajukan untuk verifikasi Guru.';
 
         return redirect('/dashboard')->with('success', $msg);
+    }
+
+    /**
+     * Delete an achievement (Student panel).
+     */
+    public function deleteAchievement($id)
+    {
+        $user = Auth::user();
+        $student = Student::where('user_id', $user->id)->first();
+
+        $ach = Achievement::where('id', $id)
+            ->where('student_id', $student->id)
+            ->firstOrFail();
+
+        if ($ach->certificate_path && file_exists(public_path($ach->certificate_path))) {
+            @unlink(public_path($ach->certificate_path));
+        }
+
+        $ach->delete();
+
+        return redirect('/dashboard')->with('success', 'Sertifikat prestasi berhasil dihapus.');
     }
 
     /**

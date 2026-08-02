@@ -13,7 +13,7 @@ def generate_synthetic_data(num_samples=1500):
         'Bisnis & Kewirausahaan', 'Seni Kuliner & Tata Boga',
         'Seni Musik & Pertunjukan', 'Olahraga & Kesehatan Fisik',
         'Kesehatan & Keperawatan (Medis)', 'Sosial & Pendidikan',
-        'Pertanian & Agroteknologi', 'Perikanan & Kelautan'
+        'Pertanian & Ilmu Hayati', 'Perikanan & Kelautan'
     ]
     
     rows = []
@@ -91,7 +91,7 @@ def generate_synthetic_data(num_samples=1500):
             s = np.random.randint(80, 100)
             e = np.random.randint(70, 95)
             eng = np.random.randint(80, 100)
-        elif target == 'Pertanian & Agroteknologi':
+        elif target == 'Pertanian & Ilmu Hayati':
             r = np.random.randint(75, 100)
             i = np.random.randint(70, 95)
             science = np.random.randint(80, 100)

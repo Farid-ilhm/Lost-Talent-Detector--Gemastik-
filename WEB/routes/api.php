@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/student/dashboard', [StudentApiController::class, 'getDashboard']);
     Route::put('/student/interests-hobbies', [StudentApiController::class, 'updateInterestsAndHobbies']);
     Route::post('/student/achievements', [StudentApiController::class, 'uploadAchievement']);
+    Route::delete('/student/achievements/{id}', [StudentApiController::class, 'deleteAchievement']);
     Route::get('/student/test', [StudentApiController::class, 'getRiasecTest']);
     Route::post('/student/test/submit', [StudentApiController::class, 'submitTestAnswers']);
     Route::post('/student/analyze', [StudentApiController::class, 'analyzeTalent']);

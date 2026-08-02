@@ -28,7 +28,7 @@
             </div>
             <div>
                 <span style="display: block; line-height: 1.2;">Lost Talent Detector</span>
-                <span style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Intelijen Bakat AI • GEMASTIK</span>
+                <span style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Intelijen Bakat AI</span>
             </div>
         </a>
 
@@ -55,10 +55,6 @@
         <!-- 2. HERO SECTION PUBLIK -->
         <section id="beranda" class="landing-hero-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; align-items: center; background: linear-gradient(135deg, #FFFFFF 0%, #FAF8F5 100%);">
             <div>
-                <span class="card-rating-badge" style="background-color: #FEF3C7; color: #92400E; font-size: 0.85rem; padding: 6px 16px; margin-bottom: 20px; display: inline-block;">
-                    ✨ Platform Intelijen Bakat berbasis AI #1
-                </span>
-
                 <h1 style="font-size: 2.8rem; font-weight: 800; line-height: 1.15; color: var(--text-dark); margin-bottom: 20px;">
                     Deteksi Bakat Terpendam & Kembangkan Masa Depan
                 </h1>
@@ -108,7 +104,6 @@
         <!-- 3. SECTION PENJELASAN PERAN APLIKASI WEB VS MOBILE -->
         <section id="penjelasan" class="landing-hero-card" style="background-color: #FAFAF8;">
             <div style="text-align: center; max-width: 650px; margin: 0 auto 36px auto;">
-                <span class="card-cat-badge" style="margin-bottom: 10px; padding: 6px 16px;">Arsitektur Ekosistem</span>
                 <h2 style="font-size: 2rem; font-weight: 800; color: var(--text-dark);">Penjelasan Fungsi Aplikasi Web & Mobile App</h2>
                 <p style="color: var(--text-muted); font-size: 1rem; margin-top: 8px;">
                     Platform Lost Talent Detector membagi peran spesifik antara versi Web dan Aplikasi Mobile untuk memberikan pengalaman terbaik bagi pengguna.
@@ -159,7 +154,6 @@
         <!-- 4. SECTION FITUR & MODUL UTAMA -->
         <section id="fitur">
             <div style="text-align: center; max-width: 650px; margin: 0 auto 36px auto;">
-                <span class="card-cat-badge" style="margin-bottom: 10px; padding: 6px 16px;">Modul Platform</span>
                 <h2 style="font-size: 2rem; font-weight: 800; color: var(--text-dark);">Modul Analisis Bakat Terpadu</h2>
                 <p style="color: var(--text-muted); font-size: 1rem; margin-top: 8px;">
                     Empat pilar utama yang diproses oleh AI Engine untuk menghasilkan analisis intelijen bakat yang akurat.
@@ -171,7 +165,6 @@
                 <div class="pastel-card card-pink" style="padding: 28px;">
                     <div class="card-header-row">
                         <span class="card-cat-badge"><i class="fa-solid fa-graduation-cap"></i> Nilai Akademik</span>
-                        <span class="card-rating-badge"><i class="fa-solid fa-star" style="color: #F59E0B;"></i> 4.9</span>
                     </div>
                     <h3 class="card-title" style="font-size: 1.25rem;">Analisis Nilai Rapor & Mata Pelajaran Unggulan</h3>
                     <div class="card-footer-row">
@@ -184,7 +177,6 @@
                 <div class="pastel-card card-sand" style="padding: 28px;">
                     <div class="card-header-row">
                         <span class="card-cat-badge"><i class="fa-solid fa-award"></i> Piagam Prestasi</span>
-                        <span class="card-rating-badge"><i class="fa-solid fa-star" style="color: #F59E0B;"></i> 4.8</span>
                     </div>
                     <h3 class="card-title" style="font-size: 1.25rem;">Verifikasi Sertifikat & Portfolio Kompetisi</h3>
                     <div class="card-footer-row">
@@ -197,7 +189,6 @@
                 <div class="pastel-card card-lavender" style="padding: 28px;">
                     <div class="card-header-row">
                         <span class="card-cat-badge"><i class="fa-solid fa-compass"></i> Tes RIASEC</span>
-                        <span class="card-rating-badge"><i class="fa-solid fa-star" style="color: #F59E0B;"></i> 4.9</span>
                     </div>
                     <h3 class="card-title" style="font-size: 1.25rem;">Kuesioner Minat Bakat Tipe RIASEC (6 Dimensi)</h3>
                     <div class="card-footer-row">
@@ -210,10 +201,6 @@
                 <div class="pastel-card card-mint" style="padding: 28px;">
                     <div class="card-header-row">
                         <span class="card-cat-badge"><i class="fa-solid fa-brain"></i> AI Engine</span>
-                        <div style="display: flex; gap: 6px;">
-                            <span class="card-rating-badge"><i class="fa-solid fa-star" style="color: #F59E0B;"></i> 5.0</span>
-                            <span class="card-rating-badge" style="background-color: #FEF3C7; color: #92400E;">🔥 GEMASTIK</span>
-                        </div>
                     </div>
                     <h3 class="card-title" style="font-size: 1.25rem;">Prediksi Bakat Utama & Rekomendasi Karir / Lomba</h3>
                     <div class="card-footer-row">
@@ -247,7 +234,7 @@
     <!-- 6. FOOTER -->
     <footer style="border-top: 1px solid var(--border-subtle); padding: 32px 24px; background-color: #FFFFFF; font-size: 0.9rem; color: var(--text-muted);">
         <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
-            <div>&copy; 2026 Lost Talent Detector - Tim GEMASTIK. All Rights Reserved.</div>
+            <div>&copy; 2026 Lost Talent Detector.</div>
             <div style="display: flex; gap: 20px;">
                 <a href="#beranda" style="color: var(--text-muted); text-decoration: none;">Beranda</a>
                 <a href="#penjelasan" style="color: var(--text-muted); text-decoration: none;">Peran Web & Mobile</a>

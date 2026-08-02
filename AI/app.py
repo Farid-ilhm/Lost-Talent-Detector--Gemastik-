@@ -249,19 +249,19 @@ def predict():
         riasec_e = float(riasec.get('Enterprising', 50))
         riasec_c = float(riasec.get('Conventional', 50))
 
-        # Grades maps (with defaults)
-        grade_math = float(grades.get('Matematika', 50)) if 'Matematika' in grades else 50.0
-        grade_science = float(grades.get('Fisika', 50)) if 'Fisika' in grades else 50.0
-        grade_informatics = float(grades.get('Informatika', 0)) if 'Informatika' in grades else 0.0
-        grade_english = float(grades.get('Bahasa Inggris', 50)) if 'Bahasa Inggris' in grades else 50.0
+        # Dynamic grade scanner using keywords
+        math_list = []
+        science_list = []
+        informatics_list = []
+        english_list = []
 
         # Extract general domain grades dynamically
-        grade_music = 50.0
-        grade_culinary = 50.0
-        grade_sports = 50.0
-        grade_medical = 50.0
-        grade_agriculture = 50.0
-        grade_fishery = 50.0
+        grade_music = 70.0
+        grade_culinary = 70.0
+        grade_sports = 70.0
+        grade_medical = 70.0
+        grade_agriculture = 70.0
+        grade_fishery = 70.0
 
         music_list = []
         culinary_list = []
@@ -272,6 +272,19 @@ def predict():
 
         for sub, score in grades.items():
             sub_lower = sub.lower()
+            # Matematika/Logic
+            if any(k in sub_lower for k in ['matematika', 'kalkulus', 'statistika', 'aljabar', 'logika']):
+                math_list.append(float(score))
+            # Fisika/Kimia/Biologi/Sains
+            if any(k in sub_lower for k in ['fisika', 'kimia', 'biologi', 'sains', 'ipa']):
+                science_list.append(float(score))
+            # Informatika/Komputer/Coding/Software
+            if any(k in sub_lower for k in ['informatika', 'komputer', 'pemrograman', 'program', 'coding', 'algoritma', 'jaringan', 'data', 'web', 'mobile', 'kecerdasan', 'software', 'rekayasa', 'sistem', 'it', 'tik', 'rpl', 'cyber']):
+                informatics_list.append(float(score))
+            # Bahasa Inggris
+            if any(k in sub_lower for k in ['inggris', 'english']):
+                english_list.append(float(score))
+
             if any(k in sub_lower for k in ['musik', 'vokal', 'solfeggio', 'harmoni', 'diksi', 'instrumen']):
                 music_list.append(float(score))
             if any(k in sub_lower for k in ['boga', 'masak', 'makanan', 'patisserie', 'gizi']):
@@ -284,6 +297,11 @@ def predict():
                 agriculture_list.append(float(score))
             if any(k in sub_lower for k in ['ikan', 'perikanan', 'perairan', 'kelautan', 'maritim', 'akuakultur', 'iktiologi', 'hidrobiologi', 'oceanografi', 'kualitas air', 'pancing', 'mancing', 'seafood']):
                 fishery_list.append(float(score))
+
+        grade_math = sum(math_list) / len(math_list) if math_list else float(grades.get('Matematika', 70))
+        grade_science = sum(science_list) / len(science_list) if science_list else float(grades.get('Fisika', 70))
+        grade_informatics = sum(informatics_list) / len(informatics_list) if informatics_list else float(grades.get('Informatika', 70))
+        grade_english = sum(english_list) / len(english_list) if english_list else float(grades.get('Bahasa Inggris', 70))
 
         if music_list: grade_music = sum(music_list) / len(music_list)
         if culinary_list: grade_culinary = sum(culinary_list) / len(culinary_list)
@@ -300,16 +318,12 @@ def predict():
         for ach in achievements:
             cat = ach.get('category', '').lower()
             title = ach.get('title', '').lower()
-            if cat in ['teknologi', 'komputer'] or any(k in title for k in ['coding', 'program', 'robot', 'software', 'app', 'komputer']):
+            if cat in ['teknologi', 'komputer'] or any(k in title for k in ['coding', 'program', 'robot', 'software', 'app', 'komputer', 'hackathon']):
                 achievement_tech += 1
             elif cat in ['sains', 'matematika', 'akademik']:
                 achievement_science += 1
             elif cat in ['seni', 'olahraga', 'keagamaan']:
                 achievement_art += 1
-            
-            # Additional check for fishery / nature terms in title
-            if any(k in title for k in ['mancing', 'pancing', 'ikan', 'perikanan', 'laut', 'perairan', 'akuakultur', 'iktiologi']):
-                achievement_science += 1
 
         # Check hobbies and interests text
         all_text = " ".join(hobbies + interests).lower()
@@ -338,21 +352,26 @@ def predict():
         pred_dict = {classes[i]: float(probabilities[i]) for i in range(len(classes))}
 
         # Hybrid Expert System: Boost probability if student has outstanding grades or profile in a specific domain
-        if grade_fishery > 65 or is_fishery_text or len(fishery_list) > 0:
-            pred_dict['Perikanan & Kelautan'] = pred_dict.get('Perikanan & Kelautan', 0.0) + 0.50
-        if grade_agriculture > 65 or len(agriculture_list) > 0:
-            pred_dict['Pertanian & Agroteknologi'] = pred_dict.get('Pertanian & Agroteknologi', 0.0) + 0.35
-        if grade_music > 75 or len(music_list) > 0:
+        if grade_informatics > 85 or achievement_tech > 0 or is_tech_text:
+            pred_dict['Programming'] = pred_dict.get('Programming', 0.0) + 0.35
+            pred_dict['Robotik'] = pred_dict.get('Robotik', 0.0) + 0.20
+        if grade_math > 85 or grade_science > 85:
+            pred_dict['Sains & Riset'] = pred_dict.get('Sains & Riset', 0.0) + 0.25
+        if grade_fishery > 85 or len(fishery_list) > 0 or is_fishery_text:
+            pred_dict['Perikanan & Kelautan'] = pred_dict.get('Perikanan & Kelautan', 0.0) + 0.40
+        if grade_agriculture > 85 or len(agriculture_list) > 0:
+            pred_dict['Pertanian & Ilmu Hayati'] = pred_dict.get('Pertanian & Ilmu Hayati', 0.0) + 0.40
+        if grade_music > 85 or len(music_list) > 0:
             pred_dict['Seni Musik & Pertunjukan'] = pred_dict.get('Seni Musik & Pertunjukan', 0.0) + 0.40
-        if grade_culinary > 75 or len(culinary_list) > 0:
+        if grade_culinary > 85 or len(culinary_list) > 0:
             pred_dict['Seni Kuliner & Tata Boga'] = pred_dict.get('Seni Kuliner & Tata Boga', 0.0) + 0.40
-        if grade_sports > 75 or len(sports_list) > 0:
+        if grade_sports > 85 or len(sports_list) > 0:
             pred_dict['Olahraga & Kesehatan Fisik'] = pred_dict.get('Olahraga & Kesehatan Fisik', 0.0) + 0.40
-        if grade_medical > 75 or len(medical_list) > 0:
+        if grade_medical > 85 or len(medical_list) > 0:
             pred_dict['Kesehatan & Keperawatan (Medis)'] = pred_dict.get('Kesehatan & Keperawatan (Medis)', 0.0) + 0.40
 
         # Domain dampening: Dampen tech domains if student has NO informatics grade, NO tech achievement, and NO tech hobbies
-        has_tech_signal = (grade_informatics >= 70) or (achievement_tech > 0) or is_tech_text
+        has_tech_signal = (grade_informatics >= 75) or (achievement_tech > 0) or is_tech_text
         if not has_tech_signal:
             pred_dict['Programming'] = pred_dict.get('Programming', 0.0) * 0.05
             pred_dict['Robotik'] = pred_dict.get('Robotik', 0.0) * 0.05
@@ -363,16 +382,16 @@ def predict():
 
         # Domain Affinity Matrix: Boost related supporting talents based on primary domain
         AFFINITY_MAP = {
-            'Perikanan & Kelautan': [('Sains & Riset', 0.40), ('Pertanian & Agroteknologi', 0.35), ('Bisnis & Kewirausahaan', 0.25), ('Sosial & Pendidikan', 0.20)],
-            'Pertanian & Agroteknologi': [('Sains & Riset', 0.40), ('Perikanan & Kelautan', 0.35), ('Bisnis & Kewirausahaan', 0.25), ('Kesehatan & Keperawatan (Medis)', 0.20)],
+            'Perikanan & Kelautan': [('Sains & Riset', 0.40), ('Pertanian & Ilmu Hayati', 0.35), ('Bisnis & Kewirausahaan', 0.25), ('Sosial & Pendidikan', 0.20)],
+            'Pertanian & Ilmu Hayati': [('Sains & Riset', 0.40), ('Perikanan & Kelautan', 0.35), ('Bisnis & Kewirausahaan', 0.25), ('Kesehatan & Keperawatan (Medis)', 0.20)],
             'Programming': [('Robotik', 0.40), ('Sains & Riset', 0.35), ('Desain Kreatif & UI/UX', 0.30), ('Bisnis & Kewirausahaan', 0.20)],
             'Robotik': [('Programming', 0.40), ('Sains & Riset', 0.35), ('Desain Kreatif & UI/UX', 0.25)],
             'Desain Kreatif & UI/UX': [('Programming', 0.30), ('Seni Musik & Pertunjukan', 0.25), ('Bisnis & Kewirausahaan', 0.25)],
-            'Bisnis & Kewirausahaan': [('Sosial & Pendidikan', 0.35), ('Desain Kreatif & UI/UX', 0.25), ('Programming', 0.20), ('Pertanian & Agroteknologi', 0.20)],
-            'Sains & Riset': [('Perikanan & Kelautan', 0.35), ('Pertanian & Agroteknologi', 0.35), ('Kesehatan & Keperawatan (Medis)', 0.30), ('Programming', 0.25)],
+            'Bisnis & Kewirausahaan': [('Sosial & Pendidikan', 0.35), ('Desain Kreatif & UI/UX', 0.25), ('Programming', 0.20), ('Pertanian & Ilmu Hayati', 0.20)],
+            'Sains & Riset': [('Perikanan & Kelautan', 0.35), ('Pertanian & Ilmu Hayati', 0.35), ('Kesehatan & Keperawatan (Medis)', 0.30), ('Programming', 0.25)],
             'Kesehatan & Keperawatan (Medis)': [('Sains & Riset', 0.40), ('Olahraga & Kesehatan Fisik', 0.30), ('Sosial & Pendidikan', 0.25)],
             'Olahraga & Kesehatan Fisik': [('Kesehatan & Keperawatan (Medis)', 0.35), ('Sosial & Pendidikan', 0.25)],
-            'Seni Kuliner & Tata Boga': [('Bisnis & Kewirausahaan', 0.35), ('Pertanian & Agroteknologi', 0.25), ('Seni Musik & Pertunjukan', 0.20)],
+            'Seni Kuliner & Tata Boga': [('Bisnis & Kewirausahaan', 0.35), ('Pertanian & Ilmu Hayati', 0.25), ('Seni Musik & Pertunjukan', 0.20)],
             'Seni Musik & Pertunjukan': [('Desain Kreatif & UI/UX', 0.30), ('Seni Kuliner & Tata Boga', 0.20), ('Sosial & Pendidikan', 0.20)],
             'Sosial & Pendidikan': [('Bisnis & Kewirausahaan', 0.35), ('Sains & Riset', 0.25), ('Kesehatan & Keperawatan (Medis)', 0.20)]
         }
@@ -423,7 +442,7 @@ def predict():
         
         if achievement_tech > 0 and primary_talent in ['Robotik', 'Programming']:
             reasoning.append(f"Memiliki {achievement_tech} sertifikat prestasi sah di bidang teknologi.")
-        if achievement_science > 0 and primary_talent in ['Sains & Riset', 'Perikanan & Kelautan', 'Pertanian & Agroteknologi']:
+        if achievement_science > 0 and primary_talent in ['Sains & Riset', 'Perikanan & Kelautan', 'Pertanian & Ilmu Hayati']:
             reasoning.append(f"Ditopang {achievement_science} pencapaian prestasi akademik bidang sains/penelitian.")
         if has_custom_interest:
             reasoning.append(f"Memiliki bakat kustom terarah dan fokus eksplorasi mandiri di bidang {primary_talent}.")

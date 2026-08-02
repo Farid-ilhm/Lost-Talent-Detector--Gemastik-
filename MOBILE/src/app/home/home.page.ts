@@ -12,6 +12,7 @@ import { AlertController, ToastController } from '@ionic/angular';
 })
 export class HomePage {
   student: any = null;
+  serverUrl: string = 'http://localhost:8000/';
   grades: any[] = [];
   achievements: any[] = [];
   testResult: any = null;
@@ -37,7 +38,8 @@ export class HomePage {
     category: 'teknologi',
     level: 'sekolah',
     rank: '',
-    description: ''
+    description: '',
+    certificate: ''
   };
 
   newGrade = {
@@ -266,12 +268,26 @@ export class HomePage {
     });
   }
 
+  onFileChange(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.newAchievement.certificate = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   async onSubmitAchievement() {
     this.apiService.uploadAchievement(this.newAchievement).subscribe({
       next: async (res: any) => {
+        const isAutoAcc = res.achievement && res.achievement.is_verified;
+        const msg = isAutoAcc ? 'Sertifikat prestasi berhasil disimpan (Auto-Verified).' : 'Sertifikat prestasi berhasil diajukan untuk verifikasi Guru.';
+        
         const toast = await this.toastController.create({
-          message: 'Sertifikat prestasi berhasil diajukan.',
-          duration: 2000,
+          message: msg,
+          duration: 2500,
           color: 'success'
         });
         await toast.present();
@@ -282,15 +298,22 @@ export class HomePage {
           category: 'teknologi',
           level: 'sekolah',
           rank: '',
-          description: ''
+          description: '',
+          certificate: ''
         };
+
+        // Reset file input element
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
 
         this.loadDashboardData();
       },
       error: async (err: any) => {
         const alert = await this.alertController.create({
           header: 'Gagal Mengajukan',
-          message: 'Periksa formulir dan coba lagi.',
+          message: 'Periksa formulir dan pastikan bukti sertifikat sudah terpilih.',
           buttons: ['OK']
         });
         await alert.present();
@@ -374,15 +397,69 @@ export class HomePage {
     await alert.present();
   }
 
-  onLogout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.router.navigateByUrl('/login');
-      },
-      error: () => {
-        this.authService.clearStorage();
-        this.router.navigateByUrl('/login');
-      }
+  async onDeleteAchievement(achId: number) {
+    const alert = await this.alertController.create({
+      header: 'Hapus Sertifikat',
+      message: 'Apakah Anda yakin ingin menghapus sertifikat prestasi ini?',
+      buttons: [
+        {
+          text: 'Batal',
+          role: 'cancel'
+        },
+        {
+          text: 'Hapus',
+          handler: () => {
+            this.apiService.deleteAchievement(achId).subscribe({
+              next: async (res: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Sertifikat prestasi berhasil dihapus.',
+                  duration: 2000,
+                  color: 'success'
+                });
+                await toast.present();
+                this.loadDashboardData();
+              },
+              error: async (err: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Gagal menghapus sertifikat.',
+                  duration: 2000,
+                  color: 'danger'
+                });
+                await toast.present();
+              }
+            });
+          }
+        }
+      ]
     });
+    await alert.present();
+  }
+
+  async onLogout() {
+    const alert = await this.alertController.create({
+      header: 'Konfirmasi Keluar',
+      message: 'Apakah Anda yakin ingin keluar dari sistem?',
+      buttons: [
+        {
+          text: 'Batal',
+          role: 'cancel'
+        },
+        {
+          text: 'Keluar',
+          handler: () => {
+            this.authService.logout().subscribe({
+              next: () => {
+                this.router.navigateByUrl('/login');
+              },
+              error: () => {
+                this.authService.clearStorage();
+                this.router.navigateByUrl('/login');
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 }

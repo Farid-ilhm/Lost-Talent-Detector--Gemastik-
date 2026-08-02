@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
     // Student Actions
     Route::post('/student/interests', [DashboardController::class, 'saveInterests']);
     Route::post('/student/achievements', [DashboardController::class, 'saveAchievement']);
+    Route::delete('/student/achievements/{id}', [DashboardController::class, 'deleteAchievement']);
     Route::post('/student/test', [DashboardController::class, 'saveTest']);
     Route::post('/student/analyze', [DashboardController::class, 'triggerAi']);
     Route::post('/student/grades', [DashboardController::class, 'studentSaveGrade']);

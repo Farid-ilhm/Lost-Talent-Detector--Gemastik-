@@ -33,6 +33,11 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/student/achievements`, data, { headers });
   }
 
+  deleteAchievement(achievementId: number): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.delete(`${this.apiUrl}/student/achievements/${achievementId}`, { headers });
+  }
+
   getRiasecTest(): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     return this.http.get(`${this.apiUrl}/student/test`, { headers });

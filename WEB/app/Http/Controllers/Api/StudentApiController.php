@@ -118,7 +118,7 @@ class StudentApiController extends Controller
             'level' => 'required|in:sekolah,kecamatan,kabupaten,provinsi,nasional,internasional',
             'rank' => 'required|string|max:100', // e.g. Juara 1, Finalis
             'description' => 'nullable|string',
-            'certificate' => 'nullable|string', // Simulated base64 or URL path
+            'certificate' => 'nullable', // Can be file or base64 string
         ]);
 
         if ($validator->fails()) {
@@ -129,13 +129,35 @@ class StudentApiController extends Controller
             ], 422);
         }
 
-        // For demo/GEMASTIK purposes, we'll store path or simulate file storage
         $certPath = null;
-        if ($request->filled('certificate')) {
-            $certPath = 'certificates/' . uniqid() . '.pdf';
+        if ($request->hasFile('certificate')) {
+            $file = $request->file('certificate');
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/certificates'), $fileName);
+            $certPath = 'uploads/certificates/' . $fileName;
+        } elseif ($request->filled('certificate')) {
+            $certData = $request->input('certificate');
+            if (preg_match('/^data:image\/(\w+);base64,/', $certData, $type)) {
+                $certData = substr($certData, strpos($certData, ',') + 1);
+                $type = strtolower($type[1]);
+                if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png', 'pdf'])) {
+                    $type = 'png';
+                }
+                $decoded = base64_decode($certData);
+                if ($decoded !== false) {
+                    $fileName = uniqid() . '.' . $type;
+                    if (!file_exists(public_path('uploads/certificates'))) {
+                        mkdir(public_path('uploads/certificates'), 0777, true);
+                    }
+                    file_put_contents(public_path('uploads/certificates/' . $fileName), $decoded);
+                    $certPath = 'uploads/certificates/' . $fileName;
+                }
+            } else {
+                $certPath = $certData;
+            }
         }
 
-        $autoVerify = is_null($student->institution_id);
+        $autoVerify = ($user->role === 'umum') || is_null($student->institution_id);
 
         $achievement = Achievement::create([
             'student_id' => $student->id,
@@ -150,9 +172,48 @@ class StudentApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Achievement uploaded successfully. Awaiting verification.',
+            'message' => $autoVerify ? 'Achievement saved successfully.' : 'Achievement uploaded successfully. Awaiting verification.',
             'achievement' => $achievement
         ], 201);
+    }
+
+    /**
+     * Delete an achievement.
+     */
+    public function deleteAchievement(Request $request, $id)
+    {
+        $user = $request->user();
+        $student = Student::where('user_id', $user->id)->first();
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student profile not found.'
+            ], 404);
+        }
+
+        $achievement = Achievement::where('id', $id)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if (!$achievement) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Achievement not found or unauthorized.'
+            ], 404);
+        }
+
+        // Delete certificate file from storage if exists
+        if ($achievement->certificate_path && file_exists(public_path($achievement->certificate_path))) {
+            @unlink(public_path($achievement->certificate_path));
+        }
+
+        $achievement->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sertifikat prestasi berhasil dihapus.'
+        ]);
     }
 
     /**
@@ -494,11 +555,30 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
             \Illuminate\Support\Facades\Log::warning('Python AI service offline. Falling back to local PHP simulator: ' . $e->getMessage());
         }
 
-        // 1. Calculate Average Grades (Fallback)
-        $avgMath = $grades->where('subject_name', 'Matematika')->avg('score') ?? 70.00;
-        $avgInformatika = $grades->where('subject_name', 'Informatika')->avg('score') ?? 70.00;
-        $avgSains = $grades->where('subject_name', 'Fisika')->avg('score') ?? 70.00;
-        $avgEnglish = $grades->where('subject_name', 'Bahasa Inggris')->avg('score') ?? 70.00;
+        // 1. Calculate Average Grades (Fallback using keywords)
+        $mathGrades = $grades->filter(function ($g) {
+            $name = strtolower($g->subject_name);
+            return str_contains($name, 'matematika') || str_contains($name, 'kalkulus') || str_contains($name, 'statistika') || str_contains($name, 'aljabar') || str_contains($name, 'logika');
+        });
+        $avgMath = $mathGrades->isEmpty() ? ($grades->where('subject_name', 'Matematika')->avg('score') ?? 70.00) : $mathGrades->avg('score');
+
+        $infoGrades = $grades->filter(function ($g) {
+            $name = strtolower($g->subject_name);
+            return str_contains($name, 'informatika') || str_contains($name, 'komputer') || str_contains($name, 'pemrograman') || str_contains($name, 'program') || str_contains($name, 'coding') || str_contains($name, 'algoritma') || str_contains($name, 'jaringan') || str_contains($name, 'data') || str_contains($name, 'web') || str_contains($name, 'mobile') || str_contains($name, 'kecerdasan') || str_contains($name, 'software') || str_contains($name, 'rekayasa') || str_contains($name, 'sistem') || str_contains($name, 'it') || str_contains($name, 'tik') || str_contains($name, 'rpl') || str_contains($name, 'cyber');
+        });
+        $avgInformatika = $infoGrades->isEmpty() ? ($grades->where('subject_name', 'Informatika')->avg('score') ?? 70.00) : $infoGrades->avg('score');
+
+        $sainsGrades = $grades->filter(function ($g) {
+            $name = strtolower($g->subject_name);
+            return str_contains($name, 'fisika') || str_contains($name, 'kimia') || str_contains($name, 'biologi') || str_contains($name, 'sains') || str_contains($name, 'ipa');
+        });
+        $avgSains = $sainsGrades->isEmpty() ? ($grades->where('subject_name', 'Fisika')->avg('score') ?? 70.00) : $sainsGrades->avg('score');
+
+        $englishGrades = $grades->filter(function ($g) {
+            $name = strtolower($g->subject_name);
+            return str_contains($name, 'inggris') || str_contains($name, 'english');
+        });
+        $avgEnglish = $englishGrades->isEmpty() ? ($grades->where('subject_name', 'Bahasa Inggris')->avg('score') ?? 70.00) : $englishGrades->avg('score');
 
         // 2. Fetch RIASEC Profile
         $riasec = $testResult ? $testResult->scores : [
@@ -1003,6 +1083,11 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
                 'success' => false,
                 'message' => 'Murid sekolah hanya dapat diinput nilainya oleh Guru.'
             ], 403);
+        }
+
+        // Auto-default semester for public/umum users who don't have semesters
+        if ($user->role === 'umum') {
+            $request->merge(['semester' => 1]);
         }
 
         $validator = Validator::make($request->all(), [
