@@ -59,7 +59,11 @@ CAREER_REPOSITORY = [
     {"name": "Atlet Profesional", "talent": "Olahraga & Kesehatan Fisik", "tags": "atlet olahraga fisik lari bola futsal badminton renang basket silat karate penjas"},
     {"name": "Pelatih Olahraga / Coach", "talent": "Olahraga & Kesehatan Fisik", "tags": "pelatih coach olahraga fisik training fitness team strategy penjas"},
     {"name": "Perawat Profesional", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "perawat nurse medis dokter rumah sakit obat rawat anatomi bidan farmasi"},
-    {"name": "Asisten Apoteker", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "apoteker farmasi obat resep kimia medis klinik lab"}
+    {"name": "Asisten Apoteker", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "apoteker farmasi obat resep kimia medis klinik lab"},
+    {"name": "Ahli Akuakultur / Budidaya Perairan", "talent": "Perikanan & Kelautan", "tags": "ikan perikanan akuakultur iktiologi perairan kelautan maritim mancing tambak seafood biologi laut"},
+    {"name": "Marine Biologist / Ahli Kelautan", "talent": "Perikanan & Kelautan", "tags": "kelautan oceanografi biologi laut ekologi perairan terumbu karang laut konservasi maritim"},
+    {"name": "Konsultan Quality Control Perikanan", "talent": "Perikanan & Kelautan", "tags": "perikanan mutu kualitas air hasil laut olah pangan ikan pengolahan riset"},
+    {"name": "Ahli Agronomi / Agroteknologi", "talent": "Pertanian & Agroteknologi", "tags": "pertanian agro agribisnis tanah tanaman botani perkebunan pangan hidroponik"}
 ]
 
 COMPETITION_REPOSITORY = [
@@ -82,7 +86,10 @@ COMPETITION_REPOSITORY = [
     {"name": "Olimpiade Olahraga Siswa Nasional (O2SN)", "talent": "Olahraga & Kesehatan Fisik", "tags": "o2sn olahraga fisik lari renang silat karate badminton futsal atlet"},
     {"name": "Pekan Olahraga Mahasiswa (POMNAS)", "talent": "Olahraga & Kesehatan Fisik", "tags": "pomnas olahraga mahasiswa atlet tanding futsal basket badminton silat"},
     {"name": "Lomba Kompetensi Siswa (LKS) Health & Social Care", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "lks care health nurse medis perawat sosial rumah sakit"},
-    {"name": "Karya Tulis Ilmiah Kesehatan", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "karya tulis ilmiah riset medis kesehatan obat farmasi penyakit"}
+    {"name": "Karya Tulis Ilmiah Kesehatan", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "karya tulis ilmiah riset medis kesehatan obat farmasi penyakit"},
+    {"name": "Lomba Inovasi Teknologi Akuakultur & Perikanan", "talent": "Perikanan & Kelautan", "tags": "lomba perikanan akuakultur maritim kelautan ekologi air ikan mancing pancing"},
+    {"name": "PIMNAS Bidang Ketahanan Maritim & Perikanan", "talent": "Perikanan & Kelautan", "tags": "pimnas karya tulis ilmiah kelautan maritim laut perikanan sumber daya air"},
+    {"name": "Lomba Inovasi Teknologi Pertanian", "talent": "Pertanian & Agroteknologi", "tags": "pertanian agroteknologi inovasi pangan hidroponik kebun"}
 ]
 
 EXTRACURRICULAR_REPOSITORY = [
@@ -107,7 +114,9 @@ EXTRACURRICULAR_REPOSITORY = [
     {"name": "Klub Futsal / Sepakbola", "talent": "Olahraga & Kesehatan Fisik", "tags": "futsal sepakbola bola lari olahraga fisik penjas"},
     {"name": "Klub Basket / Badminton", "talent": "Olahraga & Kesehatan Fisik", "tags": "basket badminton raket olahraga fisik penjas ganda tunggal"},
     {"name": "Palang Merah Remaja (PMR)", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "pmr red cross kesehatan medis pertolongan pertama obat rawat"},
-    {"name": "Klub Sains Keperawatan", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "sains keperawatan medis perawat obat biologi anatomi"}
+    {"name": "Klub Sains Keperawatan", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "sains keperawatan medis perawat obat biologi anatomi"},
+    {"name": "Klub Akuakultur & Bio-Fisheries", "talent": "Perikanan & Kelautan", "tags": "akuakultur ikan perikanan perairan mancing pancing kelautan biologi laut tambak"},
+    {"name": "Klub Hidroponik & Kebun Sekolah", "talent": "Pertanian & Agroteknologi", "tags": "hidroponik tani kebun tanaman agro botani"}
 ]
 
 TARGET_REPOSITORY = [
@@ -130,14 +139,17 @@ TARGET_REPOSITORY = [
     {"name": "Meningkatkan ketahanan fisik dan teknik olahraga", "talent": "Olahraga & Kesehatan Fisik", "tags": "ketahanan fisik stamina gym lari teknik futsal basket badminton olahraga"},
     {"name": "Mempelajari dasar fisiologi & nutrisi olahraga", "talent": "Olahraga & Kesehatan Fisik", "tags": "fisiologi anatomi nutrisi makan diet kalori suplemen olahraga atlet"},
     {"name": "Mempelajari teknik pertolongan pertama & keperawatan", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "pertolongan pertama p3k medis perawat dokter bidan luka obat rawat"},
-    {"name": "Mengikuti seminar kesehatan dan magang klinis", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "seminar kesehatan magang rumah sakit puskesmas klinik perawat medis apoteker"}
+    {"name": "Mengikuti seminar kesehatan dan magang klinis", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "seminar kesehatan magang rumah sakit puskesmas klinik perawat medis apoteker"},
+    {"name": "Mempelajari teknik manajemen kualitas air & resirkulasi akuakultur (RAS)", "talent": "Perikanan & Kelautan", "tags": "kualitas air iktiologi ekologi perairan perikanan akuakultur mancing kelautan maritim"},
+    {"name": "Mengembangkan riset ekosistem perairan & sumber daya laut", "talent": "Perikanan & Kelautan", "tags": "ekologi perairan riset laut kelautan oceanografi biologi perikanan"},
+    {"name": "Mempelajari sistem pertanian hidroponik & modern", "talent": "Pertanian & Agroteknologi", "tags": "hidroponik tani kebun agro agribisnis tanah"}
 ]
 
 def recommend_items(query, item_repository, predicted_talent, limit=4):
     relevant_items = [item for item in item_repository if item['talent'] == predicted_talent]
     if not relevant_items:
-        # Check if this is a custom dynamic interest not in standard 10 categories
-        standards = ['Robotik', 'Programming', 'Sains & Riset', 'Desain Kreatif & UI/UX', 'Bisnis & Kewirausahaan', 'Sosial & Pendidikan', 'Seni Kuliner & Tata Boga', 'Seni Musik & Pertunjukan', 'Olahraga & Kesehatan Fisik', 'Kesehatan & Keperawatan (Medis)']
+        # Check if this is a custom dynamic interest not in standard categories
+        standards = ['Robotik', 'Programming', 'Sains & Riset', 'Desain Kreatif & UI/UX', 'Bisnis & Kewirausahaan', 'Sosial & Pendidikan', 'Seni Kuliner & Tata Boga', 'Seni Musik & Pertunjukan', 'Olahraga & Kesehatan Fisik', 'Kesehatan & Keperawatan (Medis)', 'Pertanian & Agroteknologi', 'Perikanan & Kelautan']
         if predicted_talent not in standards:
             if item_repository == CAREER_REPOSITORY:
                 return [
@@ -217,7 +229,13 @@ def predict():
                 has_custom_interest = True
                 
                 lower_interest = primary_interest.lower()
-                standards = ['robot', 'coding', 'program', 'sains', 'riset', 'desain', 'ui', 'ux', 'bisnis', 'usaha', 'sosial', 'didik', 'masak', 'boga', 'kuliner', 'chef', 'koki', 'musik', 'vokal', 'olahraga', 'atlet', 'medis', 'dokter', 'perawat', 'tani', 'kebun', 'tanah', 'botani', 'agro', 'ternak', 'hama', 'tanaman']
+                standards = [
+                    'robot', 'coding', 'program', 'sains', 'riset', 'desain', 'ui', 'ux', 'bisnis', 'usaha', 
+                    'sosial', 'didik', 'masak', 'boga', 'kuliner', 'chef', 'koki', 'musik', 'vokal', 'olahraga', 
+                    'atlet', 'medis', 'dokter', 'perawat', 'tani', 'kebun', 'tanah', 'botani', 'agro', 'ternak', 
+                    'hama', 'tanaman', 'ikan', 'perikanan', 'perairan', 'kelautan', 'maritim', 'mancing', 'pancing', 
+                    'iktiologi', 'akuakultur', 'hidrobiologi', 'oceanografi'
+                ]
                 for s in standards:
                     if s in lower_interest:
                         has_custom_interest = False
@@ -232,23 +250,25 @@ def predict():
         riasec_c = float(riasec.get('Conventional', 50))
 
         # Grades maps (with defaults)
-        grade_math = float(grades.get('Matematika', 70))
-        grade_science = float(grades.get('Fisika', 70))
-        grade_informatics = float(grades.get('Informatika', 70))
-        grade_english = float(grades.get('Bahasa Inggris', 70))
+        grade_math = float(grades.get('Matematika', 50)) if 'Matematika' in grades else 50.0
+        grade_science = float(grades.get('Fisika', 50)) if 'Fisika' in grades else 50.0
+        grade_informatics = float(grades.get('Informatika', 0)) if 'Informatika' in grades else 0.0
+        grade_english = float(grades.get('Bahasa Inggris', 50)) if 'Bahasa Inggris' in grades else 50.0
 
         # Extract general domain grades dynamically
-        grade_music = 70.0
-        grade_culinary = 70.0
-        grade_sports = 70.0
-        grade_medical = 70.0
-        grade_agriculture = 70.0
+        grade_music = 50.0
+        grade_culinary = 50.0
+        grade_sports = 50.0
+        grade_medical = 50.0
+        grade_agriculture = 50.0
+        grade_fishery = 50.0
 
         music_list = []
         culinary_list = []
         sports_list = []
         medical_list = []
         agriculture_list = []
+        fishery_list = []
 
         for sub, score in grades.items():
             sub_lower = sub.lower()
@@ -262,12 +282,15 @@ def predict():
                 medical_list.append(float(score))
             if any(k in sub_lower for k in ['tani', 'tanah', 'kebun', 'botani', 'agro', 'ternak', 'hama', 'klimatologi']):
                 agriculture_list.append(float(score))
+            if any(k in sub_lower for k in ['ikan', 'perikanan', 'perairan', 'kelautan', 'maritim', 'akuakultur', 'iktiologi', 'hidrobiologi', 'oceanografi', 'kualitas air', 'pancing', 'mancing', 'seafood']):
+                fishery_list.append(float(score))
 
         if music_list: grade_music = sum(music_list) / len(music_list)
         if culinary_list: grade_culinary = sum(culinary_list) / len(culinary_list)
         if sports_list: grade_sports = sum(sports_list) / len(sports_list)
         if medical_list: grade_medical = sum(medical_list) / len(medical_list)
         if agriculture_list: grade_agriculture = sum(agriculture_list) / len(agriculture_list)
+        if fishery_list: grade_fishery = sum(fishery_list) / len(fishery_list)
 
         # Achievement counts
         achievement_tech = 0
@@ -276,12 +299,22 @@ def predict():
 
         for ach in achievements:
             cat = ach.get('category', '').lower()
-            if cat in ['teknologi', 'komputer']:
+            title = ach.get('title', '').lower()
+            if cat in ['teknologi', 'komputer'] or any(k in title for k in ['coding', 'program', 'robot', 'software', 'app', 'komputer']):
                 achievement_tech += 1
             elif cat in ['sains', 'matematika', 'akademik']:
                 achievement_science += 1
             elif cat in ['seni', 'olahraga', 'keagamaan']:
                 achievement_art += 1
+            
+            # Additional check for fishery / nature terms in title
+            if any(k in title for k in ['mancing', 'pancing', 'ikan', 'perikanan', 'laut', 'perairan', 'akuakultur', 'iktiologi']):
+                achievement_science += 1
+
+        # Check hobbies and interests text
+        all_text = " ".join(hobbies + interests).lower()
+        is_fishery_text = any(k in all_text for k in ['mancing', 'pancing', 'ikan', 'perikanan', 'perairan', 'kelautan', 'maritim', 'akuakultur', 'iktiologi'])
+        is_tech_text = any(k in all_text for k in ['coding', 'program', 'developer', 'software', 'robot', 'arduino', 'hackathon', 'informatika', 'komputer', 'web', 'app', 'pemrograman'])
 
         # Build feature DataFrame
         features = pd.DataFrame([{
@@ -291,7 +324,7 @@ def predict():
             'grade_informatics': grade_informatics, 'grade_english': grade_english,
             'grade_music': grade_music, 'grade_culinary': grade_culinary,
             'grade_sports': grade_sports, 'grade_medical': grade_medical,
-            'grade_agriculture': grade_agriculture,
+            'grade_agriculture': grade_agriculture, 'grade_fishery': grade_fishery,
             'achievement_tech': achievement_tech, 'achievement_science': achievement_science,
             'achievement_art': achievement_art
         }])
@@ -304,41 +337,81 @@ def predict():
         # Sort classes by probability
         pred_dict = {classes[i]: float(probabilities[i]) for i in range(len(classes))}
 
-        # Hybrid Expert System: Boost probability if student has outstanding grades in a specific domain
-        if grade_agriculture > 85:
-            pred_dict['Pertanian & Ilmu Hayati'] = pred_dict.get('Pertanian & Ilmu Hayati', 0.0) + 0.40
-        if grade_music > 85:
+        # Hybrid Expert System: Boost probability if student has outstanding grades or profile in a specific domain
+        if grade_fishery > 65 or is_fishery_text or len(fishery_list) > 0:
+            pred_dict['Perikanan & Kelautan'] = pred_dict.get('Perikanan & Kelautan', 0.0) + 0.50
+        if grade_agriculture > 65 or len(agriculture_list) > 0:
+            pred_dict['Pertanian & Agroteknologi'] = pred_dict.get('Pertanian & Agroteknologi', 0.0) + 0.35
+        if grade_music > 75 or len(music_list) > 0:
             pred_dict['Seni Musik & Pertunjukan'] = pred_dict.get('Seni Musik & Pertunjukan', 0.0) + 0.40
-        if grade_culinary > 85:
+        if grade_culinary > 75 or len(culinary_list) > 0:
             pred_dict['Seni Kuliner & Tata Boga'] = pred_dict.get('Seni Kuliner & Tata Boga', 0.0) + 0.40
-        if grade_sports > 85:
+        if grade_sports > 75 or len(sports_list) > 0:
             pred_dict['Olahraga & Kesehatan Fisik'] = pred_dict.get('Olahraga & Kesehatan Fisik', 0.0) + 0.40
-        if grade_medical > 85:
+        if grade_medical > 75 or len(medical_list) > 0:
             pred_dict['Kesehatan & Keperawatan (Medis)'] = pred_dict.get('Kesehatan & Keperawatan (Medis)', 0.0) + 0.40
 
-        # Normalize probabilities (optional, but sorting works fine even without normalising)
+        # Domain dampening: Dampen tech domains if student has NO informatics grade, NO tech achievement, and NO tech hobbies
+        has_tech_signal = (grade_informatics >= 70) or (achievement_tech > 0) or is_tech_text
+        if not has_tech_signal:
+            pred_dict['Programming'] = pred_dict.get('Programming', 0.0) * 0.05
+            pred_dict['Robotik'] = pred_dict.get('Robotik', 0.0) * 0.05
+
+        # Determine temporary top talent for domain affinity mapping
+        temp_sorted = sorted(pred_dict.items(), key=lambda item: item[1], reverse=True)
+        top_candidate = custom_interest_name if has_custom_interest else temp_sorted[0][0]
+
+        # Domain Affinity Matrix: Boost related supporting talents based on primary domain
+        AFFINITY_MAP = {
+            'Perikanan & Kelautan': [('Sains & Riset', 0.40), ('Pertanian & Agroteknologi', 0.35), ('Bisnis & Kewirausahaan', 0.25), ('Sosial & Pendidikan', 0.20)],
+            'Pertanian & Agroteknologi': [('Sains & Riset', 0.40), ('Perikanan & Kelautan', 0.35), ('Bisnis & Kewirausahaan', 0.25), ('Kesehatan & Keperawatan (Medis)', 0.20)],
+            'Programming': [('Robotik', 0.40), ('Sains & Riset', 0.35), ('Desain Kreatif & UI/UX', 0.30), ('Bisnis & Kewirausahaan', 0.20)],
+            'Robotik': [('Programming', 0.40), ('Sains & Riset', 0.35), ('Desain Kreatif & UI/UX', 0.25)],
+            'Desain Kreatif & UI/UX': [('Programming', 0.30), ('Seni Musik & Pertunjukan', 0.25), ('Bisnis & Kewirausahaan', 0.25)],
+            'Bisnis & Kewirausahaan': [('Sosial & Pendidikan', 0.35), ('Desain Kreatif & UI/UX', 0.25), ('Programming', 0.20), ('Pertanian & Agroteknologi', 0.20)],
+            'Sains & Riset': [('Perikanan & Kelautan', 0.35), ('Pertanian & Agroteknologi', 0.35), ('Kesehatan & Keperawatan (Medis)', 0.30), ('Programming', 0.25)],
+            'Kesehatan & Keperawatan (Medis)': [('Sains & Riset', 0.40), ('Olahraga & Kesehatan Fisik', 0.30), ('Sosial & Pendidikan', 0.25)],
+            'Olahraga & Kesehatan Fisik': [('Kesehatan & Keperawatan (Medis)', 0.35), ('Sosial & Pendidikan', 0.25)],
+            'Seni Kuliner & Tata Boga': [('Bisnis & Kewirausahaan', 0.35), ('Pertanian & Agroteknologi', 0.25), ('Seni Musik & Pertunjukan', 0.20)],
+            'Seni Musik & Pertunjukan': [('Desain Kreatif & UI/UX', 0.30), ('Seni Kuliner & Tata Boga', 0.20), ('Sosial & Pendidikan', 0.20)],
+            'Sosial & Pendidikan': [('Bisnis & Kewirausahaan', 0.35), ('Sains & Riset', 0.25), ('Kesehatan & Keperawatan (Medis)', 0.20)]
+        }
+
+        if top_candidate in AFFINITY_MAP:
+            for aff_talent, boost in AFFINITY_MAP[top_candidate]:
+                pred_dict[aff_talent] = pred_dict.get(aff_talent, 0.0) + boost
+
         sorted_preds = sorted(pred_dict.items(), key=lambda item: item[1], reverse=True)
 
         if has_custom_interest:
             primary_talent = custom_interest_name
             confidence_score = 99.0
-            supporting_talents = [
-                {'talent': sorted_preds[0][0], 'confidence': round(sorted_preds[0][1] * 100, 2)},
-                {'talent': sorted_preds[1][0], 'confidence': round(sorted_preds[1][1] * 100, 2)},
-                {'talent': sorted_preds[2][0], 'confidence': round(sorted_preds[2][1] * 100, 2)}
-            ]
+            top_supp_score = sorted_preds[0][1] if len(sorted_preds) > 0 else 1.0
+            base_percentages = [85.0, 75.0, 65.0]
+            supporting_talents = []
+            for i in range(min(3, len(sorted_preds))):
+                t_name, t_val = sorted_preds[i]
+                ratio = (t_val / max(0.001, top_supp_score))
+                conf = round(min(92.0, max(45.0, base_percentages[i] * ratio)), 1)
+                supporting_talents.append({'talent': t_name, 'confidence': conf})
         else:
             primary_talent = sorted_preds[0][0]
-            confidence_score = round(sorted_preds[0][1] * 100, 2)
+            confidence_score = round(min(99.0, max(92.0, sorted_preds[0][1] * 100)), 1)
+            top_supp_score = sorted_preds[1][1] if len(sorted_preds) > 1 else 1.0
+            base_percentages = [85.0, 75.0, 65.0]
             supporting_talents = []
             for i in range(1, min(4, len(sorted_preds))):
-                supporting_talents.append({
-                    'talent': sorted_preds[i][0],
-                    'confidence': round(sorted_preds[i][1] * 100, 2)
-                })
+                t_name, t_val = sorted_preds[i]
+                ratio = (t_val / max(0.001, top_supp_score))
+                conf = round(min(92.0, max(45.0, base_percentages[i-1] * ratio)), 1)
+                supporting_talents.append({'talent': t_name, 'confidence': conf})
 
         # Dynamic reasoning generator (explainable AI)
         reasoning = []
+        if len(fishery_list) > 0:
+            reasoning.append(f"Rekam nilai mata kuliah/pelajaran perikanan ({grade_fishery:.1f}) menunjukkan keahlian khusus di bidang ilmu perairan.")
+        if is_fishery_text:
+            reasoning.append("Prestasi/minat terverifikasi bersangkut paut dengan dunia perikanan, akuakultur, dan ekologi laut.")
         if grade_informatics > 85 and primary_talent in ['Programming', 'Robotik']:
             reasoning.append(f"Nilai akademik Informatika sangat tinggi ({grade_informatics:.1f}) mendukung kecakapan teknologi.")
         if grade_math > 85:
@@ -350,13 +423,12 @@ def predict():
         
         if achievement_tech > 0 and primary_talent in ['Robotik', 'Programming']:
             reasoning.append(f"Memiliki {achievement_tech} sertifikat prestasi sah di bidang teknologi.")
-        if achievement_science > 0 and primary_talent == 'Sains & Riset':
+        if achievement_science > 0 and primary_talent in ['Sains & Riset', 'Perikanan & Kelautan', 'Pertanian & Agroteknologi']:
             reasoning.append(f"Ditopang {achievement_science} pencapaian prestasi akademik bidang sains/penelitian.")
         if has_custom_interest:
             reasoning.append(f"Memiliki bakat kustom terarah dan fokus eksplorasi mandiri di bidang {primary_talent}.")
 
         # Recommendations mappings
-        # Construct dynamic context query for TF-IDF ranking
         query_parts = [primary_talent]
         query_parts.extend(hobbies)
         query_parts.extend(interests)
@@ -378,7 +450,7 @@ def predict():
             'extracurricular_recommendations': extracurriculars,
             'competition_recommendations': competitions,
             'development_targets': targets,
-            'model_version': 'lost-talent-rf-v1.0'
+            'model_version': 'lost-talent-rf-v2.0'
         })
 
     except Exception as e:
@@ -390,3 +462,4 @@ def predict():
 if __name__ == '__main__':
     # Default Flask port is 5000
     app.run(host='127.0.0.1', port=5000, debug=True)
+

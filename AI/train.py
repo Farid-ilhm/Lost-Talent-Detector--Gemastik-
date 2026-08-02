@@ -6,14 +6,14 @@ from sklearn.metrics import classification_report
 import pickle
 import os
 
-def generate_synthetic_data(num_samples=1000):
+def generate_synthetic_data(num_samples=1500):
     np.random.seed(42)
     classes = [
         'Robotik', 'Programming', 'Sains & Riset', 'Desain Kreatif & UI/UX',
         'Bisnis & Kewirausahaan', 'Seni Kuliner & Tata Boga',
         'Seni Musik & Pertunjukan', 'Olahraga & Kesehatan Fisik',
         'Kesehatan & Keperawatan (Medis)', 'Sosial & Pendidikan',
-        'Pertanian & Ilmu Hayati'
+        'Pertanian & Agroteknologi', 'Perikanan & Kelautan'
     ]
     
     rows = []
@@ -38,6 +38,7 @@ def generate_synthetic_data(num_samples=1000):
         sports = np.random.randint(50, 80)
         medical = np.random.randint(50, 80)
         agriculture = np.random.randint(50, 80)
+        fishery = np.random.randint(50, 80)
         
         tech_ach = np.random.randint(0, 2)
         sci_ach = np.random.randint(0, 2)
@@ -90,11 +91,17 @@ def generate_synthetic_data(num_samples=1000):
             s = np.random.randint(80, 100)
             e = np.random.randint(70, 95)
             eng = np.random.randint(80, 100)
-        elif target == 'Pertanian & Ilmu Hayati':
+        elif target == 'Pertanian & Agroteknologi':
             r = np.random.randint(75, 100)
             i = np.random.randint(70, 95)
             science = np.random.randint(80, 100)
             agriculture = np.random.randint(80, 100)
+        elif target == 'Perikanan & Kelautan':
+            r = np.random.randint(75, 100)
+            i = np.random.randint(75, 95)
+            science = np.random.randint(80, 100)
+            fishery = np.random.randint(80, 100)
+            sci_ach = np.random.randint(1, 4)
             
         rows.append({
             'riasec_r': r, 'riasec_i': i, 'riasec_a': a,
@@ -103,7 +110,7 @@ def generate_synthetic_data(num_samples=1000):
             'grade_informatics': info, 'grade_english': eng,
             'grade_music': music, 'grade_culinary': culinary,
             'grade_sports': sports, 'grade_medical': medical,
-            'grade_agriculture': agriculture,
+            'grade_agriculture': agriculture, 'grade_fishery': fishery,
             'achievement_tech': tech_ach, 'achievement_science': sci_ach,
             'achievement_art': art_ach,
             'talent': target
@@ -113,7 +120,7 @@ def generate_synthetic_data(num_samples=1000):
 
 def main():
     print("Generating synthetic student profile data...")
-    df = generate_synthetic_data(1200)
+    df = generate_synthetic_data(1500)
     
     # Split features and target
     X = df.drop(columns=['talent'])
@@ -149,3 +156,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

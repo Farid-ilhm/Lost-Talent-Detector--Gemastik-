@@ -354,7 +354,7 @@ class StudentApiController extends Controller
                         : 'Tidak ada';
 
                     $prompt = "Anda adalah AI Detektor Bakat untuk aplikasi Lost Talent Detector.
-Tugas Anda adalah memprediksi bakat siswa secara cerdas dan personal berdasarkan profil di bawah ini.
+Tugas Anda adalah memprediksi bakat siswa secara cerdas dan personal berdasarkan profil di bawah ini. Analisis nama mata pelajaran, prestasi, hobi, dan tes minat secara teliti agar rekomendasi akurat dan relevan dengan bidang keahlian aktual (seperti Perikanan, Kelautan, Pertanian, Medis, Teknik, Desain, dll).
 
 Profil Siswa:
 - Peran: {$user->role}
@@ -367,7 +367,7 @@ Profil Siswa:
 
 Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan sertakan format Markdown/Keterangan teks apa pun selain JSON:
 {
-  \"primary_talent\": \"Bakat utama yang paling dominan (contoh: Robotik, Programming, Desain Kreatif & UI/UX, Bisnis & Kewirausahaan, Sains & Riset, dll)\",
+  \"primary_talent\": \"Bakat utama yang paling dominan (contoh: Perikanan & Kelautan, Pertanian & Agroteknologi, Robotik, Programming, Desain Kreatif & UI/UX, Bisnis & Kewirausahaan, Sains & Riset, Seni Kuliner & Tata Boga, Seni Musik & Pertunjukan, Olahraga & Kesehatan Fisik, Kesehatan & Keperawatan (Medis), dll)\",
   \"confidence_score\": 95,
   \"supporting_talents\": [
     {\"talent\": \"Bakat pendukung 1\", \"confidence\": 85},
@@ -552,7 +552,13 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
                              return str_contains($name, 'tani') || str_contains($name, 'tanah') || str_contains($name, 'kebun') || str_contains($name, 'botani') || str_contains($name, 'agro') || str_contains($name, 'ternak') || str_contains($name, 'hama') || str_contains($name, 'klimatologi');
                          });
 
-        // Check if there is a highly specific interest that doesn't fit the standard 11 categories
+        $isFishery = str_contains($allText, 'ikan') || str_contains($allText, 'perikanan') || str_contains($allText, 'perairan') || str_contains($allText, 'kelautan') || str_contains($allText, 'maritim') || str_contains($allText, 'akuakultur') || str_contains($allText, 'mancing') || str_contains($allText, 'pancing') || str_contains($allText, 'iktiologi') || str_contains($allText, 'seafood') ||
+                     $grades->contains(function($g) {
+                         $name = strtolower($g->subject_name);
+                         return str_contains($name, 'ikan') || str_contains($name, 'perikanan') || str_contains($name, 'perairan') || str_contains($name, 'kelautan') || str_contains($name, 'maritim') || str_contains($name, 'akuakultur') || str_contains($name, 'iktiologi') || str_contains($name, 'kualitas air') || str_contains($name, 'hidrobiologi') || str_contains($name, 'oceanografi');
+                     });
+
+        // Check if there is a highly specific interest that doesn't fit standard categories
         $hasCustomInterest = false;
         $customInterestName = '';
         if (count($interests) > 0) {
@@ -562,7 +568,7 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
                 $hasCustomInterest = true;
                 
                 $lowerInterest = strtolower($primaryInterest);
-                $standards = ['robot', 'coding', 'program', 'sains', 'riset', 'desain', 'ui', 'ux', 'bisnis', 'usaha', 'sosial', 'didik', 'masak', 'boga', 'kuliner', 'chef', 'koki', 'musik', 'vokal', 'olahraga', 'atlet', 'medis', 'dokter', 'perawat', 'tani', 'kebun', 'tanah', 'botani', 'agro', 'ternak', 'hutan', 'tanaman'];
+                $standards = ['robot', 'coding', 'program', 'sains', 'riset', 'desain', 'ui', 'ux', 'bisnis', 'usaha', 'sosial', 'didik', 'masak', 'boga', 'kuliner', 'chef', 'koki', 'musik', 'vokal', 'olahraga', 'atlet', 'medis', 'dokter', 'perawat', 'tani', 'kebun', 'tanah', 'botani', 'agro', 'ternak', 'hutan', 'tanaman', 'ikan', 'perikanan', 'perairan', 'kelautan', 'maritim', 'mancing', 'pancing', 'iktiologi', 'akuakultur'];
                 foreach ($standards as $s) {
                     if (str_contains($lowerInterest, $s)) {
                         $hasCustomInterest = false;
@@ -584,7 +590,8 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
             'Seni Musik & Pertunjukan' => 50,
             'Olahraga & Kesehatan Fisik' => 50,
             'Kesehatan & Keperawatan (Medis)' => 50,
-            'Pertanian & Ilmu Hayati' => 50
+            'Pertanian & Agroteknologi' => 50,
+            'Perikanan & Kelautan' => 50
         ];
 
         if ($hasCustomInterest) {
@@ -637,7 +644,10 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
             $talentScores['Kesehatan & Keperawatan (Medis)'] += 35;
         }
         if ($isAgriculture) {
-            $talentScores['Pertanian & Ilmu Hayati'] += 35;
+            $talentScores['Pertanian & Agroteknologi'] += 35;
+        }
+        if ($isFishery) {
+            $talentScores['Perikanan & Kelautan'] += 50;
         }
 
         // Rule: Heuristics based on grades
@@ -655,6 +665,7 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
             $talentScores['Robotik'] += 15;
             $talentScores['Sains & Riset'] += 15;
             $talentScores['Kesehatan & Keperawatan (Medis)'] += 10;
+            $talentScores['Perikanan & Kelautan'] += 15;
         }
 
         // Rule: Heuristics based on RIASEC
@@ -668,7 +679,8 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
         $talentScores['Seni Musik & Pertunjukan'] += ($riasec['Artistic'] * 0.4) + ($riasec['Social'] * 0.1);
         $talentScores['Olahraga & Kesehatan Fisik'] += ($riasec['Realistic'] * 0.4);
         $talentScores['Kesehatan & Keperawatan (Medis)'] += ($riasec['Investigative'] * 0.3) + ($riasec['Social'] * 0.2);
-        $talentScores['Pertanian & Ilmu Hayati'] += ($riasec['Realistic'] * 0.3) + ($riasec['Investigative'] * 0.2);
+        $talentScores['Pertanian & Agroteknologi'] += ($riasec['Realistic'] * 0.3) + ($riasec['Investigative'] * 0.2);
+        $talentScores['Perikanan & Kelautan'] += ($riasec['Realistic'] * 0.3) + ($riasec['Investigative'] * 0.3);
 
         // Rule: Heuristics based on hobbies & interests
         foreach ($hobbies as $h) {
@@ -698,7 +710,10 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
                 $talentScores['Kesehatan & Keperawatan (Medis)'] += 15;
             }
             if (str_contains($hLower, 'tani') || str_contains($hLower, 'kebun') || str_contains($hLower, 'tanaman') || str_contains($hLower, 'ternak')) {
-                $talentScores['Pertanian & Ilmu Hayati'] += 15;
+                $talentScores['Pertanian & Agroteknologi'] += 15;
+            }
+            if (str_contains($hLower, 'mancing') || str_contains($hLower, 'pancing') || str_contains($hLower, 'ikan') || str_contains($hLower, 'laut') || str_contains($hLower, 'perairan')) {
+                $talentScores['Perikanan & Kelautan'] += 20;
             }
         }
 
@@ -734,24 +749,77 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
                 $talentScores['Kesehatan & Keperawatan (Medis)'] += $multiplier;
             }
             if (str_contains($achLower, 'tani') || str_contains($achLower, 'kebun') || str_contains($achLower, 'agro') || str_contains($achLower, 'pangan')) {
-                $talentScores['Pertanian & Ilmu Hayati'] += $multiplier;
+                $talentScores['Pertanian & Agroteknologi'] += $multiplier;
+            }
+            if (str_contains($achLower, 'mancing') || str_contains($achLower, 'pancing') || str_contains($achLower, 'ikan') || str_contains($achLower, 'perikanan') || str_contains($achLower, 'perairan') || str_contains($achLower, 'kelautan')) {
+                $talentScores['Perikanan & Kelautan'] += $multiplier + 15;
             }
         }
 
-        // Find primary talent
+        // Domain dampening: Dampen tech domain scores if student has NO tech signal
+        $hasTechSignal = ($avgInformatika >= 70) ||
+                         $achievements->contains(function($a) {
+                             $t = strtolower($a->title);
+                             return str_contains($t, 'robot') || str_contains($t, 'coding') || str_contains($t, 'komputer') || str_contains($t, 'pemrograman') || str_contains($t, 'software') || str_contains($t, 'aplikasi');
+                         }) ||
+                         str_contains($allText, 'coding') || str_contains($allText, 'program') || str_contains($allText, 'robot') || str_contains($allText, 'arduino') || str_contains($allText, 'software') || str_contains($allText, 'komputer') || str_contains($allText, 'web') || str_contains($allText, 'app');
+
+        if (!$hasTechSignal) {
+            $talentScores['Programming'] = max(5, $talentScores['Programming'] * 0.05);
+            $talentScores['Robotik'] = max(5, $talentScores['Robotik'] * 0.05);
+        }
+
+        // Find initial top candidate
         arsort($talentScores);
-        $primary = key($talentScores);
-        $primaryVal = min(99, $talentScores[$primary]); // Cap at 99%
+        $topCandidate = $hasCustomInterest ? $customInterestName : key($talentScores);
+
+        // Domain Affinity Matrix: Boost related supporting talents based on primary domain
+        $affinityMap = [
+            'Perikanan & Kelautan' => [['Sains & Riset', 40], ['Pertanian & Agroteknologi', 35], ['Bisnis & Kewirausahaan', 25], ['Sosial & Pendidikan', 20]],
+            'Pertanian & Agroteknologi' => [['Sains & Riset', 40], ['Perikanan & Kelautan', 35], ['Bisnis & Kewirausahaan', 25], ['Kesehatan & Keperawatan (Medis)', 20]],
+            'Programming' => [['Robotik', 40], ['Sains & Riset', 35], ['Desain Kreatif & UI/UX', 30], ['Bisnis & Kewirausahaan', 20]],
+            'Robotik' => [['Programming', 40], ['Sains & Riset', 35], ['Desain Kreatif & UI/UX', 25]],
+            'Desain Kreatif & UI/UX' => [['Programming', 30], ['Seni Musik & Pertunjukan', 25], ['Bisnis & Kewirausahaan', 25]],
+            'Bisnis & Kewirausahaan' => [['Sosial & Pendidikan', 35], ['Desain Kreatif & UI/UX', 25], ['Programming', 20], ['Pertanian & Agroteknologi', 20]],
+            'Sains & Riset' => [['Perikanan & Kelautan', 35], ['Pertanian & Agroteknologi', 35], ['Kesehatan & Keperawatan (Medis)', 30], ['Programming', 25]],
+            'Kesehatan & Keperawatan (Medis)' => [['Sains & Riset', 40], ['Olahraga & Kesehatan Fisik', 30], ['Sosial & Pendidikan', 25]],
+            'Olahraga & Kesehatan Fisik' => [['Kesehatan & Keperawatan (Medis)', 35], ['Sosial & Pendidikan', 25]],
+            'Seni Kuliner & Tata Boga' => [['Bisnis & Kewirausahaan', 35], ['Pertanian & Agroteknologi', 25], ['Seni Musik & Pertunjukan', 20]],
+            'Seni Musik & Pertunjukan' => [['Desain Kreatif & UI/UX', 30], ['Seni Kuliner & Tata Boga', 20], ['Sosial & Pendidikan', 20]],
+            'Sosial & Pendidikan' => [['Bisnis & Kewirausahaan', 35], ['Sains & Riset', 25], ['Kesehatan & Keperawatan (Medis)', 20]]
+        ];
+
+        if (isset($affinityMap[$topCandidate])) {
+            foreach ($affinityMap[$topCandidate] as $affItem) {
+                list($affTalent, $boost) = $affItem;
+                if (isset($talentScores[$affTalent])) {
+                    $talentScores[$affTalent] += $boost;
+                }
+            }
+        }
+
+        // Re-sort after domain affinity boost
+        arsort($talentScores);
+        $primary = $hasCustomInterest ? $customInterestName : key($talentScores);
+        $primaryVal = 99.0; // Scaled UI confidence
         
-        // Remove primary to compile supporting
-        unset($talentScores[$primary]);
+        // Remove primary from array to extract top 3 supporting talents
+        $tempScores = $talentScores;
+        if (isset($tempScores[$primary])) {
+            unset($tempScores[$primary]);
+        }
+
+        $topSuppScore = count($tempScores) > 0 ? reset($tempScores) : 1;
+        $basePercentages = [85.0, 75.0, 65.0];
         $supporting = [];
         $counter = 0;
-        foreach ($talentScores as $talent => $score) {
+        foreach ($tempScores as $talent => $score) {
             if ($counter >= 3) break;
+            $ratio = $score / max(1, $topSuppScore);
+            $calculatedConf = round(min(92.0, max(45.0, $basePercentages[$counter] * $ratio)), 1);
             $supporting[] = [
                 'talent' => $talent,
-                'confidence' => floatval(min(95, $score))
+                'confidence' => $calculatedConf
             ];
             $counter++;
         }
@@ -773,6 +841,9 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
         if (count($hobbies) > 0) {
             $reasoning[] = "Minat personal ditopang oleh hobi Anda: " . implode(', ', array_slice($hobbies, 0, 3));
         }
+        if ($isFishery && $primary === 'Perikanan & Kelautan') {
+            $reasoning[] = "Memiliki rekam nilai akademik dan riwayat prestasi yang bersangkut paut dengan ekologi perairan, akuakultur, dan perikanan.";
+        }
         if ($isCulinary && $primary === 'Seni Kuliner & Tata Boga') {
             $reasoning[] = "Memiliki minat kuat dan riwayat prestasi di bidang boga, kuliner, serta teknik pengolahan pangan.";
         }
@@ -785,7 +856,7 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
         if ($isMedical && $primary === 'Kesehatan & Keperawatan (Medis)') {
             $reasoning[] = "Tertarik pada ilmu kesehatan, anatomi tubuh, dan pengabdian medis masyarakat.";
         }
-        if ($isAgriculture && $primary === 'Pertanian & Ilmu Hayati') {
+        if ($isAgriculture && $primary === 'Pertanian & Agroteknologi') {
             $reasoning[] = "Menunjukkan rekam nilai akademik dan ketertarikan kuat di bidang botani, ilmu tanah, dan pertanian.";
         }
         if ($hasCustomInterest && $primary === $customInterestName) {
@@ -853,11 +924,17 @@ Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan se
                 $competitions = ['Lomba Kompetensi Siswa (LKS) Health & Social Care', 'Karya Tulis Ilmiah Kesehatan'];
                 $targets = ['Mempelajari teknik pertolongan pertama & keperawatan', 'Mengikuti seminar kesehatan dan magang klinis'];
                 break;
-            case 'Pertanian & Ilmu Hayati':
-                $careers = ['Ahli Agronomi / Agronomist', 'Agribisnis Consultant', 'Penyuluh Pertanian', 'Ahli Botani / Peneliti Pangan'];
-                $extracurriculars = ['Klub Pencinta Alam / Agro', 'Klub Hidroponik & Kebun Sekolah'];
+            case 'Pertanian & Agroteknologi':
+                $careers = ['Ahli Agronomi / Agroteknologi', 'Agribisnis Consultant', 'Penyuluh Pertanian', 'Ahli Botani / Peneliti Pangan'];
+                $extracurriculars = ['Klub Hidroponik & Kebun Sekolah', 'Klub Pencinta Alam / Agro'];
                 $competitions = ['Lomba Inovasi Teknologi Pertanian', 'Pekan Ilmiah Nasional Bidang Ketahanan Pangan'];
                 $targets = ['Mempelajari sistem pertanian hidroponik & modern', 'Melakukan riset mandiri tentang kesuburan tanah'];
+                break;
+            case 'Perikanan & Kelautan':
+                $careers = ['Ahli Akuakultur / Budidaya Perairan', 'Marine Biologist / Ahli Kelautan', 'Konsultan Quality Control Perikanan', 'Manager Industri Perikanan'];
+                $extracurriculars = ['Klub Akuakultur & Bio-Fisheries', 'Kelompok Studi Ekologi Perairan', 'Klub Research Marine & Fisheries'];
+                $competitions = ['Lomba Inovasi Teknologi Akuakultur & Perikanan', 'PIMNAS Bidang Ketahanan Maritim & Perikanan'];
+                $targets = ['Mempelajari teknik manajemen kualitas air & resirkulasi akuakultur (RAS)', 'Mengembangkan riset ekosistem perairan & sumber daya laut'];
                 break;
             default:
                 if ($hasCustomInterest && $primary === $customInterestName) {
