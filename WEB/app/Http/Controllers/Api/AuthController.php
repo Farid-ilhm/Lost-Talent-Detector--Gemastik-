@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\Institution;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -14,16 +16,57 @@ use Carbon\Carbon;
 class AuthController extends Controller
 {
     /**
-     * Register a new student or public user.
+     * Get list of registered institutions.
+     */
+    public function getInstitutions()
+    {
+        $institutions = Institution::with('user')->get()->map(function ($inst) {
+            return [
+                'id' => $inst->id,
+                'name' => $inst->name,
+                'npsn' => $inst->npsn,
+                'type' => $inst->type,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $institutions
+        ]);
+    }
+
+    /**
+     * Register a new user (siswa, mahasiswa, umum, institusi).
      */
     public function register(Request $request)
     {
+        // Clean empty strings for optional relation inputs
+        if ($request->input('institution_id') === '') {
+            $request->merge(['institution_id' => null]);
+        }
+        if ($request->input('classroom') === '') {
+            $request->merge(['classroom' => null]);
+        }
+        if ($request->input('major') === '') {
+            $request->merge(['major' => null]);
+        }
+        if ($request->input('semester') === '') {
+            $request->merge(['semester' => null]);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:siswa,mahasiswa,umum',
+            'role' => 'required|in:siswa,mahasiswa,umum,institusi',
             'phone' => 'nullable|string',
+            'npsn' => 'required_if:role,institusi|nullable|string|unique:institutions,npsn',
+            'institution_id' => 'nullable|exists:institutions,id',
+            'nisn' => 'required_if:role,siswa|nullable|string|unique:students,nisn',
+            'classroom' => 'required_if:role,siswa|nullable|string|max:50',
+            'major' => 'required_if:role,siswa|required_if:role,mahasiswa|nullable|string|max:50',
+            'nim' => 'required_if:role,mahasiswa|nullable|string|unique:students,nim',
+            'semester' => 'required_if:role,mahasiswa|nullable|integer|min:1|max:14',
         ]);
 
         if ($validator->fails()) {
@@ -34,7 +77,6 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Generate a 6-digit OTP code
         $otpCode = strval(rand(100000, 999999));
         $otpExpiresAt = Carbon::now()->addMinutes(10);
 
@@ -46,27 +88,68 @@ class AuthController extends Controller
             'phone' => $request->phone,
             'otp_code' => $otpCode,
             'otp_expires_at' => $otpExpiresAt,
-            'status' => 'pending_otp', // require OTP verification
+            'status' => 'active',
         ]);
 
-        // Create student / general profile record
-        Student::create([
-            'user_id' => $user->id,
-            'institution_id' => null,
-            'classroom_id' => null,
-        ]);
+        if ($request->role === 'institusi') {
+            Institution::create([
+                'user_id' => $user->id,
+                'npsn' => $request->npsn,
+                'type' => 'sekolah',
+                'is_verified' => false,
+            ]);
+        } else {
+            $classroomId = null;
+            if (($request->role === 'siswa' || $request->role === 'mahasiswa') && $request->filled('institution_id')) {
+                $academicYear = \App\Models\AcademicYear::firstOrCreate(
+                    [
+                        'institution_id' => $request->institution_id,
+                        'name' => '2026/2027',
+                    ],
+                    [
+                        'is_active' => true,
+                    ]
+                );
 
-        // Log OTP code (simulated email delivery)
-        Log::info("Simulated OTP sent to {$user->email}: {$otpCode}");
+                $majorId = null;
+                if ($request->filled('major')) {
+                    $major = \App\Models\Major::firstOrCreate([
+                        'name' => $request->major,
+                        'institution_id' => $request->institution_id,
+                    ]);
+                    $majorId = $major->id;
+                }
+
+                $classroomName = $request->role === 'mahasiswa' ? ("Semester " . $request->semester) : $request->classroom;
+
+                if ($classroomName) {
+                    $classroom = \App\Models\Classroom::firstOrCreate([
+                        'name' => $classroomName,
+                        'institution_id' => $request->institution_id,
+                        'academic_year_id' => $academicYear->id,
+                        'major_id' => $majorId,
+                    ]);
+                    $classroomId = $classroom->id;
+                }
+            }
+
+            Student::create([
+                'user_id' => $user->id,
+                'institution_id' => in_array($request->role, ['siswa', 'mahasiswa']) ? $request->institution_id : null,
+                'classroom_id' => $classroomId,
+                'nisn' => $request->role === 'siswa' ? $request->nisn : null,
+                'nim' => $request->role === 'mahasiswa' ? $request->nim : null,
+                'semester' => $request->role === 'mahasiswa' ? $request->semester : null,
+            ]);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Registration successful. Verification OTP has been sent.',
+            'message' => 'Registrasi berhasil. Silakan login.',
             'data' => [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'role' => $user->role,
-                'simulated_otp' => $otpCode // Return for easier developer/judge testing
             ]
         ], 201);
     }
@@ -164,6 +247,13 @@ class AuthController extends Controller
                 'message' => 'Account is not activated yet. Please verify OTP.',
                 'requires_otp' => true,
                 'email' => $user->email
+            ], 403);
+        }
+
+        if ($user->role === 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Administrator hanya dapat diakses melalui Web Dashboard.'
             ], 403);
         }
 

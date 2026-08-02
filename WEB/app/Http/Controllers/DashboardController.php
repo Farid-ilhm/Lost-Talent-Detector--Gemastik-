@@ -34,24 +34,12 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'siswa' || $user->role === 'mahasiswa' || $user->role === 'umum') {
-            $student = Student::firstOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'institution_id' => null,
-                    'classroom_id' => null,
-                ]
-            );
-            $student->load(['classroom', 'institution.user']);
-
-            $grades = AcademicGrade::where('student_id', $student->id)->get();
-            $achievements = Achievement::where('student_id', $student->id)->orderBy('created_at', 'desc')->get();
-            $testResult = InterestTestResult::where('student_id', $student->id)->latest()->first();
-            $aiAnalysis = AiAnalysis::where('student_id', $student->id)->latest()->first();
-            
-            // Get active test
-            $activeTest = InterestTest::where('is_active', true)->with('questions')->first();
-
-            return view('dashboard.siswa', compact('student', 'grades', 'achievements', 'testResult', 'aiAnalysis', 'activeTest'));
+            Auth::logout();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+            return redirect('/login')->withErrors([
+                'email' => 'Akun Siswa/Mahasiswa/Umum hanya dapat diakses melalui aplikasi Mobile.'
+            ]);
         }
 
         if ($user->role === 'guru') {
@@ -195,6 +183,13 @@ class DashboardController extends Controller
             'test_id' => 'required',
             'answers' => 'required|array',
         ]);
+
+        $uniqueValues = array_unique(array_values($request->answers));
+        if (count($request->answers) >= 6 && count($uniqueValues) === 1) {
+            return redirect()->back()->withErrors([
+                'answers' => 'Jawaban Anda terlalu seragam (diisi dengan nilai yang sama untuk semua soal). Mohon isi tes kuesioner sesuai dengan kecenderungan minat aktual Anda.'
+            ]);
+        }
 
         // Clear existing answers for this test
         InterestTestAnswer::where('student_id', $student->id)->delete();

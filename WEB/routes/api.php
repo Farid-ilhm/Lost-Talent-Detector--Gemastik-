@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\TeacherApiController;
 use App\Http\Controllers\Api\InstitutionApiController;
 
 // Public authentication routes
+Route::get('/institutions', [AuthController::class, 'getInstitutions']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('/login', [AuthController::class, 'login']);

@@ -27,6 +27,16 @@ class WebAuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            if (in_array($user->role, ['siswa', 'mahasiswa', 'umum'])) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return back()->withErrors([
+                    'email' => 'Akun Siswa/Mahasiswa/Umum hanya dapat diakses melalui aplikasi Mobile. Silakan gunakan aplikasi Mobile.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
             return redirect()->intended('/dashboard');
         }

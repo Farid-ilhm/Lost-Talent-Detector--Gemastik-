@@ -23,15 +23,21 @@ class InstitutionApiController extends Controller
         $institution = Institution::where('user_id', $user->id)->first();
 
         if (!$institution) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Institution profile not found'
-            ], 404);
+            $institution = Institution::create([
+                'user_id' => $user->id,
+                'npsn' => 'NPSN-' . strval(rand(100000, 999999)),
+                'type' => 'sekolah',
+                'is_verified' => true,
+            ]);
         }
+        $institution->load('user');
 
         $teachersCount = Teacher::where('institution_id', $institution->id)->count();
         $classroomsCount = Classroom::where('institution_id', $institution->id)->count();
-        $studentsCount = Student::where('institution_id', $institution->id)->count();
+        $studentsCount = Student::where('institution_id', $institution->id)
+            ->whereHas('user', function ($query) {
+                $query->whereIn('role', ['siswa', 'mahasiswa', 'umum']);
+            })->count();
 
         // Get unverified achievements count
         $unverifiedAchievementsCount = \App\Models\Achievement::whereHas('student', function ($query) use ($institution) {

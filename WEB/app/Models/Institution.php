@@ -24,6 +24,13 @@ class Institution extends Model
         'is_verified' => 'boolean',
     ];
 
+    protected $appends = ['name'];
+
+    public function getNameAttribute()
+    {
+        return $this->user ? $this->user->name : null;
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

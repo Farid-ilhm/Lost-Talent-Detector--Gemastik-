@@ -13,42 +13,65 @@ class InterestTestSeeder extends Seeder
      */
     public function run(): void
     {
-        $riasec = InterestTest::create([
-            'title' => 'Tes Minat Bakat RIASEC',
-            'description' => 'Tes minat bakat berbasis RIASEC (Realistic, Investigative, Artistic, Social, Enterprising, Conventional) untuk mengidentifikasi kecenderungan minat karir dan bakat Anda.',
-            'is_active' => true,
-        ]);
+        $riasec = InterestTest::updateOrCreate(
+            ['title' => 'Tes Minat Bakat RIASEC'],
+            [
+                'description' => 'Tes minat bakat berbasis RIASEC (Realistic, Investigative, Artistic, Social, Enterprising, Conventional) untuk mengidentifikasi kecenderungan minat karir dan bakat Anda.',
+                'is_active' => true,
+            ]
+        );
+
+        // Clear existing questions to avoid duplication on re-seed
+        InterestTestQuestion::where('interest_test_id', $riasec->id)->delete();
 
         $questions = [
             // Realistic
             ['question_text' => 'Saya suka memperbaiki barang-barang mekanik atau instalasi listrik.', 'category' => 'Realistic'],
             ['question_text' => 'Saya suka merakit robot, perangkat keras komputer, atau melakukan pertukangan kayu.', 'category' => 'Realistic'],
             ['question_text' => 'Saya senang beraktivitas di luar ruangan dan melakukan pekerjaan fisik.', 'category' => 'Realistic'],
+            ['question_text' => 'Saya tertarik merawat mesin, motor, atau peralatan teknik otomotif.', 'category' => 'Realistic'],
+            ['question_text' => 'Saya suka bekerja dengan alat pertukangan, perkakas, atau bahan konstruksi.', 'category' => 'Realistic'],
+            ['question_text' => 'Saya lebih memilih aktivitas operasional praktis dibanding hanya membaca teori.', 'category' => 'Realistic'],
 
             // Investigative
             ['question_text' => 'Saya suka memecahkan masalah matematika yang rumit dan logika.', 'category' => 'Investigative'],
             ['question_text' => 'Saya senang melakukan eksperimen sains atau meneliti teori-teori baru.', 'category' => 'Investigative'],
             ['question_text' => 'Saya senang menulis program komputer (coding) untuk memecahkan masalah.', 'category' => 'Investigative'],
+            ['question_text' => 'Saya suka mengamati fenomena alam, analisis data, dan mencari tahu cara kerja suatu sistem.', 'category' => 'Investigative'],
+            ['question_text' => 'Saya menikmati kegiatan membaca jurnal ilmiah atau artikel riset mendalam.', 'category' => 'Investigative'],
+            ['question_text' => 'Saya merasa tertantang saat harus memecahkan teka-teki logika atau algoritma rumit.', 'category' => 'Investigative'],
 
             // Artistic
             ['question_text' => 'Saya senang menggambar, melukis, mendesain grafis, atau mengedit video.', 'category' => 'Artistic'],
             ['question_text' => 'Saya suka menulis cerita pendek, puisi, novel, atau membuat aransemen musik.', 'category' => 'Artistic'],
             ['question_text' => 'Saya menikmati bermain alat musik, bernyanyi, atau berakting di panggung.', 'category' => 'Artistic'],
+            ['question_text' => 'Saya suka mengekspresikan ide dan perasaan melalui karya seni, fotografi, atau animasi.', 'category' => 'Artistic'],
+            ['question_text' => 'Saya tertarik dengan desain interior, tata busana, atau seni visual.', 'category' => 'Artistic'],
+            ['question_text' => 'Saya lebih senang bekerja secara bebas dan kreatif tanpa terikat aturan yang kaku.', 'category' => 'Artistic'],
 
             // Social
             ['question_text' => 'Saya senang membantu orang lain ketika mereka sedang menghadapi masalah pribadi.', 'category' => 'Social'],
             ['question_text' => 'Saya suka mengajar, membimbing, atau melatih orang lain tentang hal baru.', 'category' => 'Social'],
             ['question_text' => 'Saya menikmati kerja sama dalam tim dan melakukan pengabdian masyarakat.', 'category' => 'Social'],
+            ['question_text' => 'Saya merasa puas ketika bisa menjadi konselor atau pendengar yang baik bagi teman.', 'category' => 'Social'],
+            ['question_text' => 'Saya suka berpartisipasi dalam kegiatan sukarelawan atau kegiatan kemanusiaan.', 'category' => 'Social'],
+            ['question_text' => 'Saya senang menyambut orang baru dan menciptakan suasana ramah dalam lingkungan sosial.', 'category' => 'Social'],
 
             // Enterprising
             ['question_text' => 'Saya suka memimpin proyek kelompok atau menjadi ketua dalam organisasi.', 'category' => 'Enterprising'],
             ['question_text' => 'Saya senang merencanakan strategi penjualan, berbisnis, atau menawarkan ide baru.', 'category' => 'Enterprising'],
             ['question_text' => 'Saya suka bernegosiasi dan berbicara di depan umum untuk meyakinkan orang lain.', 'category' => 'Enterprising'],
+            ['question_text' => 'Saya tertarik memulai usaha mandiri atau menjalankan proyek kewirausahaan.', 'category' => 'Enterprising'],
+            ['question_text' => 'Saya menikmati tantangan mengambil keputusan penting dan mengarahkan tim.', 'category' => 'Enterprising'],
+            ['question_text' => 'Saya senang melakukan presentasi pitch untuk mempromosikan produk atau ide baru.', 'category' => 'Enterprising'],
 
             // Conventional
             ['question_text' => 'Saya suka menyusun dokumen, berkas, atau data secara teratur dan sistematis.', 'category' => 'Conventional'],
             ['question_text' => 'Saya senang menghitung anggaran, menganalisis laporan keuangan, atau mencatat transaksi.', 'category' => 'Conventional'],
             ['question_text' => 'Saya lebih menyukai pekerjaan dengan aturan dan prosedur yang jelas daripada yang tidak terstruktur.', 'category' => 'Conventional'],
+            ['question_text' => 'Saya senang mengorganisir jadwal, membuat checklist kerja, dan mengelola database.', 'category' => 'Conventional'],
+            ['question_text' => 'Saya teliti dalam memeriksa ketepatan rincian data dan angka agar tidak ada kesalahan.', 'category' => 'Conventional'],
+            ['question_text' => 'Saya nyaman bekerja dalam struktur administrasi yang tertata rapi dan memiliki pedoman baku.', 'category' => 'Conventional'],
         ];
 
         foreach ($questions as $q) {

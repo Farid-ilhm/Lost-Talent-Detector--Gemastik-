@@ -22,16 +22,27 @@ class StudentApiController extends Controller
     public function getDashboard(Request $request)
     {
         $user = $request->user();
-        $student = Student::where('user_id', $user->id)
-            ->with(['classroom', 'institution'])
-            ->first();
 
-        if (!$student) {
+        if (!in_array($user->role, ['siswa', 'mahasiswa', 'umum'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student profile not found'
-            ], 404);
+                'message' => 'Hanya akun Siswa/Mahasiswa/Umum yang dapat mengakses dashboard siswa.'
+            ], 403);
         }
+        $student = Student::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'institution_id' => null,
+                'classroom_id' => null,
+            ]
+        );
+
+        if (!$student->institution_id && $student->classroom_id && $student->classroom) {
+            $student->institution_id = $student->classroom->institution_id;
+            $student->save();
+        }
+
+        $student->load(['user', 'classroom', 'institution.user']);
 
         $gradesCount = AcademicGrade::where('student_id', $student->id)->count();
         $achievements = Achievement::where('student_id', $student->id)->orderBy('created_at', 'desc')->get();
@@ -61,11 +72,7 @@ class StudentApiController extends Controller
     public function updateInterestsAndHobbies(Request $request)
     {
         $user = $request->user();
-        $student = Student::where('user_id', $user->id)->first();
-
-        if (!$student) {
-            return response()->json(['success' => false, 'message' => 'Student profile not found'], 404);
-        }
+        $student = Student::firstOrCreate(['user_id' => $user->id]);
 
         $validator = Validator::make($request->all(), [
             'hobbies' => 'required|array',
@@ -101,11 +108,7 @@ class StudentApiController extends Controller
     public function uploadAchievement(Request $request)
     {
         $user = $request->user();
-        $student = Student::where('user_id', $user->id)->first();
-
-        if (!$student) {
-            return response()->json(['success' => false, 'message' => 'Student profile not found'], 404);
-        }
+        $student = Student::firstOrCreate(['user_id' => $user->id]);
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -155,7 +158,7 @@ class StudentApiController extends Controller
      */
     public function getRiasecTest()
     {
-        $test = InterestTest::where('is_active', true)->with('questions')->first();
+        $test = InterestTest::where('is_active', true)->first();
 
         if (!$test) {
             return response()->json([
@@ -163,6 +166,20 @@ class StudentApiController extends Controller
                 'message' => 'No active test found'
             ], 404);
         }
+
+        $categories = ['Realistic', 'Investigative', 'Artistic', 'Social', 'Enterprising', 'Conventional'];
+        $sampledQuestions = collect();
+
+        foreach ($categories as $cat) {
+            $catQuestions = \App\Models\InterestTestQuestion::where('interest_test_id', $test->id)
+                ->where('category', $cat)
+                ->inRandomOrder()
+                ->take(3)
+                ->get();
+            $sampledQuestions = $sampledQuestions->merge($catQuestions);
+        }
+
+        $test->setRelation('questions', $sampledQuestions->shuffle());
 
         return response()->json([
             'success' => true,
@@ -176,11 +193,7 @@ class StudentApiController extends Controller
     public function submitTestAnswers(Request $request)
     {
         $user = $request->user();
-        $student = Student::where('user_id', $user->id)->first();
-
-        if (!$student) {
-            return response()->json(['success' => false, 'message' => 'Student profile not found'], 404);
-        }
+        $student = Student::firstOrCreate(['user_id' => $user->id]);
 
         $validator = Validator::make($request->all(), [
             'test_id' => 'required|exists:interest_tests,id',
@@ -194,6 +207,14 @@ class StudentApiController extends Controller
                 'success' => false,
                 'message' => 'Validation error',
                 'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $values = array_column($request->answers, 'value');
+        if (count($values) >= 6 && count(array_unique($values)) === 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jawaban Anda terlalu seragam (diisi dengan nilai yang sama untuk semua soal). Mohon isi tes kuesioner sesuai dengan kecenderungan minat aktual Anda.'
             ], 422);
         }
 
@@ -281,13 +302,8 @@ class StudentApiController extends Controller
     public function analyzeTalent(Request $request)
     {
         $user = $request->user();
-        $student = Student::where('user_id', $user->id)
-            ->with(['academicGrades', 'achievements', 'interestTestResults'])
-            ->first();
-
-        if (!$student) {
-            return response()->json(['success' => false, 'message' => 'Student profile not found'], 404);
-        }
+        $student = Student::firstOrCreate(['user_id' => $user->id]);
+        $student->load(['academicGrades', 'achievements', 'interestTestResults']);
 
         // Gather metrics for analysis
         $grades = $student->academicGrades;

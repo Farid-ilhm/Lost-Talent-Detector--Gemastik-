@@ -215,6 +215,16 @@
     @endif
 
     @if($activeTest)
+        @if($errors->has('answers'))
+            <p style="color: red; font-weight: bold; background-color: #f8d7da; padding: 10px; border-radius: 4px; border: 1px solid #f5c6cb;">
+                ⚠️ {{ $errors->first('answers') }}
+            </p>
+        @endif
+
+        <p style="background-color: #e2f0d9; color: #385723; padding: 10px; border-radius: 4px; border: 1px solid #c5e0b4;">
+            💡 <strong>Petunjuk Kejujuran:</strong> Tes ini tidak memiliki jawaban benar/salah. Hasil tes mempengaruhi keakuratan rekomendasi bakat dan karir berbasis AI Anda. Mohon isi dengan sungguh-sungguh sesuai minat aktual Anda.
+        </p>
+
         <form action="/student/test" method="POST">
             @csrf
             <input type="hidden" name="test_id" value="{{ $activeTest->id }}">
@@ -236,7 +246,7 @@
                 <tbody>
                     @foreach($activeTest->questions as $q)
                         <tr>
-                            <td>{{ $q->question_text }} (Kategori: {{ $q->category }})</td>
+                            <td>{{ $q->question_text }}</td>
                             <td><input type="radio" name="answers[{{ $q->id }}]" value="1" required></td>
                             <td><input type="radio" name="answers[{{ $q->id }}]" value="2"></td>
                             <td><input type="radio" name="answers[{{ $q->id }}]" value="3"></td>

@@ -12,7 +12,19 @@
   
   <form (ngSubmit)="onRegister()">
     <ion-item>
-      <ion-label position="stacked">Nama Lengkap</ion-label>
+      <ion-label position="stacked">Role Pengguna</ion-label>
+      <ion-select name="role" [(ngModel)]="userData.role" required>
+        <ion-select-option value="siswa">Siswa (Sekolah Menengah)</ion-select-option>
+        <ion-select-option value="mahasiswa">Mahasiswa (Perguruan Tinggi)</ion-select-option>
+        <ion-select-option value="umum">Pengguna Umum / Mandiri</ion-select-option>
+        <ion-select-option value="institusi">Institusi (Sekolah/Universitas)</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">
+        {{ userData.role === 'institusi' ? 'Nama Institusi' : 'Nama Lengkap' }}
+      </ion-label>
       <ion-input type="text" name="name" [(ngModel)]="userData.name" required></ion-input>
     </ion-item>
 
@@ -26,13 +38,58 @@
       <ion-input type="text" name="phone" [(ngModel)]="userData.phone"></ion-input>
     </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Role Pengguna</ion-label>
-      <ion-select name="role" [(ngModel)]="userData.role" required>
-        <ion-select-option value="siswa">Siswa / Mahasiswa</ion-select-option>
-        <ion-select-option value="umum">Pengguna Umum / Mandiri</ion-select-option>
+    <!-- KONDISIONAL ROLE: INSTITUSI -->
+    <ion-item *ngIf="userData.role === 'institusi'">
+      <ion-label position="stacked">NPSN (Nomor Pokok Sekolah Nasional)</ion-label>
+      <ion-input type="text" name="npsn" [(ngModel)]="userData.npsn" required></ion-input>
+    </ion-item>
+
+    <!-- KONDISIONAL DROPDOWN INSTITUSI (SISWA / MAHASISWA) -->
+    <ion-item *ngIf="userData.role === 'siswa' || userData.role === 'mahasiswa'">
+      <ion-label position="stacked">Pilih Sekolah / Universitas Anda</ion-label>
+      <ion-select name="institution_id" [(ngModel)]="userData.institution_id">
+        <ion-select-option value="">-- Pengguna Umum (Mandiri) --</ion-select-option>
+        <ion-select-option *ngFor="let inst of institutions" [value]="inst.id">
+          {{ inst.name }} (NPSN: {{ inst.npsn }})
+        </ion-select-option>
       </ion-select>
     </ion-item>
+
+    <!-- KONDISIONAL ROLE: SISWA -->
+    <div *ngIf="userData.role === 'siswa'">
+      <ion-item>
+        <ion-label position="stacked">NISN (Nomor Induk Siswa Nasional)</ion-label>
+        <ion-input type="text" name="nisn" [(ngModel)]="userData.nisn" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Nama Kelas (Tingkat/Kelompok)</ion-label>
+        <ion-input type="text" name="classroom" [(ngModel)]="userData.classroom" placeholder="Contoh: XII, XI, X, atau 10-A, 11-B" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Jurusan</ion-label>
+        <ion-input type="text" name="major" [(ngModel)]="userData.major" required></ion-input>
+      </ion-item>
+    </div>
+
+    <!-- KONDISIONAL ROLE: MAHASISWA -->
+    <div *ngIf="userData.role === 'mahasiswa'">
+      <ion-item>
+        <ion-label position="stacked">NIM (Nomor Induk Mahasiswa)</ion-label>
+        <ion-input type="text" name="nim" [(ngModel)]="userData.nim" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Semester Saat Ini</ion-label>
+        <ion-input type="number" name="semester" min="1" max="14" [(ngModel)]="userData.semester" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Jurusan</ion-label>
+        <ion-input type="text" name="major" [(ngModel)]="userData.major" required></ion-input>
+      </ion-item>
+    </div>
 
     <ion-item>
       <ion-label position="stacked">Password (Min. 8 karakter)</ion-label>

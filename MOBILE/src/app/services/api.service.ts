@@ -14,12 +14,16 @@ export class ApiService {
     private authService: AuthService
   ) {}
 
+  getPublicInstitutions(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/institutions`);
+  }
+
   getDashboard(): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     return this.http.get(`${this.apiUrl}/student/dashboard`, { headers });
   }
 
-  updateProfile(data: { hobbies: string[]; interests: string[]; personality: string }): Observable<any> {
+  updateProfile(data: { hobbies: string[]; interests: string[]; personality?: string }): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     return this.http.put(`${this.apiUrl}/student/interests-hobbies`, data, { headers });
   }
@@ -50,5 +54,20 @@ export class ApiService {
   triggerAiAnalysis(): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     return this.http.post(`${this.apiUrl}/student/analyze`, {}, { headers });
+  }
+
+  getTeacherData(): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get(`${this.apiUrl}/teacher/students`, { headers });
+  }
+
+  getTeacherStudents(): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get(`${this.apiUrl}/teacher/students`, { headers });
+  }
+
+  getInstitutionStats(): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get(`${this.apiUrl}/institution/stats`, { headers });
   }
 }
