@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/institutions/{id}/update', [DashboardController::class, 'adminUpdateInstitution']);
     Route::post('/admin/institutions/{id}/delete', [DashboardController::class, 'adminDeleteInstitution']);
     Route::post('/admin/competitions', [DashboardController::class, 'adminSaveCompetition']);
+    Route::post('/admin/competitions/delete-multiple', [DashboardController::class, 'adminDeleteMultipleCompetitions']);
     Route::get('/admin/competitions/{id}/edit', [DashboardController::class, 'adminEditCompetition']);
     Route::post('/admin/competitions/{id}/update', [DashboardController::class, 'adminUpdateCompetition']);
     Route::post('/admin/competitions/{id}/delete', [DashboardController::class, 'adminDeleteCompetition']);

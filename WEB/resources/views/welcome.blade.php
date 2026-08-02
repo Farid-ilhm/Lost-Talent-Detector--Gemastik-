@@ -229,7 +229,7 @@
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
                 <div style="max-width: 600px;">
                     <h3 style="font-size: 1.8rem; font-weight: 800; color: #FFFFFF;">Siap Menemukan Potensi Bakat Terbaik Anda?</h3>
-                    <p style="color: #A8A29E; font-size: 1.05rem; margin-top: 8px;">Dapatkan analisis intelijen bakat lengkap & rekomendasi perlombaan GEMASTIK secara gratis sekarang.</p>
+                    <p style="color: #A8A29E; font-size: 1.05rem; margin-top: 8px;">Dapatkan analisis intelijen bakat lengkap & rekomendasi perlombaan secara gratis sekarang.</p>
                 </div>
                 <div style="display: flex; gap: 14px;">
                     <a href="/login" class="btn-primary-dark" style="background-color: #FFFFFF; color: #1C1917; padding: 14px 28px; font-size: 1rem;">

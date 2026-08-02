@@ -759,4 +759,23 @@ class DashboardController extends Controller
 
         return redirect('/dashboard')->with('success', 'Kelas berhasil dihapus.');
     }
+
+    /**
+     * Delete multiple master competitions at once (bulk delete).
+     */
+    public function adminDeleteMultipleCompetitions(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            abort(403);
+        }
+
+        $ids = $request->input('comp_ids', []);
+        if (count($ids) > 0) {
+            \App\Models\Competition::whereIn('id', $ids)->delete();
+            return redirect('/dashboard')->with('success', count($ids) . ' kompetisi berhasil dihapus sekaligus.');
+        }
+
+        return redirect('/dashboard')->with('error', 'Tidak ada kompetisi yang dipilih.');
+    }
 }

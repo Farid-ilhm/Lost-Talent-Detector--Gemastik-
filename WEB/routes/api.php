@@ -28,6 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/student/test', [StudentApiController::class, 'getRiasecTest']);
     Route::post('/student/test/submit', [StudentApiController::class, 'submitTestAnswers']);
     Route::post('/student/analyze', [StudentApiController::class, 'analyzeTalent']);
+    Route::post('/student/grades', [StudentApiController::class, 'saveIndependentGrade']);
+    Route::delete('/student/grades/{id}', [StudentApiController::class, 'deleteIndependentGrade']);
 
     // Teacher routes
     Route::get('/teacher/students', [TeacherApiController::class, 'getStudentsList']);

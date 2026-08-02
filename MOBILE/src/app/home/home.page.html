@@ -113,7 +113,7 @@
                 </div>
               </div>
               <span class="badge-pill" style="font-size: 0.72rem;">
-                {{ student.user?.role === 'siswa' ? 'Siswa' : 'Mahasiswa' }}
+                {{ student.user?.role === 'siswa' ? 'Siswa' : (student.user?.role === 'mahasiswa' ? 'Mahasiswa' : 'Umum/Mandiri') }}
               </span>
             </div>
 
@@ -232,24 +232,80 @@
 
       <!-- TAB 3: NILAI RAPOR -->
       <div *ngIf="selectedTab === 'grades'">
-        <ion-card>
+        <ion-card style="margin-bottom: 12px;">
           <ion-card-header style="padding: 14px 16px;">
-            <ion-card-title style="font-size: 1.1rem;">Nilai Rapor Akademik</ion-card-title>
+            <ion-card-title style="font-size: 1.1rem;">Nilai Akademik</ion-card-title>
           </ion-card-header>
           <ion-card-content style="padding: 0 16px 14px 16px;">
-            <div *ngIf="grades.length === 0" class="ion-text-center ion-padding">
-              <p style="color: #78716C;">Belum ada nilai akademik.</p>
-            </div>
-            <ion-list *ngIf="grades.length > 0" lines="full">
-              <ion-item *ngFor="let grade of grades" style="--border-radius: 12px; margin-bottom: 6px;">
-                <ion-label>
-                  <h3 style="font-weight: 800; color: #1C1917;">Sem {{ grade.semester }} • {{ grade.subject_name }}</h3>
-                </ion-label>
-                <div slot="end" style="font-size: 1.2rem; font-weight: 800; color: #1C1917;">
-                  {{ grade.score }}
-                </div>
+            <!-- Tombol untuk membuka Modal List Nilai -->
+            <ion-button expand="block" color="secondary" id="open-grades-modal" style="font-weight: 800; margin-bottom: 5px; --border-radius: 16px; height: 50px;">
+              <ion-icon name="school-outline" style="margin-right: 8px; font-size: 1.3rem;"></ion-icon>
+              Lihat Nilai ({{ grades.length }} Terdaftar)
+            </ion-button>
+
+            <!-- Modal List Nilai -->
+            <ion-modal #gradeModal trigger="open-grades-modal" [initialBreakpoint]="0.85" [breakpoints]="[0, 0.5, 0.85, 1]">
+              <ng-template>
+                <ion-header>
+                  <ion-toolbar style="--background: #FFFFFF;">
+                    <ion-title style="font-weight: 800; color: #1C1917; font-size: 1.1rem;">Daftar Nilai</ion-title>
+                    <ion-buttons slot="end">
+                      <ion-button (click)="gradeModal.dismiss()" color="medium" style="font-weight: 800; font-size: 0.9rem;">Tutup</ion-button>
+                    </ion-buttons>
+                  </ion-toolbar>
+                </ion-header>
+                <ion-content class="ion-padding" style="--background: #FAFAF9;">
+                  <div *ngIf="grades.length === 0" class="ion-text-center ion-padding">
+                    <p style="color: #78716C;">Belum ada nilai akademik terdaftar.</p>
+                  </div>
+                  <ion-list *ngIf="grades.length > 0" lines="full" style="background: transparent;">
+                    <ion-item *ngFor="let grade of grades" style="--border-radius: 12px; margin-bottom: 8px; --background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                      <ion-label style="margin: 8px 0;">
+                        <h3 style="font-weight: 800; color: #1C1917;">Sem {{ grade.semester }} • {{ grade.subject_name }}</h3>
+                      </ion-label>
+                      <div slot="end" style="display: flex; align-items: center; gap: 8px;">
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #1C1917;">
+                          {{ grade.score }}
+                        </div>
+                        <ion-button *ngIf="!student?.institution_id" (click)="onDeleteGrade(grade.id)" fill="clear" color="danger" style="--padding-start: 4px; --padding-end: 4px; margin: 0; height: 32px;">
+                          <ion-icon name="trash-outline" style="font-size: 1.3rem; color: #DC2626;"></ion-icon>
+                        </ion-button>
+                      </div>
+                    </ion-item>
+                  </ion-list>
+                </ion-content>
+              </ng-template>
+            </ion-modal>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Form Input Nilai Mandiri (Hanya untuk Siswa Mandiri/Umum) -->
+        <ion-card *ngIf="!student?.institution_id" style="border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+          <ion-card-header style="padding: 14px 16px;">
+            <ion-card-title style="font-size: 1.1rem;">Input Nilai Akademik Mandiri</ion-card-title>
+          </ion-card-header>
+          <ion-card-content style="padding: 0 16px 14px 16px;">
+            <form (ngSubmit)="onSubmitIndependentGrade()">
+              <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+                <ion-label position="stacked">Semester</ion-label>
+                <ion-select name="grade_semester" [(ngModel)]="newGrade.semester" required>
+                  <ion-select-option *ngFor="let sem of [1,2,3,4,5,6,7,8,9,10,11,12,13,14]" [value]="sem">
+                    Semester {{ sem }}
+                  </ion-select-option>
+                </ion-select>
               </ion-item>
-            </ion-list>
+              <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+                <ion-label position="stacked">Nama Mapel / Mata Kuliah</ion-label>
+                <ion-input type="text" name="grade_subject" [(ngModel)]="newGrade.subject_name" required placeholder="Contoh: Matematika, Algoritma"></ion-input>
+              </ion-item>
+              <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+                <ion-label position="stacked">Nilai (0 - 100)</ion-label>
+                <ion-input type="number" name="grade_score" min="0" max="100" step="0.01" [(ngModel)]="newGrade.score" required placeholder="85.50"></ion-input>
+              </ion-item>
+              <ion-button expand="block" color="primary" class="ion-margin-top" type="submit" style="font-weight: 800; height: 50px; --border-radius: 16px;">
+                <i class="fa-solid fa-plus" style="margin-right: 8px;"></i> Simpan Nilai Mandiri
+              </ion-button>
+            </form>
           </ion-card-content>
         </ion-card>
       </div>
@@ -261,34 +317,79 @@
             <ion-card-title style="font-size: 1.1rem;">Sertifikat Prestasi</ion-card-title>
           </ion-card-header>
           <ion-card-content style="padding: 0 16px 14px 16px;">
-            <div *ngIf="achievements.length === 0" class="ion-text-center ion-padding">
-              <p style="color: #78716C;">Belum ada sertifikat.</p>
-            </div>
-            <ion-list *ngIf="achievements.length > 0" lines="full">
-              <ion-item *ngFor="let ach of achievements" style="--border-radius: 12px; margin-bottom: 6px;">
-                <ion-label>
-                  <h3 style="font-weight: 800; color: #1C1917;">{{ ach.title }}</h3>
-                  <p style="font-size: 0.78rem; color: #78716C;">{{ ach.category }} • {{ ach.level }}</p>
-                </ion-label>
-                <span slot="end" class="badge-pill" [style.background]="ach.is_verified ? '#D8F5E8' : '#FAF0E4'" [style.color]="ach.is_verified ? '#065F46' : '#92400E'" style="font-size: 0.7rem;">
-                  {{ ach.is_verified ? '✓ OK' : '⏳ Pending' }}
-                </span>
-              </ion-item>
-            </ion-list>
+            <!-- Tombol untuk membuka Modal List Sertifikat -->
+            <ion-button expand="block" color="secondary" id="open-certificates-modal" style="font-weight: 800; margin-bottom: 15px; --border-radius: 16px; height: 50px;">
+              <ion-icon name="ribbon-outline" style="margin-right: 8px; font-size: 1.3rem;"></ion-icon>
+              Lihat Sertifikat ({{ achievements.length }} Terdaftar)
+            </ion-button>
+
+            <!-- Modal List Sertifikat -->
+            <ion-modal #certModal trigger="open-certificates-modal" [initialBreakpoint]="0.85" [breakpoints]="[0, 0.5, 0.85, 1]">
+              <ng-template>
+                <ion-header>
+                  <ion-toolbar style="--background: #FFFFFF;">
+                    <ion-title style="font-weight: 800; color: #1C1917; font-size: 1.1rem;">Daftar Sertifikat Terdaftar</ion-title>
+                    <ion-buttons slot="end">
+                      <ion-button (click)="certModal.dismiss()" color="medium" style="font-weight: 800; font-size: 0.9rem;">Tutup</ion-button>
+                    </ion-buttons>
+                  </ion-toolbar>
+                </ion-header>
+                <ion-content class="ion-padding" style="--background: #FAFAF9;">
+                  <div *ngIf="achievements.length === 0" class="ion-text-center ion-padding">
+                    <p style="color: #78716C;">Belum ada sertifikat terdaftar.</p>
+                  </div>
+                  <ion-list *ngIf="achievements.length > 0" lines="full" style="background: transparent;">
+                    <ion-item *ngFor="let ach of achievements" style="--border-radius: 12px; margin-bottom: 8px; --background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                      <ion-label style="margin: 8px 0;">
+                        <h3 style="font-weight: 800; color: #1C1917; margin-bottom: 4px;">{{ ach.title }}</h3>
+                        <p style="font-size: 0.78rem; color: #78716C; margin-bottom: 2px;">Kategori: {{ ach.category }} • Tingkat: {{ ach.level }}</p>
+                        <p style="font-size: 0.78rem; color: #78716C;" *ngIf="ach.rank">Peringkat: {{ ach.rank }}</p>
+                      </ion-label>
+                      <span slot="end" class="badge-pill" [style.background]="ach.is_verified ? '#D8F5E8' : '#FAF0E4'" [style.color]="ach.is_verified ? '#065F46' : '#92400E'" style="font-size: 0.7rem;">
+                        {{ ach.is_verified ? '✓ OK' : '⏳ Pending' }}
+                      </span>
+                    </ion-item>
+                  </ion-list>
+                </ion-content>
+              </ng-template>
+            </ion-modal>
 
             <div style="margin: 16px 0 10px 0; font-weight: 800; font-size: 0.95rem; color: #1C1917;">
               Tambah Sertifikat Baru
             </div>
             <form (ngSubmit)="onSubmitAchievement()">
-              <ion-item>
+              <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
                 <ion-label position="stacked">Judul Prestasi</ion-label>
                 <ion-input type="text" name="ach_title" [(ngModel)]="newAchievement.title" required placeholder="Juara 1 Coding"></ion-input>
               </ion-item>
-              <ion-item>
+              <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+                <ion-label position="stacked">Kategori Prestasi</ion-label>
+                <ion-select name="ach_category" [(ngModel)]="newAchievement.category" required>
+                  <ion-select-option value="akademik">Akademik</ion-select-option>
+                  <ion-select-option value="olahraga">Olahraga</ion-select-option>
+                  <ion-select-option value="seni">Seni</ion-select-option>
+                  <ion-select-option value="sains">Sains</ion-select-option>
+                  <ion-select-option value="teknologi">Teknologi</ion-select-option>
+                  <ion-select-option value="keagamaan">Keagamaan</ion-select-option>
+                  <ion-select-option value="lainnya">Lainnya</ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+                <ion-label position="stacked">Tingkat Prestasi</ion-label>
+                <ion-select name="ach_level" [(ngModel)]="newAchievement.level" required>
+                  <ion-select-option value="sekolah">Antar Sekolah</ion-select-option>
+                  <ion-select-option value="kecamatan">Kecamatan</ion-select-option>
+                  <ion-select-option value="kabupaten">Kabupaten / Kota</ion-select-option>
+                  <ion-select-option value="provinsi">Provinsi</ion-select-option>
+                  <ion-select-option value="nasional">Nasional</ion-select-option>
+                  <ion-select-option value="internasional">Internasional</ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
                 <ion-label position="stacked">Peringkat / Juara</ion-label>
                 <ion-input type="text" name="ach_rank" [(ngModel)]="newAchievement.rank" required placeholder="Juara 1"></ion-input>
               </ion-item>
-              <ion-button expand="block" color="primary" class="ion-margin-top" type="submit">
+              <ion-button expand="block" color="primary" class="ion-margin-top" type="submit" style="font-weight: 800; height: 50px; --border-radius: 16px;">
                 Submit Sertifikat
               </ion-button>
             </form>
@@ -346,17 +447,79 @@
           </ion-button>
 
           <div *ngIf="aiAnalysis">
-            <ion-card class="card-mint">
+            <!-- Bakat Utama -->
+            <ion-card class="card-mint" style="margin-bottom: 12px;">
               <ion-card-header style="padding: 14px 16px;">
                 <ion-card-subtitle>Bakat Utama</ion-card-subtitle>
-                <ion-card-title style="font-size: 1.4rem;">{{ aiAnalysis.primary_talent }}</ion-card-title>
+                <ion-card-title style="font-size: 1.4rem; font-weight: 800;">{{ aiAnalysis.primary_talent }}</ion-card-title>
               </ion-card-header>
               <ion-card-content style="padding: 0 16px 14px 16px;">
-                <div class="badge-pill" style="background: #FFFFFF;">
+                <div class="badge-pill" style="background: #FFFFFF; font-weight: 700; color: #065F46; display: inline-block;">
                   Keyakinan AI: {{ aiAnalysis.confidence_score }}%
                 </div>
               </ion-card-content>
             </ion-card>
+
+            <!-- Bakat Pendukung -->
+            <ion-card style="margin-bottom: 12px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+              <ion-card-header style="padding: 14px 16px;">
+                <ion-card-title style="font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-star" style="color: #F59E0B; margin-right: 6px;"></i>Bakat Pendukung</ion-card-title>
+              </ion-card-header>
+              <ion-card-content style="padding: 0 16px 14px 16px;">
+                <ion-list lines="full">
+                  <ion-item *ngFor="let st of aiAnalysis.supporting_talents" style="--padding-start: 0; --inner-padding-end: 0; font-size: 0.9rem;">
+                    <ion-label style="font-weight: 700; color: #1C1917;">{{ st.talent }}</ion-label>
+                    <span slot="end" style="font-size: 0.85rem; font-weight: 600; color: #78716C;">{{ st.confidence }}%</span>
+                  </ion-item>
+                </ion-list>
+              </ion-card-content>
+            </ion-card>
+
+            <!-- Rekomendasi Karir -->
+            <ion-card style="margin-bottom: 12px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+              <ion-card-header style="padding: 14px 16px;">
+                <ion-card-title style="font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-briefcase" style="color: #3B82F6; margin-right: 6px;"></i>Rekomendasi Karir</ion-card-title>
+              </ion-card-header>
+              <ion-card-content style="padding: 0 16px 14px 16px;">
+                <ul style="padding-left: 20px; color: #1C1917; line-height: 1.6; margin: 8px 0 0 0; font-size: 0.9rem;">
+                  <li *ngFor="let career of aiAnalysis.career_recommendations" style="margin-bottom: 6px; font-weight: 600;">
+                    {{ career }}
+                  </li>
+                </ul>
+              </ion-card-content>
+            </ion-card>
+
+            <!-- Rekomendasi Lomba -->
+            <ion-card style="margin-bottom: 12px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+              <ion-card-header style="padding: 14px 16px;">
+                <ion-card-title style="font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-trophy" style="color: #10B981; margin-right: 6px;"></i>Rekomendasi Lomba</ion-card-title>
+              </ion-card-header>
+              <ion-card-content style="padding: 0 16px 14px 16px;">
+                <ul style="padding-left: 20px; color: #1C1917; line-height: 1.6; margin: 8px 0 0 0; font-size: 0.9rem;">
+                  <li *ngFor="let comp of aiAnalysis.competition_recommendations" style="margin-bottom: 6px; font-weight: 600;">
+                    {{ comp }}
+                  </li>
+                </ul>
+              </ion-card-content>
+            </ion-card>
+
+            <!-- Penjelasan Analisis (XAI) -->
+            <ion-card style="margin-bottom: 12px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+              <ion-card-header style="padding: 14px 16px;">
+                <ion-card-title style="font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-circle-info" style="color: #6366F1; margin-right: 6px;"></i>Penjelasan Analisis (XAI)</ion-card-title>
+              </ion-card-header>
+              <ion-card-content style="padding: 0 16px 14px 16px;">
+                <ul style="padding-left: 20px; color: #1C1917; line-height: 1.6; margin: 8px 0 0 0; font-size: 0.88rem;">
+                  <li *ngFor="let reason of aiAnalysis.reasoning" style="margin-bottom: 6px; font-weight: 500;">
+                    {{ reason }}
+                  </li>
+                </ul>
+              </ion-card-content>
+            </ion-card>
+
+            <div style="margin-top: 12px; font-size: 0.75rem; color: #78716C; text-align: right; padding-right: 8px; margin-bottom: 20px;">
+              Ver. Model: {{ aiAnalysis.model_version }} | Waktu Analisis: {{ aiAnalysis.analyzed_at }}
+            </div>
           </div>
         </div>
       </div>
@@ -372,11 +535,6 @@
       <ion-label>Beranda</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button (click)="selectTab('profile')" [selected]="selectedTab === 'profile'">
-      <ion-icon name="person-outline"></ion-icon>
-      <ion-label>Profil</ion-label>
-    </ion-tab-button>
-
     <ion-tab-button (click)="selectTab('grades')" [selected]="selectedTab === 'grades'">
       <ion-icon name="school-outline"></ion-icon>
       <ion-label>Nilai</ion-label>
@@ -389,7 +547,12 @@
 
     <ion-tab-button (click)="selectTab('talent')" [selected]="selectedTab === 'talent'">
       <ion-icon name="sparkles-outline"></ion-icon>
-      <ion-label>AI Engine</ion-label>
+      <ion-label>Tes & Analisa</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button (click)="selectTab('profile')" [selected]="selectedTab === 'profile'">
+      <ion-icon name="person-outline"></ion-icon>
+      <ion-label>Profil</ion-label>
     </ion-tab-button>
   </ion-tab-bar>
 </ion-footer>

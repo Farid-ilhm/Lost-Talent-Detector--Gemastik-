@@ -56,6 +56,16 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/student/analyze`, {}, { headers });
   }
 
+  saveIndependentGrade(data: { semester: number; subject_name: string; score: number }): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post(`${this.apiUrl}/student/grades`, data, { headers });
+  }
+
+  deleteIndependentGrade(gradeId: number): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.delete(`${this.apiUrl}/student/grades/${gradeId}`, { headers });
+  }
+
   getTeacherData(): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     return this.http.get(`${this.apiUrl}/teacher/students`, { headers });

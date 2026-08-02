@@ -8,71 +8,108 @@ import os
 
 def generate_synthetic_data(num_samples=1000):
     np.random.seed(42)
+    classes = [
+        'Robotik', 'Programming', 'Sains & Riset', 'Desain Kreatif & UI/UX',
+        'Bisnis & Kewirausahaan', 'Seni Kuliner & Tata Boga',
+        'Seni Musik & Pertunjukan', 'Olahraga & Kesehatan Fisik',
+        'Kesehatan & Keperawatan (Medis)', 'Sosial & Pendidikan',
+        'Pertanian & Ilmu Hayati'
+    ]
     
-    # 1. Generate inputs
-    riasec_r = np.random.randint(20, 100, num_samples)
-    riasec_i = np.random.randint(20, 100, num_samples)
-    riasec_a = np.random.randint(20, 100, num_samples)
-    riasec_s = np.random.randint(20, 100, num_samples)
-    riasec_e = np.random.randint(20, 100, num_samples)
-    riasec_c = np.random.randint(20, 100, num_samples)
-    
-    grade_math = np.random.randint(50, 100, num_samples)
-    grade_science = np.random.randint(50, 100, num_samples)
-    grade_informatics = np.random.randint(50, 100, num_samples)
-    grade_english = np.random.randint(50, 100, num_samples)
-    
-    achievement_tech = np.random.randint(0, 4, num_samples)
-    achievement_science = np.random.randint(0, 4, num_samples)
-    achievement_art = np.random.randint(0, 4, num_samples)
-    
-    data = pd.DataFrame({
-        'riasec_r': riasec_r, 'riasec_i': riasec_i, 'riasec_a': riasec_a,
-        'riasec_s': riasec_s, 'riasec_e': riasec_e, 'riasec_c': riasec_c,
-        'grade_math': grade_math, 'grade_science': grade_science,
-        'grade_informatics': grade_informatics, 'grade_english': grade_english,
-        'achievement_tech': achievement_tech, 'achievement_science': achievement_science,
-        'achievement_art': achievement_art
-    })
-    
-    # 2. Heuristics to assign target labels (classes)
-    targets = []
-    for idx, row in data.iterrows():
-        # Score calculation for each class with some random noise
-        scores = {
-            'Robotik': (row['grade_math'] * 0.2 + row['grade_informatics'] * 0.3 + 
-                        row['grade_science'] * 0.1 + row['riasec_r'] * 0.3 + 
-                        row['riasec_i'] * 0.2 + row['achievement_tech'] * 15 + 
-                        np.random.normal(0, 5)),
-            
-            'Programming': (row['grade_informatics'] * 0.4 + row['grade_math'] * 0.2 + 
-                            row['riasec_i'] * 0.4 + row['riasec_c'] * 0.2 + 
-                            row['achievement_tech'] * 12 + 
-                            np.random.normal(0, 5)),
-            
-            'Sains & Riset': (row['grade_science'] * 0.4 + row['grade_math'] * 0.3 + 
-                              row['riasec_i'] * 0.5 + row['achievement_science'] * 15 + 
-                              np.random.normal(0, 5)),
-            
-            'Desain Kreatif & UI/UX': (row['riasec_a'] * 0.6 + row['riasec_i'] * 0.2 + 
-                                       row['achievement_art'] * 15 + row['grade_english'] * 0.1 + 
-                                       np.random.normal(0, 5)),
-            
-            'Bisnis & Kewirausahaan': (row['riasec_e'] * 0.5 + row['riasec_s'] * 0.2 + 
-                                       row['riasec_c'] * 0.2 + row['grade_english'] * 0.2 + 
-                                       np.random.normal(0, 5)),
-            
-            'Sosial & Pendidikan': (row['riasec_s'] * 0.6 + row['riasec_e'] * 0.2 + 
-                                    row['grade_english'] * 0.2 + 
-                                    np.random.normal(0, 5))
-        }
+    rows = []
+    for _ in range(num_samples):
+        # Pick a target class
+        target = np.random.choice(classes)
         
-        # Select key with max score
-        primary_talent = max(scores, key=scores.get)
-        targets.append(primary_talent)
+        # Initialize default values
+        r = np.random.randint(20, 70)
+        i = np.random.randint(20, 70)
+        a = np.random.randint(20, 70)
+        s = np.random.randint(20, 70)
+        e = np.random.randint(20, 70)
+        c = np.random.randint(20, 70)
         
-    data['talent'] = targets
-    return data
+        math = np.random.randint(50, 80)
+        science = np.random.randint(50, 80)
+        info = np.random.randint(50, 80)
+        eng = np.random.randint(50, 80)
+        music = np.random.randint(50, 80)
+        culinary = np.random.randint(50, 80)
+        sports = np.random.randint(50, 80)
+        medical = np.random.randint(50, 80)
+        agriculture = np.random.randint(50, 80)
+        
+        tech_ach = np.random.randint(0, 2)
+        sci_ach = np.random.randint(0, 2)
+        art_ach = np.random.randint(0, 2)
+        
+        # Boost features based on the chosen target class to create clear signals
+        if target == 'Robotik':
+            r = np.random.randint(75, 100)
+            info = np.random.randint(80, 100)
+            math = np.random.randint(75, 100)
+            tech_ach = np.random.randint(1, 4)
+        elif target == 'Programming':
+            i = np.random.randint(75, 100)
+            c = np.random.randint(70, 95)
+            info = np.random.randint(85, 100)
+            tech_ach = np.random.randint(1, 4)
+        elif target == 'Sains & Riset':
+            i = np.random.randint(80, 100)
+            science = np.random.randint(85, 100)
+            math = np.random.randint(80, 100)
+            sci_ach = np.random.randint(1, 4)
+        elif target == 'Desain Kreatif & UI/UX':
+            a = np.random.randint(80, 100)
+            art_ach = np.random.randint(1, 4)
+            eng = np.random.randint(75, 100)
+        elif target == 'Bisnis & Kewirausahaan':
+            e = np.random.randint(80, 100)
+            eng = np.random.randint(80, 100)
+            s = np.random.randint(65, 90)
+        elif target == 'Seni Kuliner & Tata Boga':
+            r = np.random.randint(70, 95)
+            a = np.random.randint(70, 95)
+            science = np.random.randint(75, 95)
+            culinary = np.random.randint(80, 100)
+        elif target == 'Seni Musik & Pertunjukan':
+            a = np.random.randint(85, 100)
+            s = np.random.randint(70, 95)
+            art_ach = np.random.randint(1, 4)
+            music = np.random.randint(80, 100)
+        elif target == 'Olahraga & Kesehatan Fisik':
+            r = np.random.randint(85, 100)
+            s = np.random.randint(65, 90)
+            sports = np.random.randint(80, 100)
+        elif target == 'Kesehatan & Keperawatan (Medis)':
+            i = np.random.randint(75, 95)
+            s = np.random.randint(75, 95)
+            science = np.random.randint(80, 100)
+            medical = np.random.randint(80, 100)
+        elif target == 'Sosial & Pendidikan':
+            s = np.random.randint(80, 100)
+            e = np.random.randint(70, 95)
+            eng = np.random.randint(80, 100)
+        elif target == 'Pertanian & Ilmu Hayati':
+            r = np.random.randint(75, 100)
+            i = np.random.randint(70, 95)
+            science = np.random.randint(80, 100)
+            agriculture = np.random.randint(80, 100)
+            
+        rows.append({
+            'riasec_r': r, 'riasec_i': i, 'riasec_a': a,
+            'riasec_s': s, 'riasec_e': e, 'riasec_c': c,
+            'grade_math': math, 'grade_science': science,
+            'grade_informatics': info, 'grade_english': eng,
+            'grade_music': music, 'grade_culinary': culinary,
+            'grade_sports': sports, 'grade_medical': medical,
+            'grade_agriculture': agriculture,
+            'achievement_tech': tech_ach, 'achievement_science': sci_ach,
+            'achievement_art': art_ach,
+            'talent': target
+        })
+        
+    return pd.DataFrame(rows)
 
 def main():
     print("Generating synthetic student profile data...")

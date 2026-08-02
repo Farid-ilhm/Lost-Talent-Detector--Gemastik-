@@ -139,14 +139,20 @@
 
 <!-- 3. Kelola Master Data Lomba -->
 <div class="content-box" style="margin-top: 24px;">
-    <div class="section-title-row" style="margin-top: 0;">
-        <h3 class="section-title"><i class="fa-solid fa-trophy"></i> 3. Kelola Master Kompetisi Nasional (GEMASTIK, dll)</h3>
+    <div class="section-title-row" style="margin-top: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <h3 class="section-title" style="margin: 0;"><i class="fa-solid fa-trophy"></i> 3. Kelola Master Kompetisi Nasional (GEMASTIK, dll)</h3>
+        <button type="button" id="btn-delete-selected" class="btn-primary-dark" style="background-color: #FBE3E2; color: #991B1B; padding: 8px 16px; font-weight: 700; border-radius: 12px; display: none; align-items: center; gap: 8px; border: none; cursor: pointer; font-size: 0.85rem; transition: all 0.2s ease;">
+            <i class="fa-solid fa-trash"></i> Hapus Terpilih
+        </button>
     </div>
 
-    <div class="table-responsive" style="margin-bottom: 24px;">
+    <div class="table-responsive" style="margin-bottom: 24px; overflow-x: auto;">
         <table class="custom-table">
             <thead>
                 <tr>
+                    <th style="width: 40px; text-align: center; padding: 12px 8px;">
+                        <input type="checkbox" id="select-all-comp" style="transform: scale(1.3); cursor: pointer; margin: 0;">
+                    </th>
                     <th>Judul Kompetisi</th>
                     <th>Kategori</th>
                     <th>Penyelenggara</th>
@@ -158,6 +164,9 @@
             <tbody>
                 @foreach($competitions as $comp)
                     <tr>
+                        <td style="text-align: center; padding: 12px 8px;">
+                            <input type="checkbox" value="{{ $comp->id }}" class="comp-checkbox" style="transform: scale(1.3); cursor: pointer; margin: 0;">
+                        </td>
                         <td><strong>{{ $comp->title }}</strong></td>
                         <td><span class="card-cat-badge">{{ ucfirst($comp->category) }}</span></td>
                         <td>{{ $comp->organizer ?? '-' }}</td>
@@ -170,7 +179,7 @@
                                 </a>
                                 <form action="/admin/competitions/{{ $comp->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Yakin ingin menghapus kompetisi ini?');">
                                     @csrf
-                                    <button type="submit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: #FBE3E2; color: #991B1B;">
+                                    <button type="submit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: #FBE3E2; color: #991B1B; border: none; cursor: pointer;">
                                         <i class="fa-solid fa-trash"></i> Hapus
                                     </button>
                                 </form>
@@ -224,4 +233,75 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('select-all-comp');
+    const checkboxes = document.querySelectorAll('.comp-checkbox');
+    const deleteSelectedBtn = document.getElementById('btn-delete-selected');
+
+    function toggleDeleteButtonVisibility() {
+        const checkedCount = document.querySelectorAll('.comp-checkbox:checked').length;
+        if (checkedCount > 0) {
+            deleteSelectedBtn.style.display = 'inline-flex';
+            deleteSelectedBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Hapus Terpilih (' + checkedCount + ')';
+        } else {
+            deleteSelectedBtn.style.display = 'none';
+        }
+    }
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            checkboxes.forEach(function(cb) {
+                cb.checked = selectAllCheckbox.checked;
+            });
+            toggleDeleteButtonVisibility();
+        });
+    }
+
+    checkboxes.forEach(function(cb) {
+        cb.addEventListener('change', function() {
+            if (!cb.checked) {
+                if (selectAllCheckbox) selectAllCheckbox.checked = false;
+            } else {
+                const allChecked = Array.from(checkboxes).every(c => c.checked);
+                if (selectAllCheckbox) selectAllCheckbox.checked = allChecked;
+            }
+            toggleDeleteButtonVisibility();
+        });
+    });
+
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.addEventListener('click', function() {
+            const checkedCheckboxes = document.querySelectorAll('.comp-checkbox:checked');
+            if (checkedCheckboxes.length === 0) return;
+            
+            if (confirm('Yakin ingin menghapus ' + checkedCheckboxes.length + ' kompetisi yang terpilih secara massal?')) {
+                const tempForm = document.createElement('form');
+                tempForm.method = 'POST';
+                tempForm.action = '/admin/competitions/delete-multiple';
+                
+                // Add CSRF Token
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                tempForm.appendChild(csrfInput);
+                
+                // Add selected IDs
+                checkedCheckboxes.forEach(function(cb) {
+                    const idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'comp_ids[]';
+                    idInput.value = cb.value;
+                    tempForm.appendChild(idInput);
+                });
+                
+                document.body.appendChild(tempForm);
+                tempForm.submit();
+            }
+        });
+    }
+});
+</script>
 @endsection

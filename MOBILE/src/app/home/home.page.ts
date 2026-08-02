@@ -40,6 +40,12 @@ export class HomePage {
     description: ''
   };
 
+  newGrade = {
+    semester: 1,
+    subject_name: '',
+    score: null as number | null
+  };
+
   userRole: string | null = null;
   userName: string | null = null;
   
@@ -290,6 +296,82 @@ export class HomePage {
         await alert.present();
       }
     });
+  }
+
+  onSubmitIndependentGrade() {
+    if (!this.newGrade.subject_name || this.newGrade.score === null) return;
+    const payload = {
+      semester: this.newGrade.semester,
+      subject_name: this.newGrade.subject_name,
+      score: this.newGrade.score
+    };
+    this.apiService.saveIndependentGrade(payload).subscribe({
+      next: async (res: any) => {
+        const toast = await this.toastController.create({
+          message: 'Nilai akademik mandiri berhasil disimpan.',
+          duration: 2000,
+          color: 'success'
+        });
+        await toast.present();
+        // Reset form
+        this.newGrade = {
+          semester: 1,
+          subject_name: '',
+          score: null
+        };
+        this.loadDashboardData();
+      },
+      error: async (err: any) => {
+        let msg = 'Gagal menyimpan nilai.';
+        if (err.error && err.error.message) msg = err.error.message;
+        const alert = await this.alertController.create({
+          header: 'Gagal',
+          message: msg,
+          buttons: ['OK']
+        });
+        await alert.present();
+      }
+    });
+  }
+
+  async onDeleteGrade(gradeId: number) {
+    const alert = await this.alertController.create({
+      header: 'Hapus Nilai',
+      message: 'Apakah Anda yakin ingin menghapus nilai ini?',
+      buttons: [
+        {
+          text: 'Batal',
+          role: 'cancel'
+        },
+        {
+          text: 'Hapus',
+          handler: () => {
+            this.apiService.deleteIndependentGrade(gradeId).subscribe({
+              next: async (res: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Nilai berhasil dihapus.',
+                  duration: 2000,
+                  color: 'success'
+                });
+                await toast.present();
+                this.loadDashboardData();
+              },
+              error: async (err: any) => {
+                let msg = 'Gagal menghapus nilai.';
+                if (err.error && err.error.message) msg = err.error.message;
+                const toast = await this.toastController.create({
+                  message: msg,
+                  duration: 2000,
+                  color: 'danger'
+                });
+                await toast.present();
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   onLogout() {
