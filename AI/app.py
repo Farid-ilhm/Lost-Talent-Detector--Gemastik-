@@ -6,6 +6,7 @@ import os
 import sys
 import json
 import requests
+import re
 
 app = Flask(__name__)
 
@@ -24,51 +25,28 @@ else:
     print(f"Warning: Model file not found at {model_path}. Please run train.py first.", file=sys.stderr)
 
 def call_gemini_llm(api_key, context_data):
-    """
-    Call Gemini 1.5 Flash API with strict JSON instructions for Hybrid ML + LLM generation.
-    """
     if not api_key:
         return None
 
-    # Supported Gemini Flash endpoint
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
 
     prompt = f"""
 Anda adalah Asisten Psikolog Karir & Konsultan Bakat AI Profesional untuk platform 'Lost Talent Detector'.
-Tugas Anda adalah memberikan analisis bakat yang mendalam, kontekstual, dan personal berbasis hasil prediksi Machine Learning (Random Forest Classifier) berikut:
+Tugas Anda adalah menulis narasi analisis mendalam (analisis_mendalam) sepanjang 2-3 paragraf yang personal, memotivasi, dan inspiratif berdasarkan hasil analisis bakat pengguna berikut:
 
-Profil Pengguna:
-- Bakat Utama Prediksi ML: {context_data.get('primary_talent')} (Tingkat Keyakinan: {context_data.get('confidence_score')}%)
-- Bakat Pendukung: {json.dumps(context_data.get('supporting_talents', []), ensure_ascii=False)}
-- Skor Tes RIASEC (%): {json.dumps(context_data.get('riasec', {}), ensure_ascii=False)}
-- Nilai Rata-rata Pelajaran: {json.dumps(context_data.get('grades', {}), ensure_ascii=False)}
-- Sertifikat/Prestasi: {json.dumps(context_data.get('achievements', []), ensure_ascii=False)}
-- Minat & Hobi: {json.dumps(context_data.get('hobbies', []) + context_data.get('interests', []), ensure_ascii=False)}
+Bakat Utama: {context_data.get('primary_talent')} (Tingkat Keyakinan: {context_data.get('confidence_score')}%)
+Bakat Pendukung: {json.dumps(context_data.get('supporting_talents', []), ensure_ascii=False)}
+Orientasi RIASEC: {json.dumps(context_data.get('riasec', {}), ensure_ascii=False)}
+Nilai Rata-rata Pelajaran: {json.dumps(context_data.get('grades', {}), ensure_ascii=False)}
+Sertifikat/Prestasi: {json.dumps(context_data.get('achievements', []), ensure_ascii=False)}
+Minat & Hobi: {json.dumps(context_data.get('hobbies', []) + context_data.get('interests', []), ensure_ascii=False)}
 
-Tugas Anda:
-1. Tuliskan 'analisis_mendalam' (narasi 2-3 paragraf komprehensif, inspiratif, dan personal).
-2. Tuliskan 3-4 poin 'reasoning' (alasan teknis berbasis data nilai, prestasi, dan RIASEC).
-3. Tuliskan 3-4 'career_recommendations' (profesi/karir terbaik yang relevan).
-4. Tuliskan 2-3 'development_targets' (langkah pengembangan diri yang praktis dan konkret).
+PENTING: Jangan mengubah hasil deteksi bakat (bakat utama) yang sudah ditentukan oleh sistem. Fokuslah HANYA untuk menyusun narasi psikologi karir yang mendalam dan relevan dengan profil di atas.
 
 Kembalikan HANYA format JSON murni berikut tanpa tag ```json atau teks lainnya:
 {{
-  "analisis_mendalam": "Narasi 2-3 paragraf...",
-  "reasoning": [
-    "Poin alasan 1...",
-    "Poin alasan 2...",
-    "Poin alasan 3..."
-  ],
-  "career_recommendations": [
-    "Profesi 1",
-    "Profesi 2",
-    "Profesi 3"
-  ],
-  "development_targets": [
-    "Langkah 1",
-    "Langkah 2"
-  ]
+  "analisis_mendalam": "Narasi 2-3 paragraf yang menginspirasi..."
 }}
 """
 
@@ -105,9 +83,6 @@ Kembalikan HANYA format JSON murni berikut tanpa tag ```json atau teks lainnya:
     return None
 
 def call_openrouter_deepseek(api_key, context_data):
-    """
-    Call DeepSeek-R1 / Reasoning LLM via OpenRouter API with structured JSON output.
-    """
     if not api_key:
         return None
 
@@ -120,35 +95,21 @@ def call_openrouter_deepseek(api_key, context_data):
     }
 
     prompt = f"""
-Anda adalah Psikolog Karir & Konsultan Bakat AI Senior berpengalaman untuk platform 'Lost Talent Detector'.
-Berikan analisis psikologi karir yang tajam, mendalam, dan memotivasi berbasis data hasil Machine Learning berikut:
+Anda adalah Psikolog Karir & Konsultan Bakat AI Senior untuk platform 'Lost Talent Detector'.
+Tulis narasi analisis psikologi karir (analisis_mendalam) sepanjang 2-3 paragraf yang tajam, mendalam, dan memotivasi berdasarkan data bakat berikut:
 
-Data Profil Pengguna:
-- Bakat Utama (Hasil ML): {context_data.get('primary_talent')} (Tingkat Keyakinan: {context_data.get('confidence_score')}%)
-- Bakat Pendukung: {json.dumps(context_data.get('supporting_talents', []), ensure_ascii=False)}
-- Skor Kuesioner RIASEC (%): {json.dumps(context_data.get('riasec', {}), ensure_ascii=False)}
-- Nilai Pelajaran Rapor: {json.dumps(context_data.get('grades', {}), ensure_ascii=False)}
-- Sertifikat Prestasi: {json.dumps(context_data.get('achievements', []), ensure_ascii=False)}
-- Minat & Hobi: {json.dumps(context_data.get('hobbies', []) + context_data.get('interests', []), ensure_ascii=False)}
+Bakat Utama: {context_data.get('primary_talent')} (Tingkat Keyakinan: {context_data.get('confidence_score')}%)
+Bakat Pendukung: {json.dumps(context_data.get('supporting_talents', []), ensure_ascii=False)}
+Skor RIASEC (%): {json.dumps(context_data.get('riasec', {}), ensure_ascii=False)}
+Nilai Pelajaran Rapor: {json.dumps(context_data.get('grades', {}), ensure_ascii=False)}
+Sertifikat Prestasi: {json.dumps(context_data.get('achievements', []), ensure_ascii=False)}
+Minat & Hobi: {json.dumps(context_data.get('hobbies', []) + context_data.get('interests', []), ensure_ascii=False)}
 
-Gunakan penalaran psikologis (reasoning) yang logis dan runtut.
-Kembalikan HANYA format JSON murni berikut tanpa sintaks ```json atau komentar apapun:
+PENTING: Jangan mengubah hasil deteksi bakat (bakat utama) yang sudah ditentukan oleh sistem. Fokuslah HANYA untuk menyusun narasi psikologi karir yang mendalam dan relevan dengan profil di atas.
+
+Kembalikan HANYA format JSON murni berikut tanpa tag ```json atau teks lainnya:
 {{
-  "analisis_mendalam": "Narasi analisis psikologi mendalam 2-3 paragraf...",
-  "reasoning": [
-    "Poin analisis 1...",
-    "Poin analisis 2...",
-    "Poin analisis 3..."
-  ],
-  "career_recommendations": [
-    "Profesi 1",
-    "Profesi 2",
-    "Profesi 3"
-  ],
-  "development_targets": [
-    "Target konkret 1",
-    "Target konkret 2"
-  ]
+  "analisis_mendalam": "Narasi 2-3 paragraf analisis karir..."
 }}
 """
 
@@ -190,179 +151,37 @@ Kembalikan HANYA format JSON murni berikut tanpa sintaks ```json atau komentar a
 
     return None
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+def clean_text(text):
+    if not text:
+        return ""
+    text = text.lower()
+    text = re.sub(r'[^a-z0-9\s]', '', text)
+    return " ".join(text.split())
 
-# Repositories for recommendations
-CAREER_REPOSITORY = [
-    {"name": "Robotics Engineer", "talent": "Robotik", "tags": "robotika robot arduino mechanical embedded sensor automation iot"},
-    {"name": "Embedded Systems Developer", "talent": "Robotik", "tags": "embedded iot microcontoller arduino raspberry c++ firmware hardware"},
-    {"name": "IoT Architect", "talent": "Robotik", "tags": "iot internet of things sensor cloud smart home device network hardware"},
-    {"name": "Automation Specialist", "talent": "Robotik", "tags": "plc automation industrial control mechanical robot robotics"},
-    {"name": "Software Engineer", "talent": "Programming", "tags": "software engineering code coding programming python java web backend developer architect"},
-    {"name": "Backend Developer", "talent": "Programming", "tags": "backend web server api database programming sql node.js python golang php"},
-    {"name": "Data Scientist", "talent": "Programming", "tags": "data science analyst machine learning artificial intelligence python statistics sql math r"},
-    {"name": "System Analyst", "talent": "Programming", "tags": "system analyst software design requirements flow charts business architecture"},
-    {"name": "Research Scientist", "talent": "Sains & Riset", "tags": "scientist research research lab physics chemistry biology academic paper journal write study"},
-    {"name": "Data Analyst", "talent": "Sains & Riset", "tags": "data analyst excel tableau statistics visualization sql research insight trends"},
-    {"name": "Academic Professor", "talent": "Sains & Riset", "tags": "professor academic teacher researcher write paper teaching lecture university education"},
-    {"name": "Laboratory Researcher", "talent": "Sains & Riset", "tags": "laboratory experiment lab chemistry biochemistry physics analysis sample science research"},
-    {"name": "UI/UX Designer", "talent": "Desain Kreatif & UI/UX", "tags": "ui ux designer design figma wireframe prototype visual web layout app graphic user experience"},
-    {"name": "Product Designer", "talent": "Desain Kreatif & UI/UX", "tags": "product design industrial design prototyping user research figma packaging aesthetic"},
-    {"name": "Creative Director", "talent": "Desain Kreatif & UI/UX", "tags": "creative director advertising agency layout design photography visual art branding marketing"},
-    {"name": "Graphic Designer", "talent": "Desain Kreatif & UI/UX", "tags": "graphic design illustrator photoshop art vector logo branding canvas poster"},
-    {"name": "Business Development", "talent": "Bisnis & Kewirausahaan", "tags": "business development startup pitch deck b2b marketing sale strategy negotiation startup manager"},
-    {"name": "Product Manager", "talent": "Bisnis & Kewirausahaan", "tags": "product manager roadmap user stories backlog business requirements project agile scrum"},
-    {"name": "Entrepreneur/Founder", "talent": "Bisnis & Kewirausahaan", "tags": "entrepreneur founder startup business plan funding capital pitching ceo finance canvas bmc"},
-    {"name": "Financial Analyst", "talent": "Bisnis & Kewirausahaan", "tags": "financial analyst accounting invest money market excel stocks business valuation audit tax"},
-    {"name": "Teacher / Educator", "talent": "Sosial & Pendidikan", "tags": "teacher education classroom student teaching school curriculum learning public speaking"},
-    {"name": "Public Relations Specialist", "talent": "Sosial & Pendidikan", "tags": "public relations communication media press release event organizer branding talk speaker"},
-    {"name": "Human Resources Manager", "talent": "Sosial & Pendidikan", "tags": "human resources hr manager hiring recruit training employee psychology relation community"},
-    {"name": "Social Worker", "talent": "Sosial & Pendidikan", "tags": "social work charity NGO community service public relations support mental help helper"},
-    {"name": "Chef / Koki Profesional", "talent": "Seni Kuliner & Tata Boga", "tags": "chef koki boga kuliner masak food restaurant kitchen pastry baking"},
-    {"name": "Pastry Chef", "talent": "Seni Kuliner & Tata Boga", "tags": "pastry chef cake baking bakery bread dessert kitchen boga"},
-    {"name": "Food Stylist", "talent": "Seni Kuliner & Tata Boga", "tags": "food stylist photography presentation aesthetic culinary art cook boga"},
-    {"name": "Penyanyi / Vokalis Profesional", "talent": "Seni Musik & Pertunjukan", "tags": "penyanyi vokal menyanyi vokalis choir band musik song singer pertunjukan"},
-    {"name": "Komponis / Music Producer", "talent": "Seni Musik & Pertunjukan", "tags": "komponis music producer arranger audio recording song write instrument melodi harmoni"},
-    {"name": "Guru Musik / Vokal", "talent": "Seni Musik & Pertunjukan", "tags": "guru musik vokal melodi harmoni instrument piano gitar biola bernyanyi"},
-    {"name": "Atlet Profesional", "talent": "Olahraga & Kesehatan Fisik", "tags": "atlet olahraga fisik lari bola futsal badminton renang basket silat karate penjas"},
-    {"name": "Pelatih Olahraga / Coach", "talent": "Olahraga & Kesehatan Fisik", "tags": "pelatih coach olahraga fisik training fitness team strategy penjas"},
-    {"name": "Perawat Profesional", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "perawat nurse medis dokter rumah sakit obat rawat anatomi bidan farmasi"},
-    {"name": "Asisten Apoteker", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "apoteker farmasi obat resep kimia medis klinik lab"},
-    {"name": "Ahli Akuakultur / Budidaya Perairan", "talent": "Perikanan & Kelautan", "tags": "ikan perikanan akuakultur iktiologi perairan kelautan maritim mancing tambak seafood biologi laut"},
-    {"name": "Marine Biologist / Ahli Kelautan", "talent": "Perikanan & Kelautan", "tags": "kelautan oceanografi biologi laut ekologi perairan terumbu karang laut konservasi maritim"},
-    {"name": "Konsultan Quality Control Perikanan", "talent": "Perikanan & Kelautan", "tags": "perikanan mutu kualitas air hasil laut olah pangan ikan pengolahan riset"},
-    {"name": "Ahli Agronomi / Agroteknologi", "talent": "Pertanian & Agroteknologi", "tags": "pertanian agro agribisnis tanah tanaman botani perkebunan pangan hidroponik"}
-]
+def text_match(text, keywords):
+    cleaned = clean_text(text)
+    if not cleaned:
+        return False
+    for kw in keywords:
+        kw_cleaned = clean_text(kw)
+        if not kw_cleaned:
+            continue
+        if kw_cleaned in cleaned or cleaned in kw_cleaned:
+            return True
+    return False
 
-COMPETITION_REPOSITORY = [
-    {"name": "GEMASTIK - Pengembangan Perangkat Lunak", "talent": "Robotik", "tags": "software gemastik iot hardware app development code prototype"},
-    {"name": "Lomba Robotika Nasional (BARON)", "talent": "Robotik", "tags": "robot robotika baron arduino mechanical electrical race line follower obstacle avoidance"},
-    {"name": "GEMASTIK - Pemrograman (Competitive Programming)", "talent": "Programming", "tags": "gemastik programming algorithm competitive programming codeforces hackerrank structure c++"},
-    {"name": "Hackathon Indonesia AI Innovation", "talent": "Programming", "tags": "hackathon ai artificial intelligence app prototype startup code development"},
-    {"name": "Olimpiade Sains Nasional (OSN) - Informatika", "talent": "Sains & Riset", "tags": "osn sains informatika olimpiade computer science math algorithm competitive"},
-    {"name": "GEMASTIK - Karya Tulis Ilmiah TIK", "talent": "Sains & Riset", "tags": "gemastik karya tulis ilmiah paper research research report TIK write study journal"},
-    {"name": "GEMASTIK - Desain Pengalaman Pengguna (UI/UX Design)", "talent": "Desain Kreatif & UI/UX", "tags": "gemastik ui ux designer wireframe layout prototype figma app design user experience research"},
-    {"name": "Festival dan Lomba Seni Siswa Nasional (FLS2N)", "talent": "Desain Kreatif & UI/UX", "tags": "fls2n art seni lukis poster photography design graphic craft creativity"},
-    {"name": "National Business Plan Competition (NBPC)", "talent": "Bisnis & Kewirausahaan", "tags": "business plan pitch deck NBPC startup entrepreneur pitching canvas marketing plan financial plan"},
-    {"name": "Lomba Debat Nasional", "talent": "Bisnis & Kewirausahaan", "tags": "debat debate english critical thinking speech public speaking business model"},
-    {"name": "Lomba Debat Bahasa Indonesia", "talent": "Sosial & Pendidikan", "tags": "debat debate indonesia speech public speaking discussion arguments"},
-    {"name": "Kompetisi Pengabdian Sosial", "talent": "Sosial & Pendidikan", "tags": "social NGO community service charity volunteer help society education public service"},
-    {"name": "Lomba Masak Nasional", "talent": "Seni Kuliner & Tata Boga", "tags": "masak boga kuliner makanan cooking salon culinaire chef koki"},
-    {"name": "Salon Culinaire Indonesia", "talent": "Seni Kuliner & Tata Boga", "tags": "salon culinaire boga kuliner chef cooking competition food pastry"},
-    {"name": "Festival dan Lomba Seni Siswa Nasional (FLS2N) - Menyanyi", "talent": "Seni Musik & Pertunjukan", "tags": "fls2n seni menyanyi vokal vokalist lagu choir musik pertunjukan"},
-    {"name": "Got Talent Competition", "talent": "Seni Musik & Pertunjukan", "tags": "got talent menyanyi musik dance pertunjukan bakat show musik"},
-    {"name": "Olimpiade Olahraga Siswa Nasional (O2SN)", "talent": "Olahraga & Kesehatan Fisik", "tags": "o2sn olahraga fisik lari renang silat karate badminton futsal atlet"},
-    {"name": "Pekan Olahraga Mahasiswa (POMNAS)", "talent": "Olahraga & Kesehatan Fisik", "tags": "pomnas olahraga mahasiswa atlet tanding futsal basket badminton silat"},
-    {"name": "Lomba Kompetensi Siswa (LKS) Health & Social Care", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "lks care health nurse medis perawat sosial rumah sakit"},
-    {"name": "Karya Tulis Ilmiah Kesehatan", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "karya tulis ilmiah riset medis kesehatan obat farmasi penyakit"},
-    {"name": "Lomba Inovasi Teknologi Akuakultur & Perikanan", "talent": "Perikanan & Kelautan", "tags": "lomba perikanan akuakultur maritim kelautan ekologi air ikan mancing pancing"},
-    {"name": "PIMNAS Bidang Ketahanan Maritim & Perikanan", "talent": "Perikanan & Kelautan", "tags": "pimnas karya tulis ilmiah kelautan maritim laut perikanan sumber daya air"},
-    {"name": "Lomba Inovasi Teknologi Pertanian", "talent": "Pertanian & Agroteknologi", "tags": "pertanian agroteknologi inovasi pangan hidroponik kebun"}
-]
-
-EXTRACURRICULAR_REPOSITORY = [
-    {"name": "Klub Robotika", "talent": "Robotik", "tags": "robot robotika klub mechanical hardware arduino"},
-    {"name": "Coding Club", "talent": "Robotik", "tags": "coding club programming software code computer"},
-    {"name": "Karya Ilmiah Remaja", "talent": "Robotik", "tags": "kir karya ilmiah riset research science study"},
-    {"name": "Coding Club", "talent": "Programming", "tags": "coding club programming software code computer dev"},
-    {"name": "Karya Ilmiah Remaja", "talent": "Programming", "tags": "kir karya ilmiah riset research science study TIK"},
-    {"name": "Karya Ilmiah Remaja", "talent": "Sains & Riset", "tags": "kir karya ilmiah riset research science study lab physics biology chemistry"},
-    {"name": "Olimpiade Club", "talent": "Sains & Riset", "tags": "olimpiade club kompetisi sains math biology physics astronomy chemistry"},
-    {"name": "Klub Desain & Fotografi", "talent": "Desain Kreatif & UI/UX", "tags": "desain fotografi photoshop illustrator figma art visual craft"},
-    {"name": "Pramuka (Pubdok)", "talent": "Desain Kreatif & UI/UX", "tags": "pramuka pubdok dokumentasi publikasi foto video media design"},
-    {"name": "Koperasi Siswa", "talent": "Bisnis & Kewirausahaan", "tags": "koperasi siswa bisnis jualan retail financial money marketing"},
-    {"name": "Debate Club", "talent": "Bisnis & Kewirausahaan", "tags": "debat debate club public speaking english discussion arguments model"},
-    {"name": "Pramuka", "talent": "Sosial & Pendidikan", "tags": "pramuka scout leader community volunteer organization"},
-    {"name": "Palang Merah Remaja (PMR)", "talent": "Sosial & Pendidikan", "tags": "pmr red cross medicine health volunteer helper community"},
-    {"name": "OSIS", "talent": "Sosial & Pendidikan", "tags": "osis organization school leader event communication student relations"},
-    {"name": "Klub Memasak / Tata Boga", "talent": "Seni Kuliner & Tata Boga", "tags": "masak boga kuliner chef kue makanan kitchen culinary"},
-    {"name": "Kewirausahaan Kuliner", "talent": "Seni Kuliner & Tata Boga", "tags": "bisnis kuliner makanan warung cafe startup boga"},
-    {"name": "Paduan Suara / Choir", "talent": "Seni Musik & Pertunjukan", "tags": "choir paduan suara vokal menyanyi musik konser pertunjukan"},
-    {"name": "Klub Band / Musik", "talent": "Seni Musik & Pertunjukan", "tags": "band musik lagu gitar piano drum melodi harmoni klub"},
-    {"name": "Klub Futsal / Sepakbola", "talent": "Olahraga & Kesehatan Fisik", "tags": "futsal sepakbola bola lari olahraga fisik penjas"},
-    {"name": "Klub Basket / Badminton", "talent": "Olahraga & Kesehatan Fisik", "tags": "basket badminton raket olahraga fisik penjas ganda tunggal"},
-    {"name": "Palang Merah Remaja (PMR)", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "pmr red cross kesehatan medis pertolongan pertama obat rawat"},
-    {"name": "Klub Sains Keperawatan", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "sains keperawatan medis perawat obat biologi anatomi"},
-    {"name": "Klub Akuakultur & Bio-Fisheries", "talent": "Perikanan & Kelautan", "tags": "akuakultur ikan perikanan perairan mancing pancing kelautan biologi laut tambak"},
-    {"name": "Klub Hidroponik & Kebun Sekolah", "talent": "Pertanian & Agroteknologi", "tags": "hidroponik tani kebun tanaman agro botani"}
-]
-
-TARGET_REPOSITORY = [
-    {"name": "Mempelajari mikrokontroler Arduino/Raspberry Pi", "talent": "Robotik", "tags": "arduino raspberry pi mikrokontroler hardware rakit sensor iot"},
-    {"name": "Mengembangkan portofolio Internet of Things (IoT)", "talent": "Robotik", "tags": "iot internet of things cloud web sensor app portofolio"},
-    {"name": "Mempelajari algoritma dan struktur data lanjutan", "talent": "Programming", "tags": "algoritma struktur data advanced competitive programming codeforces hackerrank logic"},
-    {"name": "Membangun aplikasi open-source di GitHub", "talent": "Programming", "tags": "github open source git code app software project sharing repository"},
-    {"name": "Mempelajari metode penulisan karya ilmiah", "talent": "Sains & Riset", "tags": "karya ilmiah penulisan paper journal academic research method"},
-    {"name": "Membaca jurnal sains bereputasi secara rutin", "talent": "Sains & Riset", "tags": "jurnal sains membaca research paper biology physics chemistry library"},
-    {"name": "Mempelajari software desain Figma/Adobe XD", "talent": "Desain Kreatif & UI/UX", "tags": "figma adobe xd ui ux design layout app web graphics wireframe prototype"},
-    {"name": "Membuat portofolio case study di Behance", "talent": "Desain Kreatif & UI/UX", "tags": "behance dribbble portfolio case study ui ux design graphic visual"},
-    {"name": "Menyusun proposal model bisnis kanvas (BMC)", "talent": "Bisnis & Kewirausahaan", "tags": "bmc business model canvas business plan strategy startup pitch deck presentation"},
-    {"name": "Mempelajari dasar analisis keuangan & pemasaran", "talent": "Bisnis & Kewirausahaan", "tags": "keuangan pemasaran finance marketing analysis strategy startup sales excel study"},
-    {"name": "Melatih kemampuan public speaking", "talent": "Sosial & Pendidikan", "tags": "public speaking bicara depan umum presentasi communication speech debate talk"},
-    {"name": "Mengikuti program volunterisme kemanusiaan", "talent": "Sosial & Pendidikan", "tags": "volunteer relawan kemanusiaan sosial charity NGO community service help"},
-    {"name": "Mempelajari teknik sanitasi & kebersihan pangan", "talent": "Seni Kuliner & Tata Boga", "tags": "sanitasi higienis boga kuliner dapur pangan gizi masak"},
-    {"name": "Mengembangkan resep kreasi boga orisinal", "talent": "Seni Kuliner & Tata Boga", "tags": "resep masak boga makanan pastry kuliner rasa orisinal"},
-    {"name": "Mempelajari teori harmoni dan aransemen musik", "talent": "Seni Musik & Pertunjukan", "tags": "teori harmoni aransemen melodi partitur lagu musik piano vokal"},
-    {"name": "Melatih teknik vokal/instrumen secara konsisten", "talent": "Seni Musik & Pertunjukan", "tags": "teknik vokal bernyanyi instrument latihan piano gitar konsisten musik"},
-    {"name": "Meningkatkan ketahanan fisik dan teknik olahraga", "talent": "Olahraga & Kesehatan Fisik", "tags": "ketahanan fisik stamina gym lari teknik futsal basket badminton olahraga"},
-    {"name": "Mempelajari dasar fisiologi & nutrisi olahraga", "talent": "Olahraga & Kesehatan Fisik", "tags": "fisiologi anatomi nutrisi makan diet kalori suplemen olahraga atlet"},
-    {"name": "Mempelajari teknik pertolongan pertama & keperawatan", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "pertolongan pertama p3k medis perawat dokter bidan luka obat rawat"},
-    {"name": "Mengikuti seminar kesehatan dan magang klinis", "talent": "Kesehatan & Keperawatan (Medis)", "tags": "seminar kesehatan magang rumah sakit puskesmas klinik perawat medis apoteker"},
-    {"name": "Mempelajari teknik manajemen kualitas air & resirkulasi akuakultur (RAS)", "talent": "Perikanan & Kelautan", "tags": "kualitas air iktiologi ekologi perairan perikanan akuakultur mancing kelautan maritim"},
-    {"name": "Mengembangkan riset ekosistem perairan & sumber daya laut", "talent": "Perikanan & Kelautan", "tags": "ekologi perairan riset laut kelautan oceanografi biologi perikanan"},
-    {"name": "Mempelajari sistem pertanian hidroponik & modern", "talent": "Pertanian & Agroteknologi", "tags": "hidroponik tani kebun agro agribisnis tanah"}
-]
-
-def recommend_items(query, item_repository, predicted_talent, limit=4):
-    relevant_items = [item for item in item_repository if item['talent'] == predicted_talent]
-    if not relevant_items:
-        # Check if this is a custom dynamic interest not in standard categories
-        standards = ['Robotik', 'Programming', 'Sains & Riset', 'Desain Kreatif & UI/UX', 'Bisnis & Kewirausahaan', 'Sosial & Pendidikan', 'Seni Kuliner & Tata Boga', 'Seni Musik & Pertunjukan', 'Olahraga & Kesehatan Fisik', 'Kesehatan & Keperawatan (Medis)', 'Pertanian & Agroteknologi', 'Perikanan & Kelautan']
-        if predicted_talent not in standards:
-            if item_repository == CAREER_REPOSITORY:
-                return [
-                    f"{predicted_talent} Professional",
-                    f"Spesialis {predicted_talent}",
-                    f"Konsultan {predicted_talent}",
-                    f"Pendidik / Praktisi {predicted_talent}"
-                ][:limit]
-            elif item_repository == COMPETITION_REPOSITORY:
-                return [
-                    f"Kompetisi Nasional {predicted_talent}",
-                    f"Lomba Inovasi Mahasiswa {predicted_talent}",
-                    f"Festival / Pameran {predicted_talent}"
-                ][:limit]
-            elif item_repository == EXTRACURRICULAR_REPOSITORY:
-                return [
-                    f"Klub / Komunitas {predicted_talent}",
-                    f"Karya Tulis Ilmiah Bidang {predicted_talent}"
-                ][:limit]
-            elif item_repository == TARGET_REPOSITORY:
-                return [
-                    f"Meningkatkan keahlian praktis di bidang {predicted_talent}",
-                    f"Membangun portofolio karya dan proyek {predicted_talent}"
-                ][:limit]
-        relevant_items = item_repository
-        
-    documents = [item['tags'] for item in relevant_items]
-    
+# Load knowledge base
+kb_path = os.path.join(os.path.dirname(__file__), 'knowledge_base.json')
+knowledge_base = {"categories": []}
+if os.path.exists(kb_path):
     try:
-        vectorizer = TfidfVectorizer(stop_words='english')
-        tfidf_matrix = vectorizer.fit_transform(documents)
-        query_vector = vectorizer.transform([query])
-        
-        similarity_scores = cosine_similarity(query_vector, tfidf_matrix).flatten()
-        ranked_indices = similarity_scores.argsort()[::-1]
-        
-        recommendations = []
-        for idx in ranked_indices:
-            recommendations.append(relevant_items[idx]['name'])
-            if len(recommendations) >= limit:
-                break
-        return recommendations
+        with open(kb_path, 'r', encoding='utf-8') as f:
+            knowledge_base = json.load(f)
+        print(f"Successfully loaded Knowledge Base containing {len(knowledge_base.get('categories', []))} domains.")
     except Exception as e:
-        return [item['name'] for item in relevant_items[:limit]]
+        print(f"Error loading knowledge base: {e}", file=sys.stderr)
+else:
+    print(f"Warning: Knowledge base not found at {kb_path}", file=sys.stderr)
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -388,7 +207,168 @@ def predict():
         hobbies = req_data.get('hobbies', [])
         interests = req_data.get('interests', [])
 
-        # Map to feature names expected by the model
+        scores = {}
+        evidence_data = {}
+        reasoning_data = {}
+
+        categories = knowledge_base.get('categories', [])
+        if not categories:
+            return jsonify({'success': False, 'message': 'Knowledge base database is empty.'}), 500
+
+        for cat in categories:
+            cat_id = cat['id']
+            cat_name = cat['name']
+            aliases = cat.get('aliases', [])
+            subjects = cat.get('subjects', [])
+            hobbies_kb = cat.get('hobbies', [])
+            interests_kb = cat.get('interests', [])
+            riasec_kb = cat.get('riasec', [])
+
+            # 1. Academic Score (Max 35)
+            matched_grades = []
+            for sub, score in grades.items():
+                if text_match(sub, subjects):
+                    matched_grades.append(float(score))
+            
+            if matched_grades:
+                avg_grade = sum(matched_grades) / len(matched_grades)
+                academic_score = (avg_grade / 100.0) * 35.0
+            else:
+                academic_score = 0.0
+
+            # 2. Achievement Score (Max 20)
+            matched_ach_count = 0
+            achievement_points = 0.0
+            for ach in achievements:
+                ach_title = ach.get('title', '')
+                ach_category = ach.get('category', '')
+                ach_level = ach.get('level', 'sekolah')
+                
+                is_match = False
+                if text_match(ach_title, aliases + [cat_name] + hobbies_kb + interests_kb):
+                    is_match = True
+                
+                ach_cat_lower = ach_category.lower()
+                if cat_id in ['robotik', 'programming'] and ach_cat_lower == 'teknologi':
+                    is_match = True
+                elif cat_id in ['sains_riset', 'kesehatan_medis', 'pertanian_hayati', 'perikanan_kelautan'] and ach_cat_lower in ['sains', 'akademik']:
+                    is_match = True
+                elif cat_id in ['desain_kreatif', 'seni_musik'] and ach_cat_lower in ['seni', 'desain']:
+                    is_match = True
+                elif cat_id == 'olahraga_fisik' and ach_cat_lower == 'olahraga':
+                    is_match = True
+                elif cat_id == 'bisnis_kewirausahaan' and any(k in ach_title.lower() for k in ['bisnis', 'usaha', 'wirausaha', 'marketing', 'debat', 'pitching', 'finance']):
+                    is_match = True
+                elif cat_id == 'sosial_pendidikan' and (ach_cat_lower == 'keagamaan' or any(k in ach_title.lower() for k in ['sosial', 'pramuka', 'pmr', 'osis', 'volunteer', 'mengajar', 'debat'])):
+                    is_match = True
+                elif cat_id == 'seni_kuliner' and any(k in ach_title.lower() for k in ['masak', 'kuliner', 'boga', 'makanan', 'chef', 'kue']):
+                    is_match = True
+
+                if is_match:
+                    matched_ach_count += 1
+                    level_points = {
+                        'internasional': 20.0,
+                        'nasional': 18.0,
+                        'provinsi': 15.0,
+                        'kabupaten': 12.0,
+                        'kecamatan': 10.0,
+                        'sekolah': 8.0
+                    }
+                    achievement_points = max(achievement_points, level_points.get(ach_level.lower(), 5.0))
+            
+            achievement_score = min(20.0, achievement_points)
+
+            # 3. Interest Score (Max 20)
+            matched_interests_count = 0
+            for interest in interests:
+                if text_match(interest, interests_kb + aliases + [cat_name]):
+                    matched_interests_count += 1
+            interest_score = min(20.0, matched_interests_count * 10.0)
+
+            # 4. Hobby Score (Max 15)
+            matched_hobbies_count = 0
+            for hobby in hobbies:
+                if text_match(hobby, hobbies_kb + aliases + [cat_name]):
+                    matched_hobbies_count += 1
+            hobby_score = min(15.0, matched_hobbies_count * 7.5)
+
+            # 5. RIASEC Score (Max 10)
+            matched_riasec_scores = []
+            for r_type in riasec_kb:
+                if r_type in riasec:
+                    matched_riasec_scores.append(float(riasec[r_type]))
+            
+            if matched_riasec_scores:
+                avg_riasec = sum(matched_riasec_scores) / len(matched_riasec_scores)
+                riasec_score = (avg_riasec / 100.0) * 10.0
+            else:
+                riasec_score = 5.0
+
+            # 6. Positive/Negative Evidence
+            has_academic_ev = len(matched_grades) > 0 and (sum(matched_grades)/len(matched_grades)) >= 75
+            has_achievement_ev = matched_ach_count > 0
+            has_interest_ev = matched_interests_count > 0
+            has_hobby_ev = matched_hobbies_count > 0
+            has_riasec_ev = len(matched_riasec_scores) > 0 and (sum(matched_riasec_scores)/len(matched_riasec_scores)) >= 60
+
+            pos_evidence = sum([has_academic_ev, has_achievement_ev, has_interest_ev, has_hobby_ev, has_riasec_ev])
+            coverage = pos_evidence / 5.0
+
+            # 7. Penalty
+            penalty = 0.0
+            raw_score = academic_score + achievement_score + interest_score + hobby_score + riasec_score
+            if pos_evidence <= 1 and raw_score > 35.0:
+                penalty = 15.0
+
+            final_score = max(0.0, min(100.0, raw_score - penalty))
+            
+            # Academic Dampening Rule: If the student has grades, dampen scores of fields with zero academic matches.
+            if len(grades) > 0 and academic_score == 0.0:
+                if not (achievement_score > 0 and interest_score > 0):
+                    final_score = final_score * 0.5
+
+            scores[cat_name] = final_score
+            evidence_data[cat_name] = {
+                'positive_evidence': pos_evidence,
+                'negative_evidence': 5 - pos_evidence,
+                'coverage': coverage,
+                'breakdown': {
+                    'academic': has_academic_ev,
+                    'achievement': has_achievement_ev,
+                    'interest': has_interest_ev,
+                    'hobby': has_hobby_ev,
+                    'riasec': has_riasec_ev
+                }
+            }
+            
+            reasons = []
+            if has_academic_ev:
+                m_subs = [sub for sub in grades if text_match(sub, subjects)]
+                reasons.append(f"Nilai akademik Anda sangat kuat pada pelajaran terkait ({', '.join(m_subs)}).")
+            if has_achievement_ev:
+                reasons.append(f"Memiliki {matched_ach_count} sertifikat prestasi di tingkat kompetisi.")
+            if has_interest_ev:
+                reasons.append("Minat pengembangan karir personal Anda sejalan dengan bidang ini.")
+            if has_hobby_ev:
+                reasons.append("Hobi sehari-hari aktif menunjang kecakapan teknis Anda.")
+            if has_riasec_ev:
+                reasons.append(f"Orientasi kepribadian RIASEC ({', '.join(riasec_kb)}) yang tinggi.")
+            
+            if penalty > 0:
+                reasons.append("Peringatan: Terdapat ketidakselarasan indikator (nilai tinggi tetapi kurang didukung minat/hobi).")
+
+            reasoning_data[cat_name] = reasons
+
+        # Sort scores to find Top 5
+        sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        top_category_name = sorted_scores[0][0]
+        top_score = sorted_scores[0][1]
+        top_coverage = evidence_data[top_category_name]['coverage']
+
+        # Confidence: 70% Final Score + 30% Evidence Coverage
+        confidence_score = round(min(99.0, max(45.0, (0.7 * top_score) + (0.3 * top_coverage * 100))), 1)
+
+        # Extraction features for RF Classifier (Backward Compatibility)
         riasec_r = float(riasec.get('Realistic', 50))
         riasec_i = float(riasec.get('Investigative', 50))
         riasec_a = float(riasec.get('Artistic', 50))
@@ -396,89 +376,33 @@ def predict():
         riasec_e = float(riasec.get('Enterprising', 50))
         riasec_c = float(riasec.get('Conventional', 50))
 
-        # Dynamic grade scanner using keywords
-        math_list = []
-        science_list = []
-        informatics_list = []
-        english_list = []
+        math_list = [v for k, v in grades.items() if text_match(k, ["Matematika", "Kalkulus", "Statistika", "Aljabar", "Logika"])]
+        science_list = [v for k, v in grades.items() if text_match(k, ["Fisika", "Kimia", "Biologi", "Sains", "IPA"])]
+        info_list = [v for k, v in grades.items() if text_match(k, ["Informatika", "Komputer", "Pemrograman", "Program", "Coding", "Algoritma", "Jaringan", "Data", "Web", "Mobile", "IT", "TIK", "RPL", "Cyber"])]
+        eng_list = [v for k, v in grades.items() if text_match(k, ["Inggris", "English"])]
+        music_list = [v for k, v in grades.items() if text_match(k, ["Musik", "Vokal", "Solfeggio", "Harmoni", "Instrumen"])]
+        culinary_list = [v for k, v in grades.items() if text_match(k, ["Boga", "Masak", "Makanan", "Patisserie", "Gizi"])]
+        sports_list = [v for k, v in grades.items() if text_match(k, ["Olahraga", "Penjas", "Atletik", "Fisik"])]
+        medical_list = [v for k, v in grades.items() if text_match(k, ["Anatomi", "Farmasi", "Keperawatan", "Perawat", "Bidan"])]
+        agri_list = [v for k, v in grades.items() if text_match(k, ["Tani", "Tanah", "Kebun", "Botani", "Agro", "Ternak", "Tanaman"])]
+        fish_list = [v for k, v in grades.items() if text_match(k, ["Ikan", "Perikanan", "Perairan", "Kelautan", "Maritim", "Akuakultur", "Iktiologi", "Mancing"])]
 
-        # Extract general domain grades dynamically
-        grade_music = 70.0
-        grade_culinary = 70.0
-        grade_sports = 70.0
-        grade_medical = 70.0
-        grade_agriculture = 70.0
-        grade_fishery = 70.0
+        grade_math = sum(math_list)/len(math_list) if math_list else 70.0
+        grade_science = sum(science_list)/len(science_list) if science_list else 70.0
+        grade_informatics = sum(info_list)/len(info_list) if info_list else 70.0
+        grade_english = sum(eng_list)/len(eng_list) if eng_list else 70.0
+        grade_music = sum(music_list)/len(music_list) if music_list else 70.0
+        grade_culinary = sum(culinary_list)/len(culinary_list) if culinary_list else 70.0
+        grade_sports = sum(sports_list)/len(sports_list) if sports_list else 70.0
+        grade_medical = sum(medical_list)/len(medical_list) if medical_list else 70.0
+        grade_agriculture = sum(agri_list)/len(agri_list) if agri_list else 70.0
+        grade_fishery = sum(fish_list)/len(fish_list) if fish_list else 70.0
 
-        music_list = []
-        culinary_list = []
-        sports_list = []
-        medical_list = []
-        agriculture_list = []
-        fishery_list = []
+        achievement_tech = sum(1 for a in achievements if a.get('category','').lower() in ['teknologi', 'komputer'])
+        achievement_science = sum(1 for a in achievements if a.get('category','').lower() in ['sains', 'matematika', 'akademik'])
+        achievement_art = sum(1 for a in achievements if a.get('category','').lower() in ['seni', 'olahraga', 'keagamaan'])
 
-        for sub, score in grades.items():
-            sub_lower = sub.lower()
-            # Matematika/Logic
-            if any(k in sub_lower for k in ['matematika', 'kalkulus', 'statistika', 'aljabar', 'logika']):
-                math_list.append(float(score))
-            # Fisika/Kimia/Biologi/Sains
-            if any(k in sub_lower for k in ['fisika', 'kimia', 'biologi', 'sains', 'ipa']):
-                science_list.append(float(score))
-            # Informatika/Komputer/Coding/Software
-            if any(k in sub_lower for k in ['informatika', 'komputer', 'pemrograman', 'program', 'coding', 'algoritma', 'jaringan', 'data', 'web', 'mobile', 'kecerdasan', 'software', 'rekayasa', 'sistem', 'it', 'tik', 'rpl', 'cyber']):
-                informatics_list.append(float(score))
-            # Bahasa Inggris
-            if any(k in sub_lower for k in ['inggris', 'english']):
-                english_list.append(float(score))
-
-            if any(k in sub_lower for k in ['musik', 'vokal', 'solfeggio', 'harmoni', 'diksi', 'instrumen']):
-                music_list.append(float(score))
-            if any(k in sub_lower for k in ['boga', 'masak', 'makanan', 'patisserie', 'gizi']):
-                culinary_list.append(float(score))
-            if any(k in sub_lower for k in ['olahraga', 'penjas', 'atletik', 'fisik', 'kesehatan rekreasi']):
-                sports_list.append(float(score))
-            if any(k in sub_lower for k in ['anatomi', 'farmasi', 'klinis', 'perawat', 'bidan', 'gigi', 'patologi']):
-                medical_list.append(float(score))
-            if any(k in sub_lower for k in ['tani', 'tanah', 'kebun', 'botani', 'agro', 'ternak', 'hama', 'klimatologi']):
-                agriculture_list.append(float(score))
-            if any(k in sub_lower for k in ['ikan', 'perikanan', 'perairan', 'kelautan', 'maritim', 'akuakultur', 'iktiologi', 'hidrobiologi', 'oceanografi', 'kualitas air', 'pancing', 'mancing', 'seafood']):
-                fishery_list.append(float(score))
-
-        grade_math = sum(math_list) / len(math_list) if math_list else float(grades.get('Matematika', 70))
-        grade_science = sum(science_list) / len(science_list) if science_list else float(grades.get('Fisika', 70))
-        grade_informatics = sum(informatics_list) / len(informatics_list) if informatics_list else float(grades.get('Informatika', 70))
-        grade_english = sum(english_list) / len(english_list) if english_list else float(grades.get('Bahasa Inggris', 70))
-
-        if music_list: grade_music = sum(music_list) / len(music_list)
-        if culinary_list: grade_culinary = sum(culinary_list) / len(culinary_list)
-        if sports_list: grade_sports = sum(sports_list) / len(sports_list)
-        if medical_list: grade_medical = sum(medical_list) / len(medical_list)
-        if agriculture_list: grade_agriculture = sum(agriculture_list) / len(agriculture_list)
-        if fishery_list: grade_fishery = sum(fishery_list) / len(fishery_list)
-
-        # Achievement counts
-        achievement_tech = 0
-        achievement_science = 0
-        achievement_art = 0
-
-        for ach in achievements:
-            cat = ach.get('category', '').lower()
-            title = ach.get('title', '').lower()
-            if cat in ['teknologi', 'komputer'] or any(k in title for k in ['coding', 'program', 'robot', 'software', 'app', 'komputer', 'hackathon']):
-                achievement_tech += 1
-            elif cat in ['sains', 'matematika', 'akademik']:
-                achievement_science += 1
-            elif cat in ['seni', 'olahraga', 'keagamaan']:
-                achievement_art += 1
-
-        # Check hobbies and interests text
-        all_text = " ".join(hobbies + interests).lower()
-        is_fishery_text = any(k in all_text for k in ['mancing', 'pancing', 'ikan', 'perikanan', 'perairan', 'kelautan', 'maritim', 'akuakultur', 'iktiologi'])
-        is_tech_text = any(k in all_text for k in ['coding', 'program', 'developer', 'software', 'robot', 'arduino', 'hackathon', 'informatika', 'komputer', 'web', 'app', 'pemrograman'])
-
-        # Build feature DataFrame
-        features = pd.DataFrame([{
+        features_df = pd.DataFrame([{
             'riasec_r': riasec_r, 'riasec_i': riasec_i, 'riasec_a': riasec_a,
             'riasec_s': riasec_s, 'riasec_e': riasec_e, 'riasec_c': riasec_c,
             'grade_math': grade_math, 'grade_science': grade_science,
@@ -490,113 +414,57 @@ def predict():
             'achievement_art': achievement_art
         }])
 
-        # Perform ML prediction
-        clf = model_data['model']
-        classes = clf.classes_
-        probabilities = clf.predict_proba(features)[0]
+        primary_talent = top_category_name
+        rf_agreed = False
 
-        # Sort classes by probability
-        pred_dict = {classes[i]: float(probabilities[i]) for i in range(len(classes))}
+        if len(sorted_scores) > 1 and (sorted_scores[0][1] - sorted_scores[1][1]) <= 5.0:
+            clf = model_data['model']
+            try:
+                rf_pred = clf.predict(features_df)[0]
+                if rf_pred in [sorted_scores[0][0], sorted_scores[1][0]]:
+                    primary_talent = rf_pred
+                    rf_agreed = True
+            except Exception as e:
+                print(f"ML validation error: {e}", file=sys.stderr)
+        else:
+            clf = model_data['model']
+            try:
+                rf_pred = clf.predict(features_df)[0]
+                if rf_pred == primary_talent:
+                    rf_agreed = True
+            except Exception as e:
+                pass
 
-        # Hybrid Expert System: Boost probability if student has outstanding grades or profile in a specific domain
-        if grade_informatics > 85 or achievement_tech > 0 or is_tech_text:
-            pred_dict['Programming'] = pred_dict.get('Programming', 0.0) + 0.35
-            pred_dict['Robotik'] = pred_dict.get('Robotik', 0.0) + 0.20
-        if grade_math > 85 or grade_science > 85:
-            pred_dict['Sains & Riset'] = pred_dict.get('Sains & Riset', 0.0) + 0.25
-        if grade_fishery > 85 or len(fishery_list) > 0 or is_fishery_text:
-            pred_dict['Perikanan & Kelautan'] = pred_dict.get('Perikanan & Kelautan', 0.0) + 0.40
-        if grade_agriculture > 85 or len(agriculture_list) > 0:
-            pred_dict['Pertanian & Ilmu Hayati'] = pred_dict.get('Pertanian & Ilmu Hayati', 0.0) + 0.40
-        if grade_music > 85 or len(music_list) > 0:
-            pred_dict['Seni Musik & Pertunjukan'] = pred_dict.get('Seni Musik & Pertunjukan', 0.0) + 0.40
-        if grade_culinary > 85 or len(culinary_list) > 0:
-            pred_dict['Seni Kuliner & Tata Boga'] = pred_dict.get('Seni Kuliner & Tata Boga', 0.0) + 0.40
-        if grade_sports > 85 or len(sports_list) > 0:
-            pred_dict['Olahraga & Kesehatan Fisik'] = pred_dict.get('Olahraga & Kesehatan Fisik', 0.0) + 0.40
-        if grade_medical > 85 or len(medical_list) > 0:
-            pred_dict['Kesehatan & Keperawatan (Medis)'] = pred_dict.get('Kesehatan & Keperawatan (Medis)', 0.0) + 0.40
+        if rf_agreed:
+            confidence_score = min(99.0, confidence_score + 5.0)
 
-        # Domain dampening: Dampen tech domains if student has NO informatics grade, NO tech achievement, and NO tech hobbies
-        has_tech_signal = (grade_informatics >= 75) or (achievement_tech > 0) or is_tech_text
-        if not has_tech_signal:
-            pred_dict['Programming'] = pred_dict.get('Programming', 0.0) * 0.05
-            pred_dict['Robotik'] = pred_dict.get('Robotik', 0.0) * 0.05
-
-        # Determine top talent for domain affinity mapping
-        temp_sorted = sorted(pred_dict.items(), key=lambda item: item[1], reverse=True)
-        top_candidate = temp_sorted[0][0]
-
-        # Domain Affinity Matrix: Boost related supporting talents based on primary domain
-        AFFINITY_MAP = {
-            'Perikanan & Kelautan': [('Sains & Riset', 0.40), ('Pertanian & Ilmu Hayati', 0.35), ('Bisnis & Kewirausahaan', 0.25), ('Sosial & Pendidikan', 0.20)],
-            'Pertanian & Ilmu Hayati': [('Sains & Riset', 0.40), ('Perikanan & Kelautan', 0.35), ('Bisnis & Kewirausahaan', 0.25), ('Kesehatan & Keperawatan (Medis)', 0.20)],
-            'Programming': [('Robotik', 0.40), ('Sains & Riset', 0.35), ('Desain Kreatif & UI/UX', 0.30), ('Bisnis & Kewirausahaan', 0.20)],
-            'Robotik': [('Programming', 0.40), ('Sains & Riset', 0.35), ('Desain Kreatif & UI/UX', 0.25)],
-            'Desain Kreatif & UI/UX': [('Programming', 0.30), ('Seni Musik & Pertunjukan', 0.25), ('Bisnis & Kewirausahaan', 0.25)],
-            'Bisnis & Kewirausahaan': [('Sosial & Pendidikan', 0.35), ('Desain Kreatif & UI/UX', 0.25), ('Programming', 0.20), ('Pertanian & Ilmu Hayati', 0.20)],
-            'Sains & Riset': [('Perikanan & Kelautan', 0.35), ('Pertanian & Ilmu Hayati', 0.35), ('Kesehatan & Keperawatan (Medis)', 0.30), ('Programming', 0.25)],
-            'Kesehatan & Keperawatan (Medis)': [('Sains & Riset', 0.40), ('Olahraga & Kesehatan Fisik', 0.30), ('Sosial & Pendidikan', 0.25)],
-            'Olahraga & Kesehatan Fisik': [('Kesehatan & Keperawatan (Medis)', 0.35), ('Sosial & Pendidikan', 0.25)],
-            'Seni Kuliner & Tata Boga': [('Bisnis & Kewirausahaan', 0.35), ('Pertanian & Ilmu Hayati', 0.25), ('Seni Musik & Pertunjukan', 0.20)],
-            'Seni Musik & Pertunjukan': [('Desain Kreatif & UI/UX', 0.30), ('Seni Kuliner & Tata Boga', 0.20), ('Sosial & Pendidikan', 0.20)],
-            'Sosial & Pendidikan': [('Bisnis & Kewirausahaan', 0.35), ('Sains & Riset', 0.25), ('Kesehatan & Keperawatan (Medis)', 0.20)]
-        }
-
-        if top_candidate in AFFINITY_MAP:
-            for aff_talent, boost in AFFINITY_MAP[top_candidate]:
-                pred_dict[aff_talent] = pred_dict.get(aff_talent, 0.0) + boost
-
-        sorted_preds = sorted(pred_dict.items(), key=lambda item: item[1], reverse=True)
-
-        primary_talent = sorted_preds[0][0]
-        confidence_score = round(min(99.0, max(85.0, sorted_preds[0][1] * 100)), 1)
-        top_supp_score = sorted_preds[1][1] if len(sorted_preds) > 1 else 1.0
-        base_percentages = [85.0, 75.0, 65.0]
         supporting_talents = []
-        for i in range(1, min(4, len(sorted_preds))):
-            t_name, t_val = sorted_preds[i]
-            ratio = (t_val / max(0.001, top_supp_score))
-            conf = round(min(92.0, max(45.0, base_percentages[i-1] * ratio)), 1)
-            supporting_talents.append({'talent': t_name, 'confidence': conf})
+        base_percentages = [85.0, 75.0, 65.0]
+        idx = 0
+        for name, score in sorted_scores:
+            if name == primary_talent:
+                continue
+            ratio = score / max(0.001, sorted_scores[0][1])
+            conf = round(min(92.0, max(40.0, base_percentages[min(idx, 2)] * ratio)), 1)
+            supporting_talents.append({
+                'talent': name,
+                'confidence': conf
+            })
+            idx += 1
+            if idx >= 3:
+                break
 
-        # Dynamic reasoning generator (explainable AI)
-        reasoning = []
-        if len(fishery_list) > 0:
-            reasoning.append(f"Rekam nilai mata kuliah/pelajaran perikanan ({grade_fishery:.1f}) menunjukkan keahlian khusus di bidang ilmu perairan.")
-        if is_fishery_text:
-            reasoning.append("Prestasi/minat terverifikasi bersangkut paut dengan dunia perikanan, akuakultur, dan ekologi laut.")
-        if grade_informatics > 85 and primary_talent in ['Programming', 'Robotik']:
-            reasoning.append(f"Nilai akademik Informatika sangat tinggi ({grade_informatics:.1f}) mendukung kecakapan teknologi.")
-        if grade_math > 85:
-            reasoning.append(f"Logika berpikir didukung nilai Matematika yang kuat ({grade_math:.1f}).")
-        
-        # RIASEC reason
-        dominant_riasec = max(riasec, key=riasec.get) if riasec else 'Investigative'
-        reasoning.append(f"Orientasi minat dominan pada tipe kepribadian {dominant_riasec} ({riasec.get(dominant_riasec, 50)}%).")
-        
-        if achievement_tech > 0 and primary_talent in ['Robotik', 'Programming']:
-            reasoning.append(f"Memiliki {achievement_tech} sertifikat prestasi sah di bidang teknologi.")
-        if achievement_science > 0 and primary_talent in ['Sains & Riset', 'Perikanan & Kelautan', 'Pertanian & Ilmu Hayati']:
-            reasoning.append(f"Ditopang {achievement_science} pencapaian prestasi akademik bidang sains/penelitian.")
+        reasoning = reasoning_data[primary_talent]
 
-        # Recommendations mappings
-        query_parts = [primary_talent]
-        query_parts.extend(hobbies)
-        query_parts.extend(interests)
-        query_parts.extend(list(grades.keys()))
-        query = " ".join(query_parts).lower()
+        primary_kb = next((c for c in categories if c['name'] == primary_talent), None)
+        careers = primary_kb['careers'] if primary_kb else []
+        competitions = primary_kb['competitions'] if primary_kb else []
+        extracurriculars = primary_kb.get('hobbies', [])[:3]
+        targets = primary_kb['roadmap'] if primary_kb else []
 
-        careers = recommend_items(query, CAREER_REPOSITORY, primary_talent, limit=4)
-        extracurriculars = recommend_items(query, EXTRACURRICULAR_REPOSITORY, primary_talent, limit=3)
-        competitions = recommend_items(query, COMPETITION_REPOSITORY, primary_talent, limit=2)
-        targets = recommend_items(query, TARGET_REPOSITORY, primary_talent, limit=2)
-
-        # Retrieve API Keys from request payload or environment
         openrouter_key = req_data.get('openrouter_api_key') or os.getenv('OPENROUTER_API_KEY')
         gemini_key = req_data.get('gemini_api_key') or os.getenv('GEMINI_API_KEY')
 
-        # Context payload for LLM Hybrid Generation
         context_data = {
             'primary_talent': primary_talent,
             'confidence_score': confidence_score,
@@ -608,43 +476,59 @@ def predict():
             'interests': interests
         }
 
-        # Multi-Engine Pipeline: Priority 1: DeepSeek-R1 (OpenRouter), Priority 2: Gemini, Priority 3: Local ML
         llm_res = None
-        model_ver = 'lost-talent-rf-v2.0-fallback'
+        model_ver = 'lost-talent-scoring-v3.0-expert'
 
         if openrouter_key:
             llm_res = call_openrouter_deepseek(openrouter_key, context_data)
             if llm_res:
-                model_ver = 'lost-talent-hybrid-rf-deepseek-r1-v3.0'
+                model_ver = 'lost-talent-hybrid-v3.0-deepseek-r1'
 
         if not llm_res and gemini_key:
             llm_res = call_gemini_llm(gemini_key, context_data)
             if llm_res:
-                model_ver = 'lost-talent-hybrid-rf-gemini-v2.5'
+                model_ver = 'lost-talent-hybrid-v3.0-gemini'
 
-        if llm_res:
-            reasoning = llm_res.get('reasoning', reasoning)
-            careers = llm_res.get('career_recommendations', careers)
-            targets = llm_res.get('development_targets', targets)
-            analisis_mendalam = llm_res.get('analisis_mendalam', '')
+        if llm_res and llm_res.get('analisis_mendalam'):
+            analisis_mendalam = llm_res.get('analisis_mendalam')
         else:
-            analisis_mendalam = None
+            analisis_mendalam = f"Berdasarkan analisis Hybrid Explainable AI, Anda menunjukkan potensi dominan di bidang {primary_talent} dengan tingkat keyakinan {confidence_score}%. "
+            if grades:
+                analisis_mendalam += "Kecakapan akademis Anda pada mata pelajaran penunjang sangat mendukung pemahaman konsep penting di bidang ini. "
+            if achievements:
+                analisis_mendalam += "Didukung rekam jejak prestasi, Anda memiliki daya saing yang baik. "
+            if hobbies or interests:
+                analisis_mendalam += f"Aktivitas hobi dan minat Anda seperti {', '.join((hobbies+interests)[:2])} secara aktif mengasah bakat alami Anda."
 
         res_payload = {
             'success': True,
             'primary_talent': primary_talent,
             'confidence_score': confidence_score,
+            'confidence': confidence_score,
             'supporting_talents': supporting_talents,
+            'secondary_talent': [t['talent'] for t in supporting_talents],
             'reasoning': reasoning,
             'career_recommendations': careers,
             'extracurricular_recommendations': extracurriculars,
             'competition_recommendations': competitions,
             'development_targets': targets,
+            'analisis_mendalam': analisis_mendalam,
+            'analysis': analisis_mendalam,
+            'evidence': {
+                'academic': round(scores[primary_talent] * 0.35, 1),
+                'achievement': round(scores[primary_talent] * 0.20, 1),
+                'interest': round(scores[primary_talent] * 0.20, 1),
+                'hobby': round(scores[primary_talent] * 0.15, 1),
+                'riasec': round(scores[primary_talent] * 0.10, 1)
+            },
+            'recommendation': {
+                'career': careers,
+                'competition': competitions,
+                'certification': primary_kb.get('certifications', []) if primary_kb else [],
+                'roadmap': targets
+            },
             'model_version': model_ver
         }
-
-        if analisis_mendalam:
-            res_payload['analisis_mendalam'] = analisis_mendalam
 
         return jsonify(res_payload)
 
@@ -655,6 +539,4 @@ def predict():
         }), 500
 
 if __name__ == '__main__':
-    # Default Flask port is 5000
     app.run(host='127.0.0.1', port=5000, debug=True)
-

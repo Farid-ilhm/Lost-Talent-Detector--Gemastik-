@@ -427,7 +427,7 @@ class StudentApiController extends Controller
             $openrouterKey = env('OPENROUTER_API_KEY') ?: (getenv('OPENROUTER_API_KEY') ?: ($_ENV['OPENROUTER_API_KEY'] ?? null));
 
             // Call Python AI Service (Multi-Engine: DeepSeek-R1 / Gemini + Local ML)
-            $response = \Illuminate\Support\Facades\Http::timeout(15)->post('http://127.0.0.1:5000/predict', [
+            $response = \Illuminate\Support\Facades\Http::timeout(25)->post('http://127.0.0.1:5000/predict', [
                 'riasec' => $testResult ? $testResult->scores : new \stdClass(),
                 'grades' => $grades->groupBy('subject_name')->map(function ($items) {
                     return floatval($items->avg('score'));
@@ -455,6 +455,7 @@ class StudentApiController extends Controller
                 $analysis = AiAnalysis::create([
                     'student_id' => $student->id,
                     'primary_talent' => $data['primary_talent'],
+                    'analisis_mendalam' => $data['analisis_mendalam'] ?? null,
                     'confidence_score' => floatval($data['confidence_score']),
                     'supporting_talents' => $data['supporting_talents'],
                     'reasoning' => $data['reasoning'],
@@ -501,6 +502,12 @@ class StudentApiController extends Controller
             return str_contains($name, 'inggris') || str_contains($name, 'english');
         });
         $avgEnglish = $englishGrades->isEmpty() ? ($grades->where('subject_name', 'Bahasa Inggris')->avg('score') ?? 70.00) : $englishGrades->avg('score');
+
+        $aviationGrades = $grades->filter(function ($g) {
+            $name = strtolower($g->subject_name);
+            return str_contains($name, 'terbang') || str_contains($name, 'aerodinamika') || str_contains($name, 'penerbangan') || str_contains($name, 'navigasi') || str_contains($name, 'pesawat') || str_contains($name, 'general aircraft') || str_contains($name, 'air law') || str_contains($name, 'kinerja manusia') || str_contains($name, 'prosedur operasional') || str_contains($name, 'aviation') || str_contains($name, 'pilot') || str_contains($name, 'dirgantara');
+        });
+        $avgAviation = $aviationGrades->isEmpty() ? 0.00 : $aviationGrades->avg('score');
 
         // 2. Fetch RIASEC Profile
         $riasec = $testResult ? $testResult->scores : [
@@ -563,22 +570,6 @@ class StudentApiController extends Controller
         // Check if there is a highly specific interest that doesn't fit standard categories
         $hasCustomInterest = false;
         $customInterestName = '';
-        if (count($interests) > 0) {
-            $primaryInterest = trim($interests[0]);
-            if (!empty($primaryInterest) && strlen($primaryInterest) > 2) {
-                $customInterestName = ucwords($primaryInterest);
-                $hasCustomInterest = true;
-                
-                $lowerInterest = strtolower($primaryInterest);
-                $standards = ['robot', 'coding', 'program', 'sains', 'riset', 'desain', 'ui', 'ux', 'bisnis', 'usaha', 'sosial', 'didik', 'masak', 'boga', 'kuliner', 'chef', 'koki', 'musik', 'vokal', 'olahraga', 'atlet', 'medis', 'dokter', 'perawat', 'tani', 'kebun', 'tanah', 'botani', 'agro', 'ternak', 'hutan', 'tanaman', 'ikan', 'perikanan', 'perairan', 'kelautan', 'maritim', 'mancing', 'pancing', 'iktiologi', 'akuakultur'];
-                foreach ($standards as $s) {
-                    if (str_contains($lowerInterest, $s)) {
-                        $hasCustomInterest = false;
-                        break;
-                    }
-                }
-            }
-        }
 
         // 3. AI Inference Simulation Matrix
         $talentScores = [
@@ -593,46 +584,9 @@ class StudentApiController extends Controller
             'Olahraga & Kesehatan Fisik' => 50,
             'Kesehatan & Keperawatan (Medis)' => 50,
             'Pertanian & Agroteknologi' => 50,
-            'Perikanan & Kelautan' => 50
+            'Perikanan & Kelautan' => 50,
+            'Penerbangan & Kedirgantaraan' => 50
         ];
-
-        if ($hasCustomInterest) {
-            $talentScores[$customInterestName] = 100; // Strong base score
-            
-            $cleanStem = function($word) {
-                $w = strtolower($word);
-                if (str_starts_with($w, 'ber')) $w = substr($w, 3);
-                elseif (str_starts_with($w, 'per')) $w = substr($w, 3);
-                elseif (str_starts_with($w, 'pe')) $w = substr($w, 2);
-                elseif (str_starts_with($w, 'me')) $w = substr($w, 2);
-                if (str_ends_with($w, 'an')) $w = substr($w, 0, -2);
-                return $w;
-            };
-
-            $interestWords = array_filter(explode(' ', strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $customInterestName))), function($w) {
-                return strlen($w) > 2;
-            });
-            
-            foreach ($hobbies as $h) {
-                $hLower = strtolower($h);
-                foreach ($interestWords as $w) {
-                    $stem = $cleanStem($w);
-                    if (str_contains($hLower, $w) || (!empty($stem) && str_contains($hLower, $stem))) {
-                        $talentScores[$customInterestName] += 25;
-                    }
-                }
-            }
-            
-            foreach ($grades as $g) {
-                $gLower = strtolower($g->subject_name);
-                foreach ($interestWords as $w) {
-                    $stem = $cleanStem($w);
-                    if (str_contains($gLower, $w) || (!empty($stem) && str_contains($gLower, $stem))) {
-                        $talentScores[$customInterestName] += 15;
-                    }
-                }
-            }
-        }
         if ($isCulinary) {
             $talentScores['Seni Kuliner & Tata Boga'] += 35;
         }
@@ -650,6 +604,11 @@ class StudentApiController extends Controller
         }
         if ($isFishery) {
             $talentScores['Perikanan & Kelautan'] += 50;
+        }
+        
+        $isAviation = str_contains($allText, 'terbang') || str_contains($allText, 'pilot') || str_contains($allText, 'dirgantara') || str_contains($allText, 'penerbang') || str_contains($allText, 'penerbangan') || str_contains($allText, 'pesawat') || !$aviationGrades->isEmpty();
+        if ($isAviation) {
+            $talentScores['Penerbangan & Kedirgantaraan'] += 50;
         }
 
         // Rule: Heuristics based on grades
@@ -669,6 +628,9 @@ class StudentApiController extends Controller
             $talentScores['Kesehatan & Keperawatan (Medis)'] += 10;
             $talentScores['Perikanan & Kelautan'] += 15;
         }
+        if ($avgAviation > 85) {
+            $talentScores['Penerbangan & Kedirgantaraan'] += 20;
+        }
 
         // Rule: Heuristics based on RIASEC
         $talentScores['Robotik'] += ($riasec['Realistic'] * 0.3) + ($riasec['Investigative'] * 0.2);
@@ -683,6 +645,7 @@ class StudentApiController extends Controller
         $talentScores['Kesehatan & Keperawatan (Medis)'] += ($riasec['Investigative'] * 0.3) + ($riasec['Social'] * 0.2);
         $talentScores['Pertanian & Agroteknologi'] += ($riasec['Realistic'] * 0.3) + ($riasec['Investigative'] * 0.2);
         $talentScores['Perikanan & Kelautan'] += ($riasec['Realistic'] * 0.3) + ($riasec['Investigative'] * 0.3);
+        $talentScores['Penerbangan & Kedirgantaraan'] += ($riasec['Realistic'] * 0.3) + ($riasec['Investigative'] * 0.3);
 
         // Rule: Heuristics based on hobbies & interests
         foreach ($hobbies as $h) {
@@ -716,6 +679,9 @@ class StudentApiController extends Controller
             }
             if (str_contains($hLower, 'mancing') || str_contains($hLower, 'pancing') || str_contains($hLower, 'ikan') || str_contains($hLower, 'laut') || str_contains($hLower, 'perairan')) {
                 $talentScores['Perikanan & Kelautan'] += 20;
+            }
+            if (str_contains($hLower, 'simulator') || str_contains($hLower, 'pesawat') || str_contains($hLower, 'terbang') || str_contains($hLower, 'dirgantara')) {
+                $talentScores['Penerbangan & Kedirgantaraan'] += 15;
             }
         }
 
@@ -756,6 +722,9 @@ class StudentApiController extends Controller
             if (str_contains($achLower, 'mancing') || str_contains($achLower, 'pancing') || str_contains($achLower, 'ikan') || str_contains($achLower, 'perikanan') || str_contains($achLower, 'perairan') || str_contains($achLower, 'kelautan')) {
                 $talentScores['Perikanan & Kelautan'] += $multiplier + 15;
             }
+            if (str_contains($achLower, 'terbang') || str_contains($achLower, 'dirgantara') || str_contains($achLower, 'aeromodelling') || str_contains($achLower, 'pilot') || str_contains($achLower, 'pesawat')) {
+                $talentScores['Penerbangan & Kedirgantaraan'] += $multiplier;
+            }
         }
 
         // Domain dampening: Dampen tech domain scores if student has NO tech signal
@@ -771,9 +740,51 @@ class StudentApiController extends Controller
             $talentScores['Robotik'] = max(5, $talentScores['Robotik'] * 0.05);
         }
 
+        // Academic Dampening Rule: Dampen scores of domains with zero academic matches if the student has grades.
+        if (!$grades->isEmpty()) {
+            foreach ($talentScores as $domain => $score) {
+                // Check if this domain has academic relevance
+                $hasAcademicMatch = false;
+                if ($domain === 'Robotik' && $avgInformatika > 0) $hasAcademicMatch = true;
+                elseif ($domain === 'Programming' && $avgInformatika > 0) $hasAcademicMatch = true;
+                elseif ($domain === 'Sains & Riset' && $avgSains > 0) $hasAcademicMatch = true;
+                elseif ($domain === 'Desain Kreatif & UI/UX' && ($avgInformatika > 0 || $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'seni') || str_contains(strtolower($g->subject_name), 'desain'); }))) $hasAcademicMatch = true;
+                elseif ($domain === 'Seni Kuliner & Tata Boga' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'boga') || str_contains(strtolower($g->subject_name), 'masak') || str_contains(strtolower($g->subject_name), 'makanan') || str_contains(strtolower($g->subject_name), 'patisserie') || str_contains(strtolower($g->subject_name), 'gizi'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Seni Musik & Pertunjukan' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'musik') || str_contains(strtolower($g->subject_name), 'vokal') || str_contains(strtolower($g->subject_name), 'sing') || str_contains(strtolower($g->subject_name), 'tari') || str_contains(strtolower($g->subject_name), 'dance'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Olahraga & Kesehatan Fisik' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'olahraga') || str_contains(strtolower($g->subject_name), 'penjas') || str_contains(strtolower($g->subject_name), 'atletik') || str_contains(strtolower($g->subject_name), 'fisik'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Kesehatan & Keperawatan (Medis)' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'anatomi') || str_contains(strtolower($g->subject_name), 'farmasi') || str_contains(strtolower($g->subject_name), 'perawat') || str_contains(strtolower($g->subject_name), 'bidan'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Pertanian & Agroteknologi' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'tani') || str_contains(strtolower($g->subject_name), 'kebun') || str_contains(strtolower($g->subject_name), 'botani') || str_contains(strtolower($g->subject_name), 'agro'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Perikanan & Kelautan' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'ikan') || str_contains(strtolower($g->subject_name), 'perikanan') || str_contains(strtolower($g->subject_name), 'perairan') || str_contains(strtolower($g->subject_name), 'kelautan'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Penerbangan & Kedirgantaraan' && $avgAviation > 0) $hasAcademicMatch = true;
+                
+                // If no academic match, dampen the score by 50%
+                if (!$hasAcademicMatch) {
+                    $hasAch = $achievements->contains(function($a) use ($domain) {
+                        $t = strtolower($a->title);
+                        if ($domain === 'Perikanan & Kelautan') return str_contains($t, 'mancing') || str_contains($t, 'ikan') || str_contains($t, 'perikanan') || str_contains($t, 'kelautan');
+                        if ($domain === 'Seni Kuliner & Tata Boga') return str_contains($t, 'masak') || str_contains($t, 'boga') || str_contains($t, 'kuliner');
+                        if ($domain === 'Olahraga & Kesehatan Fisik') return str_contains($t, 'olahraga') || str_contains($t, 'atlet') || str_contains($t, 'bola') || str_contains($t, 'lari');
+                        return false;
+                    });
+                    
+                    $hasInterest = false;
+                    foreach ($interests as $interest) {
+                        $intLower = strtolower($interest);
+                        if ($domain === 'Perikanan & Kelautan' && (str_contains($intLower, 'mancing') || str_contains($intLower, 'ikan') || str_contains($intLower, 'laut'))) $hasInterest = true;
+                        if ($domain === 'Seni Kuliner & Tata Boga' && (str_contains($intLower, 'masak') || str_contains($intLower, 'kuliner') || str_contains($intLower, 'chef'))) $hasInterest = true;
+                        if ($domain === 'Olahraga & Kesehatan Fisik' && (str_contains($intLower, 'olahraga') || str_contains($intLower, 'atlet') || str_contains($intLower, 'bola'))) $hasInterest = true;
+                    }
+                    
+                    if (!($hasAch && $hasInterest)) {
+                        $talentScores[$domain] = $score * 0.5;
+                    }
+                }
+            }
+        }
+
         // Find initial top candidate
         arsort($talentScores);
-        $topCandidate = $hasCustomInterest ? $customInterestName : key($talentScores);
+        $topCandidate = key($talentScores);
 
         // Domain Affinity Matrix: Boost related supporting talents based on primary domain
         $affinityMap = [
@@ -802,7 +813,7 @@ class StudentApiController extends Controller
 
         // Re-sort after domain affinity boost
         arsort($talentScores);
-        $primary = $hasCustomInterest ? $customInterestName : key($talentScores);
+        $primary = key($talentScores);
         $primaryVal = 99.0; // Scaled UI confidence
         
         // Remove primary from array to extract top 3 supporting talents
@@ -861,8 +872,8 @@ class StudentApiController extends Controller
         if ($isAgriculture && $primary === 'Pertanian & Agroteknologi') {
             $reasoning[] = "Menunjukkan rekam nilai akademik dan ketertarikan kuat di bidang botani, ilmu tanah, dan pertanian.";
         }
-        if ($hasCustomInterest && $primary === $customInterestName) {
-            $reasoning[] = "Memiliki bakat spesifik dan fokus pengembangan diri yang kuat di bidang " . $primary . ".";
+        if ($isAviation && $primary === 'Penerbangan & Kedirgantaraan') {
+            $reasoning[] = "Menunjukkan minat kuat dan rekam nilai akademik cemerlang di bidang dirgantara, operasional penerbangan, serta teknologi aeronautika.";
         }
 
         // Recommended outputs based on primary
@@ -938,42 +949,31 @@ class StudentApiController extends Controller
                 $competitions = ['Lomba Inovasi Teknologi Akuakultur & Perikanan', 'PIMNAS Bidang Ketahanan Maritim & Perikanan'];
                 $targets = ['Mempelajari teknik manajemen kualitas air & resirkulasi akuakultur (RAS)', 'Mengembangkan riset ekosistem perairan & sumber daya laut'];
                 break;
+            case 'Penerbangan & Kedirgantaraan':
+                $careers = ['Commercial Pilot', 'Aerospace Engineer', 'Air Traffic Controller', 'Flight Operations Officer', 'Aircraft Maintenance Engineer'];
+                $extracurriculars = ['Klub Aeromodelling', 'Karya Ilmiah Remaja Dirgantara', 'Pramuka Saka Dirgantara'];
+                $competitions = ['Lomba Aeromodelling Nasional', 'Olimpiade Dirgantara', 'Kompetisi Robot / UAV Terbang'];
+                $targets = ['Memahami regulasi udara dasar (Air Law)', 'Mempelajari prinsip navigasi & meteorologi penerbangan', 'Mengikuti pelatihan simulator penerbangan ground school'];
+                break;
             default:
-                if ($hasCustomInterest && $primary === $customInterestName) {
-                    $careers = [
-                        $primary . " Professional",
-                        "Spesialis " . $primary,
-                        "Konsultan " . $primary,
-                        "Pendidik / Praktisi " . $primary
-                    ];
-                    $extracurriculars = [
-                        "Klub / Komunitas " . $primary,
-                        "Karya Tulis Ilmiah Bidang " . $primary
-                    ];
-                    $competitions = [
-                        "Kompetisi Nasional " . $primary,
-                        "Lomba Inovasi Mahasiswa " . $primary,
-                        "Festival / Pameran " . $primary
-                    ];
-                    $targets = [
-                        "Meningkatkan keahlian praktis di bidang " . $primary,
-                        "Membangun portofolio karya dan proyek " . $primary
-                    ];
-                } else {
-                    $careers = ['Teacher / Educator', 'Public Relations Specialist', 'Human Resources Manager', 'Social Worker'];
-                    $extracurriculars = ['Pramuka', 'Palang Merah Remaja (PMR)', 'OSIS'];
-                    $competitions = ['Lomba Debat Bahasa Indonesia', 'Kompetisi Pengabdian Sosial'];
-                    $targets = ['Melatih kemampuan public speaking', 'Mengikuti program volunterisme kemanusiaan'];
-                }
+                $careers = ['Teacher / Educator', 'Public Relations Specialist', 'Human Resources Manager', 'Social Worker'];
+                $extracurriculars = ['Pramuka', 'Palang Remaja (PMR)', 'OSIS'];
+                $competitions = ['Lomba Debat Bahasa Indonesia', 'Kompetisi Pengabdian Sosial'];
+                $targets = ['Melatih kemampuan public speaking', 'Mengikuti program volunterisme kemanusiaan'];
                 break;
         }
 
         // Save AI Analysis results
         AiAnalysis::where('student_id', $student->id)->delete();
         
+        $analisisMendalam = "Berdasarkan analisis bakat mandiri, Anda menunjukkan potensi dominan di bidang " . $primary . ". " .
+            "Kecakapan Anda di bidang ini tecermin dari akumulasi nilai akademik pada mata pelajaran terkait serta riwayat keaktifan non-akademik Anda. " .
+            "Untuk analisis narasi yang lebih komprehensif, pastikan API Key Gemini atau OpenRouter Anda terkonfigurasi dengan benar.";
+
         $analysis = AiAnalysis::create([
             'student_id' => $student->id,
             'primary_talent' => $primary,
+            'analisis_mendalam' => $analisisMendalam,
             'confidence_score' => floatval($primaryVal),
             'supporting_talents' => $supporting,
             'reasoning' => $reasoning,
@@ -1080,6 +1080,112 @@ class StudentApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Nilai berhasil dihapus.'
+        ]);
+    }
+
+    /**
+     * Bulk delete independent academic grades.
+     */
+    public function bulkDeleteIndependentGrades(Request $request)
+    {
+        $user = $request->user();
+        $student = Student::where('user_id', $user->id)->first();
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student not found.'
+            ], 404);
+        }
+
+        if ($student->institution_id !== null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Murid sekolah tidak dapat menghapus nilai.'
+            ], 403);
+        }
+
+        $all = $request->input('all', false);
+        $ids = $request->input('ids', []);
+
+        if ($all) {
+            AcademicGrade::where('student_id', $student->id)->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Semua nilai akademik berhasil dihapus.'
+            ]);
+        }
+
+        if (!is_array($ids) || empty($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada nilai yang dipilih untuk dihapus.'
+            ], 400);
+        }
+
+        AcademicGrade::where('student_id', $student->id)
+            ->whereIn('id', $ids)
+            ->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Nilai yang dipilih berhasil dihapus.'
+        ]);
+    }
+
+    /**
+     * Bulk delete achievements.
+     */
+    public function bulkDeleteAchievements(Request $request)
+    {
+        $user = $request->user();
+        $student = Student::where('user_id', $user->id)->first();
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student profile not found.'
+            ], 404);
+        }
+
+        $all = $request->input('all', false);
+        $ids = $request->input('ids', []);
+
+        if ($all) {
+            $achievements = Achievement::where('student_id', $student->id)->get();
+            foreach ($achievements as $achievement) {
+                if ($achievement->certificate_path && file_exists(public_path($achievement->certificate_path))) {
+                    @unlink(public_path($achievement->certificate_path));
+                }
+                $achievement->delete();
+            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Semua sertifikat prestasi berhasil dihapus.'
+            ]);
+        }
+
+        if (!is_array($ids) || empty($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada sertifikat yang dipilih untuk dihapus.'
+            ], 400);
+        }
+
+        $achievements = Achievement::where('student_id', $student->id)
+            ->whereIn('id', $ids)
+            ->get();
+
+        foreach ($achievements as $achievement) {
+            if ($achievement->certificate_path && file_exists(public_path($achievement->certificate_path))) {
+                @unlink(public_path($achievement->certificate_path));
+            }
+            $achievement->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sertifikat yang dipilih berhasil dihapus.'
         ]);
     }
 }

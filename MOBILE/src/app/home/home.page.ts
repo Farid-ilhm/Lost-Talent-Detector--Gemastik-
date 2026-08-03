@@ -18,6 +18,12 @@ export class HomePage {
   testResult: any = null;
   aiAnalysis: any = null;
 
+  // Selection states for bulk deletion
+  isSelectingGrades: boolean = false;
+  selectedGrades: Set<number> = new Set<number>();
+  isSelectingCerts: boolean = false;
+  selectedCerts: Set<number> = new Set<number>();
+
   // Active tab state for mobile navigation
   selectedTab: string = 'home';
   talentSubTab: string = 'test';
@@ -497,6 +503,190 @@ export class HomePage {
               error: async (err: any) => {
                 const toast = await this.toastController.create({
                   message: 'Gagal menghapus sertifikat.',
+                  duration: 2000,
+                  color: 'danger'
+                });
+                await toast.present();
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  toggleGradeSelectionMode() {
+    this.isSelectingGrades = !this.isSelectingGrades;
+    if (!this.isSelectingGrades) {
+      this.selectedGrades.clear();
+    }
+  }
+
+  toggleSelectGrade(id: number) {
+    if (this.selectedGrades.has(id)) {
+      this.selectedGrades.delete(id);
+    } else {
+      this.selectedGrades.add(id);
+    }
+  }
+
+  async onDeleteSelectedGrades() {
+    const ids = Array.from(this.selectedGrades);
+    const alert = await this.alertController.create({
+      header: 'Hapus Beberapa Nilai',
+      message: `Apakah Anda yakin ingin menghapus ${ids.length} nilai terpilih?`,
+      buttons: [
+        { text: 'Batal', role: 'cancel' },
+        {
+          text: 'Hapus',
+          role: 'destructive',
+          handler: () => {
+            this.apiService.bulkDeleteIndependentGrades(ids, false).subscribe({
+              next: async (res: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Nilai terpilih berhasil dihapus.',
+                  duration: 2000,
+                  color: 'success'
+                });
+                await toast.present();
+                this.isSelectingGrades = false;
+                this.selectedGrades.clear();
+                this.loadDashboardData();
+              },
+              error: async (err: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Gagal menghapus nilai terpilih.',
+                  duration: 2000,
+                  color: 'danger'
+                });
+                await toast.present();
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async onDeleteAllGrades() {
+    const alert = await this.alertController.create({
+      header: 'Hapus Semua Nilai',
+      message: 'Apakah Anda yakin ingin menghapus semua nilai akademik Anda?',
+      buttons: [
+        { text: 'Batal', role: 'cancel' },
+        {
+          text: 'Hapus Semua',
+          role: 'destructive',
+          handler: () => {
+            this.apiService.bulkDeleteIndependentGrades([], true).subscribe({
+              next: async (res: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Semua nilai akademik berhasil dihapus.',
+                  duration: 2000,
+                  color: 'success'
+                });
+                await toast.present();
+                this.isSelectingGrades = false;
+                this.selectedGrades.clear();
+                this.loadDashboardData();
+              },
+              error: async (err: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Gagal menghapus semua nilai.',
+                  duration: 2000,
+                  color: 'danger'
+                });
+                await toast.present();
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  toggleCertSelectionMode() {
+    this.isSelectingCerts = !this.isSelectingCerts;
+    if (!this.isSelectingCerts) {
+      this.selectedCerts.clear();
+    }
+  }
+
+  toggleSelectCert(id: number) {
+    if (this.selectedCerts.has(id)) {
+      this.selectedCerts.delete(id);
+    } else {
+      this.selectedCerts.add(id);
+    }
+  }
+
+  async onDeleteSelectedCerts() {
+    const ids = Array.from(this.selectedCerts);
+    const alert = await this.alertController.create({
+      header: 'Hapus Beberapa Sertifikat',
+      message: `Apakah Anda yakin ingin menghapus ${ids.length} sertifikat terpilih?`,
+      buttons: [
+        { text: 'Batal', role: 'cancel' },
+        {
+          text: 'Hapus',
+          role: 'destructive',
+          handler: () => {
+            this.apiService.bulkDeleteAchievements(ids, false).subscribe({
+              next: async (res: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Sertifikat terpilih berhasil dihapus.',
+                  duration: 2000,
+                  color: 'success'
+                });
+                await toast.present();
+                this.isSelectingCerts = false;
+                this.selectedCerts.clear();
+                this.loadDashboardData();
+              },
+              error: async (err: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Gagal menghapus sertifikat terpilih.',
+                  duration: 2000,
+                  color: 'danger'
+                });
+                await toast.present();
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async onDeleteAllCerts() {
+    const alert = await this.alertController.create({
+      header: 'Hapus Semua Sertifikat',
+      message: 'Apakah Anda yakin ingin menghapus semua sertifikat prestasi Anda?',
+      buttons: [
+        { text: 'Batal', role: 'cancel' },
+        {
+          text: 'Hapus Semua',
+          role: 'destructive',
+          handler: () => {
+            this.apiService.bulkDeleteAchievements([], true).subscribe({
+              next: async (res: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Semua sertifikat prestasi berhasil dihapus.',
+                  duration: 2000,
+                  color: 'success'
+                });
+                await toast.present();
+                this.isSelectingCerts = false;
+                this.selectedCerts.clear();
+                this.loadDashboardData();
+              },
+              error: async (err: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Gagal menghapus semua sertifikat.',
                   duration: 2000,
                   color: 'danger'
                 });

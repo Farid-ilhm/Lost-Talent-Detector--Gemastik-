@@ -485,6 +485,17 @@
             </div>
         </div>
 
+        @if($aiAnalysis->analisis_mendalam)
+            <div style="background-color: #FAFAF8; padding: 24px; border-radius: 20px; border: 1px solid var(--border-subtle); margin-top: 20px;">
+                <h4 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 12px; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-feather-pointed" style="color: #6366F1;"></i> Analisis Mendalam & Saran AI
+                </h4>
+                <p style="color: var(--text-dark); line-height: 1.7; font-size: 0.95rem; margin: 0; text-align: justify; white-space: pre-line;">
+                    {{ $aiAnalysis->analisis_mendalam }}
+                </p>
+            </div>
+        @endif
+
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
             <!-- Supporting Talents -->
             <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">

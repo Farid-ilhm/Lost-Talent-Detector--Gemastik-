@@ -1,0 +1,238 @@
+{
+  "categories": [
+    {
+      "id": "robotik",
+      "name": "Robotik",
+      "aliases": ["robotika", "robot", "embedded systems", "maker", "hardware hack", "arduino developer", "iot developer"],
+      "subjects": ["Informatika", "Fisika", "Matematika", "Elektro", "Robotik", "Elektronika", "Sensor"],
+      "hobbies": ["Merakit robot", "Arduino", "Elektronika hobi", "Solder", "Iot projects", "3d printing"],
+      "interests": ["Automation", "Robotics", "Embedded controllers", "Microcontrollers", "Internet of Things", "Hardware design"],
+      "riasec": ["Realistic", "Investigative"],
+      "careers": ["Robotics Engineer", "Embedded Systems Developer", "IoT Architect", "Automation Specialist"],
+      "competitions": ["GEMASTIK - Pengembangan Perangkat Lunak", "Lomba Robotika Nasional (BARON)", "KRI (Kontes Robot Indonesia)"],
+      "certifications": ["Certified Professional in IoT (CPIoT)", "Arduino Certification", "PLC Automation Certificate"],
+      "roadmap": [
+        "Mempelajari dasar elektronika dan komponen pasif/aktif.",
+        "Menguasai pemrograman C/C++ menggunakan board Arduino.",
+        "Mempelajari sensor, aktuator, dan mikrokontroler lanjutan (ESP32/Raspberry Pi).",
+        "Membangun proyek IoT terintegrasi cloud dan sistem otomatisasi cerdas."
+      ]
+    },
+    {
+      "id": "programming",
+      "name": "Programming",
+      "aliases": ["coding", "programmer", "software engineer", "developer", "backend", "frontend", "fullstack", "web developer", "mobile developer"],
+      "subjects": ["Informatika", "Algoritma", "Basis Data", "Pemrograman", "Coding", "Software Engineering", "RPL", "IT"],
+      "hobbies": ["Coding", "Membuat website", "Ngoding", "Programming projects", "Hackathon", "Open source contributing"],
+      "interests": ["Web development", "Mobile development", "Backend engineering", "Database systems", "Cloud computing", "Software architecture"],
+      "riasec": ["Investigative", "Conventional"],
+      "careers": ["Software Engineer", "Backend Developer", "Frontend Developer", "Data Scientist", "Mobile App Developer"],
+      "competitions": ["GEMASTIK - Pemrograman (Competitive Programming)", "Hackathon Indonesia AI Innovation", "Lomba Coding Nasional"],
+      "certifications": ["AWS Certified Developer", "Google Associate Android Developer", "Oracle Certified Associate Java Programmer"],
+      "roadmap": [
+        "Mempelajari logika pemrograman dan algoritma dasar (Python/JS).",
+        "Memahami basis data, SQL, dan struktur data penting.",
+        "Mempelajari framework modern (Laravel/NodeJS/React/Angular).",
+        "Membangun portofolio proyek riil dan berpartisipasi dalam proyek open-source."
+      ]
+    },
+    {
+      "id": "sains_riset",
+      "name": "Sains & Riset",
+      "aliases": ["peneliti", "scientist", "riset", "researcher", "akademisi", "analis lab", "ilmuwan"],
+      "subjects": ["Fisika", "Kimia", "Biologi", "Sains", "Matematika", "IPA", "Metode Penelitian", "Karya Ilmiah"],
+      "hobbies": ["Membaca jurnal ilmiah", "Eksperimen sains", "Menulis artikel", "Mengamati alam", "Analisis data"],
+      "interests": ["Scientific research", "Laboratory experiments", "Data analysis", "Academic writing", "Biotechnology", "Theoretical physics"],
+      "riasec": ["Investigative"],
+      "careers": ["Research Scientist", "Data Analyst", "Academic Professor", "Laboratory Researcher"],
+      "competitions": ["GEMASTIK - Karya Tulis Ilmiah TIK", "Olimpiade Sains Nasional (OSN)", "Lomba Karya Ilmiah Remaja (KIR)"],
+      "certifications": ["Certified Research Analyst (CRA)", "Good Clinical Practice (GCP) Certification", "Data Science Professional Certificate"],
+      "roadmap": [
+        "Mempelajari landasan berpikir kritis dan metode ilmiah dasar.",
+        "Menguasai alat bantu analisis data kuantitatif/kualitatif (SPSS/Python/R).",
+        "Terlibat dalam proyek riset laboratorium atau penyusunan makalah ilmiah.",
+        "Mempublikasikan hasil riset di jurnal ilmiah nasional atau internasional."
+      ]
+    },
+    {
+      "id": "desain_kreatif",
+      "name": "Desain Kreatif & UI/UX",
+      "aliases": ["ui/ux", "desain grafis", "designer", "figma editor", "illustrator", "creative design", "art director"],
+      "subjects": ["Seni Rupa", "Desain", "Grafis", "Komunikasi Visual", "Multimedia", "Figma", "Seni"],
+      "hobbies": ["Menggambar", "Desain grafis", "Fotografi", "Membuat ilustrasi", "Doodling", "Layouting"],
+      "interests": ["UI/UX design", "Graphic design", "Branding & Identity", "Typography", "User research", "Illustration"],
+      "riasec": ["Artistic"],
+      "careers": ["UI/UX Designer", "Product Designer", "Creative Director", "Graphic Designer", "Visual Illustrator"],
+      "competitions": ["GEMASTIK - Desain Pengalaman Pengguna (UI/UX Design)", "Festival dan Lomba Seni Siswa Nasional (FLS2N) - Seni Lukis", "Lomba Desain Poster Nasional"],
+      "certifications": ["Google UX Design Professional Certificate", "Adobe Certified Professional (Photoshop/Illustrator)", "Figma Certified Creator"],
+      "roadmap": [
+        "Mempelajari prinsip desain dasar (warna, tipografi, grid, layout).",
+        "Menguasai alat bantu desain digital seperti Figma, Illustrator, atau Photoshop.",
+        "Mempelajari metode riset pengguna (user research) dan prototyping.",
+        "Membangun portofolio studi kasus UI/UX komprehensif di Behance/Dribbble."
+      ]
+    },
+    {
+      "id": "bisnis_kewirausahaan",
+      "name": "Bisnis & Kewirausahaan",
+      "aliases": ["entrepreneur", "startup founder", "bisnis", "marketing", "wirausaha", "jualan", "finance", "business development"],
+      "subjects": ["Ekonomi", "Akuntansi", "Kewirausahaan", "Bisnis", "Manajemen", "Pemasaran", "IPS"],
+      "hobbies": ["Jualan online", "Investasi", "Mencari ide bisnis", "Networking", "Membaca buku bisnis"],
+      "interests": ["Startup management", "Digital marketing", "Financial planning", "E-commerce", "Business strategy", "Public speaking"],
+      "riasec": ["Enterprising", "Conventional"],
+      "careers": ["Entrepreneur/Founder", "Business Development Manager", "Product Manager", "Financial Analyst"],
+      "competitions": ["National Business Plan Competition (NBPC)", "Lomba Debat Nasional", "Young Entrepreneur Awards"],
+      "certifications": ["Certified Business Model Canvas Coach", "Google Digital Marketing Certificate", "Project Management Professional (PMP)"],
+      "roadmap": [
+        "Memahami dasar-dasar manajemen keuangan dan ekonomi pasar.",
+        "Mempelajari Business Model Canvas (BMC) dan riset target pasar.",
+        "Mempraktikkan teknik pemasaran digital dan penjualan langsung.",
+        "Membangun startup skala kecil/UMKM dan menyusun proyeksi keuangan."
+      ]
+    },
+    {
+      "id": "seni_kuliner",
+      "name": "Seni Kuliner & Tata Boga",
+      "aliases": ["chef", "koki", "culinary", "baking", "pastry", "masak", "tata boga"],
+      "subjects": ["Tata Boga", "Kuliner", "Masak", "Nutrisi", "Pangan", "Gizi", "Sanitasi"],
+      "hobbies": ["Memasak", "Baking kue", "Eksperimen resep", "Mencicipi makanan", "Food vlogging"],
+      "interests": ["Gastronomy", "Pastry & Baking", "Food presentation & styling", "Kitchen management", "Nutritional science"],
+      "riasec": ["Realistic", "Artistic"],
+      "careers": ["Chef / Koki Profesional", "Pastry Chef", "Food Stylist", "Restaurant Manager"],
+      "competitions": ["Lomba Masak Nasional", "Salon Culinaire Indonesia", "MasterChef Showcase"],
+      "certifications": ["Certified Professional Chef (CPC)", "HACCP Food Safety Certification", "Patisserie & Bakery Diploma"],
+      "roadmap": [
+        "Menguasai teknik pisau (knife skills) dasar dan metode memasak standar.",
+        "Mempelajari kebersihan pangan (food hygiene) dan sanitasi dapur.",
+        "Bereksperimen dengan kombinasi bumbu dan teknik presentasi hidangan (plating).",
+        "Mengikuti magang profesional di restoran berbintang atau hotel internasional."
+      ]
+    },
+    {
+      "id": "seni_musik",
+      "name": "Seni Musik & Pertunjukan",
+      "aliases": ["vokalis", "singer", "penyanyi", "komponis", "arranger", "pianis", "gitaris", "musisi", "musik"],
+      "subjects": ["Seni Musik", "Vokal", "Instrumen", "Melodi", "Harmoni", "Seni Budaya", "Solfeggio"],
+      "hobbies": ["Menyanyi", "Bermain gitar/piano", "Menulis lagu", "Mendengarkan musik", "Menonton konser"],
+      "interests": ["Music composition", "Audio engineering", "Vocal training", "Music therapy", "Performing arts", "Instrumental play"],
+      "riasec": ["Artistic", "Social"],
+      "careers": ["Penyanyi / Vokalis Profesional", "Komponis / Music Producer", "Guru Musik / Vokal", "Arranger"],
+      "competitions": ["Festival dan Lomba Seni Siswa Nasional (FLS2N) - Menyanyi", "National Band/Choir Competition", "Got Talent Competition"],
+      "certifications": ["ABRSM Music Certification", "Trinity College London Vocal Certificate", "Pro Tools Audio Engineering Certificate"],
+      "roadmap": [
+        "Mempelajari teori musik dasar, membaca not balok, dan solfeggio.",
+        "Melatih teknik vokal atau teknik instrumen utama secara harian.",
+        "Mempelajari aransemen lagu digital menggunakan DAW (Digital Audio Workstation).",
+        "Membangun portofolio video penampilan musik dan tampil di panggung publik."
+      ]
+    },
+    {
+      "id": "olahraga_fisik",
+      "name": "Olahraga & Kesehatan Fisik",
+      "aliases": ["atlet", "olahragawan", "coach", "pelatih", "instruktur senam", "personal trainer", "physical trainer"],
+      "subjects": ["Olahraga", "Penjas", "Fisik", "Atletik", "Kinesiologi", "Kesehatan Jasmani"],
+      "hobbies": ["Futsal", "Basket", "Bulu tangkis", "Lari sore", "Nge-gym", "Fitness", "Workout"],
+      "interests": ["Sports science", "Athletic training", "Kinesiology", "Fitness & Bodybuilding", "Physical coaching", "Sports management"],
+      "riasec": ["Realistic", "Social"],
+      "careers": ["Atlet Profesional", "Pelatih Olahraga / Coach", "Personal Trainer", "Fisioterapis Olahraga"],
+      "competitions": ["Olimpiade Olahraga Siswa Nasional (O2SN)", "Pekan Olahraga Mahasiswa (POMNAS)", "Kejuaraan Daerah (Kejurda)"],
+      "certifications": ["Certified Fitness Trainer (CFT)", "Certified Strength and Conditioning Specialist (CSCS)", "Sports First Aid Certification"],
+      "roadmap": [
+        "Mempelajari teknik fisik, kekuatan otot dasar, dan daya tahan tubuh.",
+        "Memahami prinsip nutrisi olahraga, metabolisme, dan pemulihan cedera.",
+        "Mengikuti klub olahraga resmi dan disiplin dalam menu latihan terprogram.",
+        "Berkompetisi secara aktif di turnamen olahraga daerah maupun nasional."
+      ]
+    },
+    {
+      "id": "kesehatan_medis",
+      "name": "Kesehatan & Keperawatan (Medis)",
+      "aliases": ["perawat", "asisten medis", "medis", "apoteker", "dokter", "bidan", "perawat gigi", "tenaga kesehatan"],
+      "subjects": ["Anatomi", "Biologi", "Farmasi", "Medis", "Kimia", "Kesehatan", "Keperawatan"],
+      "hobbies": ["Mempelajari P3K", "Membaca artikel kesehatan", "Eksperimen sains biologi", "Donor darah", "Volunteer kesehatan"],
+      "interests": ["Anatomy & Physiology", "Nursing practices", "Pharmacology", "Clinical laboratory", "Public health", "Patient care"],
+      "riasec": ["Investigative", "Social"],
+      "careers": ["Perawat Profesional", "Asisten Apoteker", "Bidan", "Analis Laboratorium Medis"],
+      "competitions": ["Lomba Kompetensi Siswa (LKS) Health & Social Care", "Olimpiade Biologi Kedokteran", "Karya Tulis Ilmiah Kesehatan"],
+      "certifications": ["Surat Tanda Registrasi (STR) Perawat/Bidan", "Basic Trauma Cardiac Life Support (BTCLS)", "Pharmacy Technician Certification"],
+      "roadmap": [
+        "Mempelajari dasar anatomi tubuh manusia dan sistem fisiologi.",
+        "Menguasai teknik pertolongan pertama (First Aid) dan resusitasi jantung paru.",
+        "Mempelajari dasar-dasar farmakologi, resep obat, dan asuhan keperawatan.",
+        "Mengikuti program magang klinis di puskesmas, klinik, atau rumah sakit."
+      ]
+    },
+    {
+      "id": "sosial_pendidikan",
+      "name": "Sosial & Pendidikan",
+      "aliases": ["guru", "dosen", "pendidik", "public relations", "human resources", "hrd", "konselor", "pekerja sosial", "volunteer coordinator"],
+      "subjects": ["Sosiologi", "Bahasa Indonesia", "IPS", "Pendidikan", "Komunikasi", "Sejarah", "Psikologi"],
+      "hobbies": ["Mengajar anak-anak", "Volunteer organisasi", "Debat bahasa", "Membaca buku sejarah", "Konseling teman"],
+      "interests": ["Teaching & Education", "Public relations", "Human resources development", "Community service", "Public speaking", "Counseling"],
+      "riasec": ["Social", "Enterprising"],
+      "careers": ["Teacher / Educator", "Public Relations Specialist", "Human Resources Manager", "Social Worker"],
+      "competitions": ["Lomba Debat Bahasa Indonesia", "Kompetisi Pengabdian Sosial", "Lomba Inovasi Media Pembelajaran"],
+      "certifications": ["Sertifikasi Pendidik (Serdik)", "Certified Human Resource Professional (CHRP)", "Professional Public Speaking Certificate"],
+      "roadmap": [
+        "Mempelajari teknik komunikasi verbal, non-verbal, dan penulisan persuasif.",
+        "Memahami dasar-dasar psikologi perkembangan anak dan teknik konseling.",
+        "Terlibat aktif dalam organisasi sosial, kepemimpinan siswa, atau pengabdian masyarakat.",
+        "Mengikuti pelatihan pedagogi dan membuat portofolio metode pengajaran interaktif."
+      ]
+    },
+    {
+      "id": "pertanian_hayati",
+      "name": "Pertanian & Ilmu Hayati",
+      "aliases": ["petani modern", "agronomist", "agribisnis", "agroteknologi", "ahli kebun", "botanis", "ahli tanah"],
+      "subjects": ["Biologi", "Kimia", "Pertanian", "Botani", "Agribisnis", "Agroteknologi", "Tanah", "Pupuk"],
+      "hobbies": ["Berkebun", "Hidroponik", "Merawat tanaman hias", "Membuat kompos", "Mengamati serangga kebun"],
+      "interests": ["Agrotechnology", "Hydroponics & Aquaponics", "Soil science", "Plant pathology & genetics", "Organic farming", "Agribusiness management"],
+      "riasec": ["Realistic", "Investigative"],
+      "careers": ["Ahli Agronomi / Agroteknologi", "Consultant Agribusiness", "Agricultural Researcher", "Greenhouse Manager"],
+      "competitions": ["Lomba Inovasi Teknologi Pertanian", "National Agritech Competition", "PIMNAS Bidang Agro-Sains"],
+      "certifications": ["Certified Agriculturalist", "Hydroponics System Specialist Certificate", "Organic Farming Inspector"],
+      "roadmap": [
+        "Mempelajari anatomi dan fisiologi tumbuhan serta siklus hara tanah.",
+        "Mempraktikkan teknik budidaya tanaman hortikultura/hidroponik di rumah/sekolah.",
+        "Mempelajari teknik manajemen hama dan penyakit tumbuhan berbasis ramah lingkungan.",
+        "Mengembangkan prototipe agribisnis digital terintegrasi sensor kelembaban/iot."
+      ]
+    },
+    {
+      "id": "perikanan_kelautan",
+      "name": "Perikanan & Kelautan",
+      "aliases": ["nelayan modern", "budidaya ikan", "oceanographer", "marine biologist", "iktiologi", "ahli akuakultur"],
+      "subjects": ["Biologi", "Kelautan", "Perikanan", "Perairan", "Akuakultur", "Iktiologi", "Kimia Air"],
+      "hobbies": ["Memancing", "Merawat akuarium", "Menyelam", "Mengamati ekosistem pantai", "Bercocok tanam air"],
+      "interests": ["Aquaculture technology", "Marine biology & Oceanography", "Fisheries management", "Aqua feed formulation", "Aquatic toxicology", "Mariculture"],
+      "riasec": ["Realistic", "Investigative"],
+      "careers": ["Ahli Akuakultur / Budidaya Perairan", "Marine Biologist", "Konsultan Quality Control Perikanan", "Oceanographer"],
+      "competitions": ["Lomba Inovasi Teknologi Akuakultur & Perikanan", "PIMNAS Bidang Ketahanan Maritim & Perikanan", "Olimpiade Sains Kelautan"],
+      "certifications": ["Aquaculture Professional Certificate (APC)", "Open Water Diver Certification (PADI/SSI)", "Hazard Analysis Critical Control Point (HACCP) Perikanan"],
+      "roadmap": [
+        "Mempelajari dasar biologi laut, anatomi ikan (iktiologi), dan kimia air.",
+        "Mempelajari sistem resirkulasi akuakultur (RAS) dan teknik pembenihan ikan.",
+        "Mengikuti program riset lapangan pantai atau konservasi terumbu karang.",
+        "Mengikuti program magang industri pengolahan hasil perikanan atau tambak modern."
+      ]
+    },
+    {
+      "id": "penerbangan_kedirgantaraan",
+      "name": "Penerbangan & Kedirgantaraan",
+      "aliases": ["penerbangan", "kedirgantaraan", "pilot", "penerbang", "aerospace", "aviation", "pesawat", "general aircraft knowledge", "air law"],
+      "subjects": ["Prinsip Terbang", "Aerodinamika", "Meteorologi Penerbangan", "Navigasi Udara", "Hukum Penerbangan", "Regulasi Penerbangan", "Pengetahuan Umum Pesawat", "Aircraft General Knowledge", "Kinerja Manusia", "Prosedur Operasional", "Fisika", "Matematika"],
+      "hobbies": ["Aeromodelling", "Flight simulator", "Mengamati pesawat", "Planespotting", "Membaca tentang dirgantara"],
+      "interests": ["Aviation", "Piloting", "Aerospace engineering", "Aircraft maintenance", "Flight operations", "Air traffic control"],
+      "riasec": ["Realistic", "Investigative"],
+      "careers": ["Commercial Pilot", "Aerospace Engineer", "Air Traffic Controller", "Flight Operations Officer", "Aircraft Maintenance Engineer"],
+      "competitions": ["Lomba Aeromodelling Nasional", "Olimpiade Dirgantara", "Kompetisi Desain Pesawat Unmanned Aerial Vehicle (UAV)"],
+      "certifications": ["Private Pilot License (PPL)", "Commercial Pilot License (CPL)", "Aircraft Maintenance Engineer License (AMEL)"],
+      "roadmap": [
+        "Memahami hukum penerbangan dasar dan regulasi udara.",
+        "Menguasai prinsip aerodinamika dasar dan navigasi udara.",
+        "Menyelesaikan program pelatihan sekolah penerbangan ground school.",
+        "Memperoleh sertifikasi lisensi terbang resmi (PPL/CPL)."
+      ]
+    }
+  ]
+}

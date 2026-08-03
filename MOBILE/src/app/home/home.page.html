@@ -255,11 +255,25 @@
                   </ion-toolbar>
                 </ion-header>
                 <ion-content class="ion-padding" style="--background: #FAFAF9;">
+                  <!-- Bulk Actions Bar for Grades -->
+                  <div *ngIf="grades.length > 0" style="display: flex; gap: 8px; margin-bottom: 12px; justify-content: flex-end; align-items: center; width: 100%;">
+                    <ion-button size="small" fill="outline" color="primary" (click)="toggleGradeSelectionMode()" style="font-weight: 700; margin: 0;">
+                      {{ isSelectingGrades ? 'Selesai' : 'Pilih Beberapa' }}
+                    </ion-button>
+                    <ion-button *ngIf="isSelectingGrades" size="small" fill="solid" color="danger" (click)="onDeleteSelectedGrades()" [disabled]="selectedGrades.size === 0" style="font-weight: 700; margin: 0;">
+                      Hapus Terpilih ({{ selectedGrades.size }})
+                    </ion-button>
+                    <ion-button *ngIf="!isSelectingGrades && !student?.institution_id" size="small" fill="solid" color="danger" (click)="onDeleteAllGrades()" style="font-weight: 700; margin: 0;">
+                      Hapus Semua
+                    </ion-button>
+                  </div>
+
                   <div *ngIf="grades.length === 0" class="ion-text-center ion-padding">
                     <p style="color: #78716C;">Belum ada nilai akademik terdaftar.</p>
                   </div>
                   <ion-list *ngIf="grades.length > 0" lines="full" style="background: transparent;">
                     <ion-item *ngFor="let grade of grades" style="--border-radius: 12px; margin-bottom: 8px; --background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                      <ion-checkbox slot="start" *ngIf="isSelectingGrades" [checked]="selectedGrades.has(grade.id)" (ionChange)="toggleSelectGrade(grade.id)" style="margin-right: 8px;"></ion-checkbox>
                       <ion-label style="margin: 8px 0;">
                         <h3 style="font-weight: 800; color: #1C1917;">
                           <span *ngIf="userRole !== 'umum'">Sem {{ grade.semester }} • </span>{{ grade.subject_name }}
@@ -269,7 +283,7 @@
                         <div style="font-size: 1.2rem; font-weight: 800; color: #1C1917;">
                           {{ grade.score }}
                         </div>
-                        <ion-button *ngIf="!student?.institution_id" (click)="onDeleteGrade(grade.id)" fill="clear" color="danger" style="--padding-start: 4px; --padding-end: 4px; margin: 0; height: 32px;">
+                        <ion-button *ngIf="!student?.institution_id && !isSelectingGrades" (click)="onDeleteGrade(grade.id)" fill="clear" color="danger" style="--padding-start: 4px; --padding-end: 4px; margin: 0; height: 32px;">
                           <ion-icon name="trash-outline" style="font-size: 1.3rem; color: #DC2626;"></ion-icon>
                         </ion-button>
                       </div>
@@ -350,11 +364,25 @@
                   </ion-toolbar>
                 </ion-header>
                 <ion-content class="ion-padding" style="--background: #FAFAF9;">
+                  <!-- Bulk Actions Bar for Certificates -->
+                  <div *ngIf="achievements.length > 0" style="display: flex; gap: 8px; margin-bottom: 12px; justify-content: flex-end; align-items: center; width: 100%;">
+                    <ion-button size="small" fill="outline" color="primary" (click)="toggleCertSelectionMode()" style="font-weight: 700; margin: 0;">
+                      {{ isSelectingCerts ? 'Selesai' : 'Pilih Beberapa' }}
+                    </ion-button>
+                    <ion-button *ngIf="isSelectingCerts" size="small" fill="solid" color="danger" (click)="onDeleteSelectedCerts()" [disabled]="selectedCerts.size === 0" style="font-weight: 700; margin: 0;">
+                      Hapus Terpilih ({{ selectedCerts.size }})
+                    </ion-button>
+                    <ion-button *ngIf="!isSelectingCerts" size="small" fill="solid" color="danger" (click)="onDeleteAllCerts()" style="font-weight: 700; margin: 0;">
+                      Hapus Semua
+                    </ion-button>
+                  </div>
+
                   <div *ngIf="achievements.length === 0" class="ion-text-center ion-padding">
                     <p style="color: #78716C;">Belum ada sertifikat terdaftar.</p>
                   </div>
                   <ion-list *ngIf="achievements.length > 0" lines="full" style="background: transparent;">
                     <ion-item *ngFor="let ach of achievements" style="--border-radius: 12px; margin-bottom: 8px; --background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                      <ion-checkbox slot="start" *ngIf="isSelectingCerts" [checked]="selectedCerts.has(ach.id)" (ionChange)="toggleSelectCert(ach.id)" style="margin-right: 8px;"></ion-checkbox>
                       <ion-label style="margin: 8px 0;">
                         <h3 style="font-weight: 800; color: #1C1917; margin-bottom: 4px;">{{ ach.title }}</h3>
                         <p style="font-size: 0.78rem; color: #78716C; margin-bottom: 2px;">Kategori: {{ ach.category }} • Tingkat: {{ ach.level }}</p>
@@ -367,7 +395,7 @@
                         <span class="badge-pill" [style.background]="ach.is_verified ? '#D8F5E8' : '#FAF0E4'" [style.color]="ach.is_verified ? '#065F46' : '#92400E'" style="font-size: 0.7rem; margin: 0;">
                           {{ ach.is_verified ? '✓ OK' : '⏳ Pending' }}
                         </span>
-                        <ion-button (click)="onDeleteAchievement(ach.id)" fill="clear" color="danger" style="--padding-start: 4px; --padding-end: 4px; margin: 0; height: 32px;">
+                        <ion-button *ngIf="!isSelectingCerts" (click)="onDeleteAchievement(ach.id)" fill="clear" color="danger" style="--padding-start: 4px; --padding-end: 4px; margin: 0; height: 32px;">
                           <ion-icon name="trash-outline" style="font-size: 1.3rem; color: #DC2626;"></ion-icon>
                         </ion-button>
                       </div>

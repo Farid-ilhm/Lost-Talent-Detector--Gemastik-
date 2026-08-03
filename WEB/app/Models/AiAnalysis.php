@@ -14,6 +14,7 @@ class AiAnalysis extends Model
     protected $fillable = [
         'student_id',
         'primary_talent',
+        'analisis_mendalam',
         'confidence_score',
         'supporting_talents',
         'reasoning',

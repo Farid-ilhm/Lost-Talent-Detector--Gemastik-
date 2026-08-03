@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/student/interests-hobbies', [StudentApiController::class, 'updateInterestsAndHobbies']);
     Route::post('/student/achievements', [StudentApiController::class, 'uploadAchievement']);
     Route::delete('/student/achievements/{id}', [StudentApiController::class, 'deleteAchievement']);
+    Route::post('/student/achievements/bulk-delete', [StudentApiController::class, 'bulkDeleteAchievements']);
     Route::get('/student/test', [StudentApiController::class, 'getRiasecTest']);
     Route::post('/student/test/submit', [StudentApiController::class, 'submitTestAnswers']);
     Route::post('/student/test/reset', [StudentApiController::class, 'resetRiasecTest']);
@@ -34,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/student/analyze/reset', [StudentApiController::class, 'resetAiAnalysis']);
     Route::post('/student/grades', [StudentApiController::class, 'saveIndependentGrade']);
     Route::delete('/student/grades/{id}', [StudentApiController::class, 'deleteIndependentGrade']);
+    Route::post('/student/grades/bulk-delete', [StudentApiController::class, 'bulkDeleteIndependentGrades']);
 
     // Teacher routes
     Route::get('/teacher/students', [TeacherApiController::class, 'getStudentsList']);

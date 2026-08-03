@@ -95,4 +95,14 @@ export class ApiService {
     const headers = this.authService.getAuthHeaders();
     return this.http.get(`${this.apiUrl}/institution/stats`, { headers });
   }
+
+  bulkDeleteIndependentGrades(ids: number[], all: boolean = false): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post(`${this.apiUrl}/student/grades/bulk-delete`, { ids, all }, { headers });
+  }
+
+  bulkDeleteAchievements(ids: number[], all: boolean = false): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post(`${this.apiUrl}/student/achievements/bulk-delete`, { ids, all }, { headers });
+  }
 }
