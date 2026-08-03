@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import os
 import sys
+import json
+import requests
 
 app = Flask(__name__)
 
@@ -20,6 +22,173 @@ if os.path.exists(model_path):
         print(f"Error loading model: {e}", file=sys.stderr)
 else:
     print(f"Warning: Model file not found at {model_path}. Please run train.py first.", file=sys.stderr)
+
+def call_gemini_llm(api_key, context_data):
+    """
+    Call Gemini 1.5 Flash API with strict JSON instructions for Hybrid ML + LLM generation.
+    """
+    if not api_key:
+        return None
+
+    # Supported Gemini Flash endpoint
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    headers = {"Content-Type": "application/json"}
+
+    prompt = f"""
+Anda adalah Asisten Psikolog Karir & Konsultan Bakat AI Profesional untuk platform 'Lost Talent Detector'.
+Tugas Anda adalah memberikan analisis bakat yang mendalam, kontekstual, dan personal berbasis hasil prediksi Machine Learning (Random Forest Classifier) berikut:
+
+Profil Pengguna:
+- Bakat Utama Prediksi ML: {context_data.get('primary_talent')} (Tingkat Keyakinan: {context_data.get('confidence_score')}%)
+- Bakat Pendukung: {json.dumps(context_data.get('supporting_talents', []), ensure_ascii=False)}
+- Skor Tes RIASEC (%): {json.dumps(context_data.get('riasec', {}), ensure_ascii=False)}
+- Nilai Rata-rata Pelajaran: {json.dumps(context_data.get('grades', {}), ensure_ascii=False)}
+- Sertifikat/Prestasi: {json.dumps(context_data.get('achievements', []), ensure_ascii=False)}
+- Minat & Hobi: {json.dumps(context_data.get('hobbies', []) + context_data.get('interests', []), ensure_ascii=False)}
+
+Tugas Anda:
+1. Tuliskan 'analisis_mendalam' (narasi 2-3 paragraf komprehensif, inspiratif, dan personal).
+2. Tuliskan 3-4 poin 'reasoning' (alasan teknis berbasis data nilai, prestasi, dan RIASEC).
+3. Tuliskan 3-4 'career_recommendations' (profesi/karir terbaik yang relevan).
+4. Tuliskan 2-3 'development_targets' (langkah pengembangan diri yang praktis dan konkret).
+
+Kembalikan HANYA format JSON murni berikut tanpa tag ```json atau teks lainnya:
+{{
+  "analisis_mendalam": "Narasi 2-3 paragraf...",
+  "reasoning": [
+    "Poin alasan 1...",
+    "Poin alasan 2...",
+    "Poin alasan 3..."
+  ],
+  "career_recommendations": [
+    "Profesi 1",
+    "Profesi 2",
+    "Profesi 3"
+  ],
+  "development_targets": [
+    "Langkah 1",
+    "Langkah 2"
+  ]
+}}
+"""
+
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }],
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "temperature": 0.4
+        }
+    }
+
+    try:
+        res = requests.post(url, headers=headers, json=payload, timeout=8)
+        if res.status_code == 200:
+            res_data = res.json()
+            candidates = res_data.get('candidates', [])
+            if candidates:
+                text_content = candidates[0]['content']['parts'][0]['text']
+                text_clean = text_content.strip()
+                if text_clean.startswith("```json"):
+                    text_clean = text_clean[7:]
+                if text_clean.startswith("```"):
+                    text_clean = text_clean[3:]
+                if text_clean.endswith("```"):
+                    text_clean = text_clean[:-3]
+                return json.loads(text_clean.strip())
+        else:
+            print(f"Gemini API returned status {res.status_code}: {res.text}", file=sys.stderr)
+    except Exception as e:
+        print(f"Gemini LLM call exception: {e}", file=sys.stderr)
+
+    return None
+
+def call_openrouter_deepseek(api_key, context_data):
+    """
+    Call DeepSeek-R1 / Reasoning LLM via OpenRouter API with structured JSON output.
+    """
+    if not api_key:
+        return None
+
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "HTTP-Referer": "http://localhost:8000",
+        "X-Title": "Lost Talent Detector",
+        "Content-Type": "application/json"
+    }
+
+    prompt = f"""
+Anda adalah Psikolog Karir & Konsultan Bakat AI Senior berpengalaman untuk platform 'Lost Talent Detector'.
+Berikan analisis psikologi karir yang tajam, mendalam, dan memotivasi berbasis data hasil Machine Learning berikut:
+
+Data Profil Pengguna:
+- Bakat Utama (Hasil ML): {context_data.get('primary_talent')} (Tingkat Keyakinan: {context_data.get('confidence_score')}%)
+- Bakat Pendukung: {json.dumps(context_data.get('supporting_talents', []), ensure_ascii=False)}
+- Skor Kuesioner RIASEC (%): {json.dumps(context_data.get('riasec', {}), ensure_ascii=False)}
+- Nilai Pelajaran Rapor: {json.dumps(context_data.get('grades', {}), ensure_ascii=False)}
+- Sertifikat Prestasi: {json.dumps(context_data.get('achievements', []), ensure_ascii=False)}
+- Minat & Hobi: {json.dumps(context_data.get('hobbies', []) + context_data.get('interests', []), ensure_ascii=False)}
+
+Gunakan penalaran psikologis (reasoning) yang logis dan runtut.
+Kembalikan HANYA format JSON murni berikut tanpa sintaks ```json atau komentar apapun:
+{{
+  "analisis_mendalam": "Narasi analisis psikologi mendalam 2-3 paragraf...",
+  "reasoning": [
+    "Poin analisis 1...",
+    "Poin analisis 2...",
+    "Poin analisis 3..."
+  ],
+  "career_recommendations": [
+    "Profesi 1",
+    "Profesi 2",
+    "Profesi 3"
+  ],
+  "development_targets": [
+    "Target konkret 1",
+    "Target konkret 2"
+  ]
+}}
+"""
+
+    models_to_try = [
+        "deepseek/deepseek-r1:free",
+        "deepseek/deepseek-chat",
+        "meta-llama/llama-3.3-70b-instruct:free"
+    ]
+
+    for model_name in models_to_try:
+        payload = {
+            "model": model_name,
+            "messages": [
+                {"role": "system", "content": "You are a professional career guidance AI that outputs valid JSON only."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.3
+        }
+
+        try:
+            res = requests.post(url, headers=headers, json=payload, timeout=12)
+            if res.status_code == 200:
+                res_data = res.json()
+                choices = res_data.get('choices', [])
+                if choices:
+                    text_content = choices[0]['message']['content']
+                    text_clean = text_content.strip()
+                    if text_clean.startswith("```json"):
+                        text_clean = text_clean[7:]
+                    if text_clean.startswith("```"):
+                        text_clean = text_clean[3:]
+                    if text_clean.endswith("```"):
+                        text_clean = text_clean[:-3]
+                    return json.loads(text_clean.strip())
+            else:
+                print(f"OpenRouter ({model_name}) status {res.status_code}: {res.text}", file=sys.stderr)
+        except Exception as e:
+            print(f"OpenRouter ({model_name}) exception: {e}", file=sys.stderr)
+
+    return None
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -219,28 +388,6 @@ def predict():
         hobbies = req_data.get('hobbies', [])
         interests = req_data.get('interests', [])
 
-        # Check if there is a highly specific interest that doesn't fit standard categories
-        has_custom_interest = False
-        custom_interest_name = ''
-        if len(interests) > 0:
-            primary_interest = interests[0].strip()
-            if len(primary_interest) > 2:
-                custom_interest_name = primary_interest.title()
-                has_custom_interest = True
-                
-                lower_interest = primary_interest.lower()
-                standards = [
-                    'robot', 'coding', 'program', 'sains', 'riset', 'desain', 'ui', 'ux', 'bisnis', 'usaha', 
-                    'sosial', 'didik', 'masak', 'boga', 'kuliner', 'chef', 'koki', 'musik', 'vokal', 'olahraga', 
-                    'atlet', 'medis', 'dokter', 'perawat', 'tani', 'kebun', 'tanah', 'botani', 'agro', 'ternak', 
-                    'hama', 'tanaman', 'ikan', 'perikanan', 'perairan', 'kelautan', 'maritim', 'mancing', 'pancing', 
-                    'iktiologi', 'akuakultur', 'hidrobiologi', 'oceanografi'
-                ]
-                for s in standards:
-                    if s in lower_interest:
-                        has_custom_interest = False
-                        break
-
         # Map to feature names expected by the model
         riasec_r = float(riasec.get('Realistic', 50))
         riasec_i = float(riasec.get('Investigative', 50))
@@ -376,9 +523,9 @@ def predict():
             pred_dict['Programming'] = pred_dict.get('Programming', 0.0) * 0.05
             pred_dict['Robotik'] = pred_dict.get('Robotik', 0.0) * 0.05
 
-        # Determine temporary top talent for domain affinity mapping
+        # Determine top talent for domain affinity mapping
         temp_sorted = sorted(pred_dict.items(), key=lambda item: item[1], reverse=True)
-        top_candidate = custom_interest_name if has_custom_interest else temp_sorted[0][0]
+        top_candidate = temp_sorted[0][0]
 
         # Domain Affinity Matrix: Boost related supporting talents based on primary domain
         AFFINITY_MAP = {
@@ -402,28 +549,16 @@ def predict():
 
         sorted_preds = sorted(pred_dict.items(), key=lambda item: item[1], reverse=True)
 
-        if has_custom_interest:
-            primary_talent = custom_interest_name
-            confidence_score = 99.0
-            top_supp_score = sorted_preds[0][1] if len(sorted_preds) > 0 else 1.0
-            base_percentages = [85.0, 75.0, 65.0]
-            supporting_talents = []
-            for i in range(min(3, len(sorted_preds))):
-                t_name, t_val = sorted_preds[i]
-                ratio = (t_val / max(0.001, top_supp_score))
-                conf = round(min(92.0, max(45.0, base_percentages[i] * ratio)), 1)
-                supporting_talents.append({'talent': t_name, 'confidence': conf})
-        else:
-            primary_talent = sorted_preds[0][0]
-            confidence_score = round(min(99.0, max(92.0, sorted_preds[0][1] * 100)), 1)
-            top_supp_score = sorted_preds[1][1] if len(sorted_preds) > 1 else 1.0
-            base_percentages = [85.0, 75.0, 65.0]
-            supporting_talents = []
-            for i in range(1, min(4, len(sorted_preds))):
-                t_name, t_val = sorted_preds[i]
-                ratio = (t_val / max(0.001, top_supp_score))
-                conf = round(min(92.0, max(45.0, base_percentages[i-1] * ratio)), 1)
-                supporting_talents.append({'talent': t_name, 'confidence': conf})
+        primary_talent = sorted_preds[0][0]
+        confidence_score = round(min(99.0, max(85.0, sorted_preds[0][1] * 100)), 1)
+        top_supp_score = sorted_preds[1][1] if len(sorted_preds) > 1 else 1.0
+        base_percentages = [85.0, 75.0, 65.0]
+        supporting_talents = []
+        for i in range(1, min(4, len(sorted_preds))):
+            t_name, t_val = sorted_preds[i]
+            ratio = (t_val / max(0.001, top_supp_score))
+            conf = round(min(92.0, max(45.0, base_percentages[i-1] * ratio)), 1)
+            supporting_talents.append({'talent': t_name, 'confidence': conf})
 
         # Dynamic reasoning generator (explainable AI)
         reasoning = []
@@ -444,8 +579,6 @@ def predict():
             reasoning.append(f"Memiliki {achievement_tech} sertifikat prestasi sah di bidang teknologi.")
         if achievement_science > 0 and primary_talent in ['Sains & Riset', 'Perikanan & Kelautan', 'Pertanian & Ilmu Hayati']:
             reasoning.append(f"Ditopang {achievement_science} pencapaian prestasi akademik bidang sains/penelitian.")
-        if has_custom_interest:
-            reasoning.append(f"Memiliki bakat kustom terarah dan fokus eksplorasi mandiri di bidang {primary_talent}.")
 
         # Recommendations mappings
         query_parts = [primary_talent]
@@ -459,7 +592,45 @@ def predict():
         competitions = recommend_items(query, COMPETITION_REPOSITORY, primary_talent, limit=2)
         targets = recommend_items(query, TARGET_REPOSITORY, primary_talent, limit=2)
 
-        return jsonify({
+        # Retrieve API Keys from request payload or environment
+        openrouter_key = req_data.get('openrouter_api_key') or os.getenv('OPENROUTER_API_KEY')
+        gemini_key = req_data.get('gemini_api_key') or os.getenv('GEMINI_API_KEY')
+
+        # Context payload for LLM Hybrid Generation
+        context_data = {
+            'primary_talent': primary_talent,
+            'confidence_score': confidence_score,
+            'supporting_talents': supporting_talents,
+            'riasec': riasec,
+            'grades': grades,
+            'achievements': achievements,
+            'hobbies': hobbies,
+            'interests': interests
+        }
+
+        # Multi-Engine Pipeline: Priority 1: DeepSeek-R1 (OpenRouter), Priority 2: Gemini, Priority 3: Local ML
+        llm_res = None
+        model_ver = 'lost-talent-rf-v2.0-fallback'
+
+        if openrouter_key:
+            llm_res = call_openrouter_deepseek(openrouter_key, context_data)
+            if llm_res:
+                model_ver = 'lost-talent-hybrid-rf-deepseek-r1-v3.0'
+
+        if not llm_res and gemini_key:
+            llm_res = call_gemini_llm(gemini_key, context_data)
+            if llm_res:
+                model_ver = 'lost-talent-hybrid-rf-gemini-v2.5'
+
+        if llm_res:
+            reasoning = llm_res.get('reasoning', reasoning)
+            careers = llm_res.get('career_recommendations', careers)
+            targets = llm_res.get('development_targets', targets)
+            analisis_mendalam = llm_res.get('analisis_mendalam', '')
+        else:
+            analisis_mendalam = None
+
+        res_payload = {
             'success': True,
             'primary_talent': primary_talent,
             'confidence_score': confidence_score,
@@ -469,8 +640,13 @@ def predict():
             'extracurricular_recommendations': extracurriculars,
             'competition_recommendations': competitions,
             'development_targets': targets,
-            'model_version': 'lost-talent-rf-v2.0'
-        })
+            'model_version': model_ver
+        }
+
+        if analisis_mendalam:
+            res_payload['analisis_mendalam'] = analisis_mendalam
+
+        return jsonify(res_payload)
 
     except Exception as e:
         return jsonify({

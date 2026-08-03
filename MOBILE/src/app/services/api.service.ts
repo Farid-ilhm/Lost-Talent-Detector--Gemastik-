@@ -56,9 +56,19 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/student/test/submit`, body, { headers });
   }
 
+  resetRiasecTest(): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post(`${this.apiUrl}/student/test/reset`, {}, { headers });
+  }
+
   triggerAiAnalysis(): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     return this.http.post(`${this.apiUrl}/student/analyze`, {}, { headers });
+  }
+
+  resetAiAnalysis(): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post(`${this.apiUrl}/student/analyze/reset`, {}, { headers });
   }
 
   saveIndependentGrade(data: { semester: number; subject_name: string; score: number }): Observable<any> {

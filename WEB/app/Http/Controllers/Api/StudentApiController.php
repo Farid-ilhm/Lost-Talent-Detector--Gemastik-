@@ -359,6 +359,45 @@ class StudentApiController extends Controller
     }
 
     /**
+     * Reset RIASEC test result and answers for the student.
+     */
+    public function resetRiasecTest(Request $request)
+    {
+        $user = $request->user();
+        $student = Student::where('user_id', $user->id)->first();
+        if (!$student) {
+            return response()->json(['success' => false, 'message' => 'Student record not found.'], 404);
+        }
+
+        InterestTestResult::where('student_id', $student->id)->delete();
+        InterestTestAnswer::where('student_id', $student->id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Hasil tes RIASEC berhasil di-reset.'
+        ]);
+    }
+
+    /**
+     * Reset AI Analysis report for the student.
+     */
+    public function resetAiAnalysis(Request $request)
+    {
+        $user = $request->user();
+        $student = Student::where('user_id', $user->id)->first();
+        if (!$student) {
+            return response()->json(['success' => false, 'message' => 'Student record not found.'], 404);
+        }
+
+        AiAnalysis::where('student_id', $student->id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Laporan analisis AI berhasil di-reset.'
+        ]);
+    }
+
+    /**
      * Run high-fidelity simulation of the AI Talent Recommendation Engine.
      * Evaluates grades, achievements, interest test scores, and hobbies.
      */
@@ -370,7 +409,7 @@ class StudentApiController extends Controller
 
         // Gather metrics for analysis
         $grades = $student->academicGrades;
-        $achievements = $student->achievements->where('is_verified', true);
+        $achievements = $student->achievements;
         $testResult = $student->interestTestResults->last();
         $hobbies = $student->hobbies ?? [];
         $interests = $student->interests ?? [];
@@ -384,144 +423,27 @@ class StudentApiController extends Controller
         }
 
         try {
-            // 0. Attempt to call Google Gemini API if key is set
             $geminiKey = env('GEMINI_API_KEY') ?: (getenv('GEMINI_API_KEY') ?: ($_ENV['GEMINI_API_KEY'] ?? null));
-            if ($geminiKey) {
-                try {
-                    // Compile ALL student academic grades dynamically
-                    $gradesGrouped = $grades->groupBy('subject_name')->map(function ($items) {
-                        return round($items->avg('score'), 2);
-                    });
-                    
-                    $gradesListString = '';
-                    if ($gradesGrouped->isEmpty()) {
-                        $gradesListString = "Tidak ada data nilai rapor/akademik.";
-                    } else {
-                        foreach ($gradesGrouped as $subject => $score) {
-                            $gradesListString .= "- {$subject}: {$score}\n";
-                        }
-                    }
+            $openrouterKey = env('OPENROUTER_API_KEY') ?: (getenv('OPENROUTER_API_KEY') ?: ($_ENV['OPENROUTER_API_KEY'] ?? null));
 
-                    $riasec = $testResult ? $testResult->scores : [
-                        'Realistic' => 50, 'Investigative' => 50, 'Artistic' => 50,
-                        'Social' => 50, 'Enterprising' => 50, 'Conventional' => 50
-                    ];
-                    $dominant = $testResult ? $testResult->dominant_category : 'Investigative';
-
-                    $hobbiesString = count($hobbies) > 0 ? implode(', ', $hobbies) : 'Tidak ada';
-                    $interestsString = count($interests) > 0 ? implode(', ', $interests) : 'Tidak ada';
-                    $achievementsString = $achievements->count() > 0 
-                        ? $achievements->map(function ($ach) { return $ach->title . " (" . $ach->level . ")"; })->implode(', ')
-                        : 'Tidak ada';
-
-                    $prompt = "Anda adalah AI Detektor Bakat untuk aplikasi Lost Talent Detector.
-Tugas Anda adalah memprediksi bakat siswa secara cerdas dan personal berdasarkan profil di bawah ini. Analisis nama mata pelajaran, prestasi, hobi, dan tes minat secara teliti agar rekomendasi akurat dan relevan dengan bidang keahlian aktual (seperti Perikanan, Kelautan, Pertanian, Medis, Teknik, Desain, dll).
-
-Profil Siswa:
-- Peran: {$user->role}
-- Hobi: {$hobbiesString}
-- Minat: {$interestsString}
-- Nilai Rata-rata Pelajaran/Mata Kuliah:
-{$gradesListString}
-- Daftar Prestasi / Sertifikat: {$achievementsString}
-- Kategori Dominan RIASEC: {$dominant} (Skor detail: Realistic: {$riasec['Realistic']}%, Investigative: {$riasec['Investigative']}%, Artistic: {$riasec['Artistic']}%, Social: {$riasec['Social']}%, Enterprising: {$riasec['Enterprising']}%, Conventional: {$riasec['Conventional']}%)
-
-Keluarkan hasil prediksi dalam format JSON dengan struktur berikut dan jangan sertakan format Markdown/Keterangan teks apa pun selain JSON:
-{
-  \"primary_talent\": \"Bakat utama yang paling dominan (contoh: Perikanan & Kelautan, Pertanian & Agroteknologi, Robotik, Programming, Desain Kreatif & UI/UX, Bisnis & Kewirausahaan, Sains & Riset, Seni Kuliner & Tata Boga, Seni Musik & Pertunjukan, Olahraga & Kesehatan Fisik, Kesehatan & Keperawatan (Medis), dll)\",
-  \"confidence_score\": 95,
-  \"supporting_talents\": [
-    {\"talent\": \"Bakat pendukung 1\", \"confidence\": 85},
-    {\"talent\": \"Bakat pendukung 2\", \"confidence\": 75},
-    {\"talent\": \"Bakat pendukung 3\", \"confidence\": 60}
-  ],
-  \"reasoning\": [
-    \"Alasan 1 berdasarkan detail profil...\",
-    \"Alasan 2...\",
-    \"Alasan 3...\"
-  ],
-  \"career_recommendations\": [
-    \"Pekerjaan 1\", \"Pekerjaan 2\", \"Pekerjaan 3\"
-  ],
-  \"competition_recommendations\": [
-    \"Rekomendasi Lomba 1\", \"Lomba 2\"
-  ],
-  \"development_targets\": [
-    \"Target pengembangan diri 1\", \"Target 2\"
-  ]
-}";
-
-                    $geminiResponse = \Illuminate\Support\Facades\Http::timeout(5)
-                        ->withHeaders(['Content-Type' => 'application/json'])
-                        ->post("https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={$geminiKey}", [
-                            'contents' => [
-                                [
-                                    'parts' => [
-                                        ['text' => $prompt]
-                                    ]
-                                ]
-                            ],
-                            'generationConfig' => [
-                                'responseMimeType' => 'application/json',
-                            ]
-                        ]);
-
-                    if ($geminiResponse->successful()) {
-                        $resJson = $geminiResponse->json();
-                        $text = $resJson['candidates'][0]['content']['parts'][0]['text'] ?? '';
-                        $data = json_decode(trim($text), true);
- 
-                        if ($data && isset($data['primary_talent'])) {
-                            // Save AI Analysis results
-                            AiAnalysis::where('student_id', $student->id)->delete();
-                            
-                            $analysis = AiAnalysis::create([
-                                'student_id' => $student->id,
-                                'primary_talent' => $data['primary_talent'],
-                                'confidence_score' => floatval($data['confidence_score'] ?? 90),
-                                'supporting_talents' => $data['supporting_talents'] ?? [],
-                                'reasoning' => $data['reasoning'] ?? [],
-                                'career_recommendations' => $data['career_recommendations'] ?? [],
-                                'extracurricular_recommendations' => $data['development_targets'] ?? [],
-                                'competition_recommendations' => $data['competition_recommendations'] ?? [],
-                                'development_targets' => $data['development_targets'] ?? [],
-                                'model_version' => 'gemini-1.5-flash-api',
-                                'analyzed_at' => Carbon::now(),
-                            ]);
- 
-                            return response()->json([
-                                'success' => true,
-                                'message' => 'AI Talent Analysis ran successfully via Gemini LLM.',
-                                'source' => 'gemini_api',
-                                'analysis' => $analysis
-                            ]);
-                        } else {
-                            \Illuminate\Support\Facades\Log::warning('Gemini API returned invalid JSON structure: ' . $text);
-                        }
-                    } else {
-                        \Illuminate\Support\Facades\Log::error('Gemini API request failed with status: ' . $geminiResponse->status() . ' - Response: ' . $geminiResponse->body());
-                    }
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Gemini API exception: ' . $e->getMessage());
-                }
-            } else {
-                \Illuminate\Support\Facades\Log::warning('Gemini API key is not configured or empty.');
-            }
-
-            // Attempt to call Python AI Service
-            $response = \Illuminate\Support\Facades\Http::timeout(3)->post('http://127.0.0.1:5000/predict', [
+            // Call Python AI Service (Multi-Engine: DeepSeek-R1 / Gemini + Local ML)
+            $response = \Illuminate\Support\Facades\Http::timeout(15)->post('http://127.0.0.1:5000/predict', [
                 'riasec' => $testResult ? $testResult->scores : new \stdClass(),
                 'grades' => $grades->groupBy('subject_name')->map(function ($items) {
                     return floatval($items->avg('score'));
                 })->toArray(),
                 'achievements' => $achievements->map(function ($ach) {
                     return [
+                        'title' => $ach->title,
                         'category' => $ach->category,
                         'level' => $ach->level,
+                        'rank' => $ach->rank ?? '',
                     ];
                 })->toArray(),
                 'hobbies' => $hobbies,
                 'interests' => $interests,
+                'gemini_api_key' => $geminiKey,
+                'openrouter_api_key' => $openrouterKey,
             ]);
 
             if ($response->successful()) {

@@ -445,11 +445,19 @@
         <div *ngIf="talentSubTab === 'test'">
           <ion-card class="card-lavender">
             <ion-card-header style="padding: 14px 16px;">
-              <ion-card-title style="font-size: 1.1rem;">Kuesioner Minat RIASEC</ion-card-title>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <ion-card-title style="font-size: 1.1rem;">Kuesioner Minat RIASEC</ion-card-title>
+                <ion-button *ngIf="testResult" size="small" color="danger" fill="outline" (click)="onResetRiasecTest()" style="--border-radius: 12px; font-weight: 800;">
+                  <i class="fa-solid fa-rotate-left" style="margin-right: 4px;"></i> Reset Tes
+                </ion-button>
+              </div>
             </ion-card-header>
             <ion-card-content style="padding: 0 16px 14px 16px;">
-              <div *ngIf="testResult" class="ion-margin-bottom" style="background: #FFFFFF; padding: 12px; border-radius: 14px; border: 1px solid #CDD1FD;">
-                <p style="margin: 0; font-weight: 800; color: #3730A3;">Dominan: {{ testResult.dominant_category }}</p>
+              <div *ngIf="testResult" class="ion-margin-bottom" style="background: #FFFFFF; padding: 12px; border-radius: 14px; border: 1px solid #CDD1FD; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <p style="margin: 0; font-weight: 800; color: #3730A3;">Dominan: {{ testResult.dominant_category }}</p>
+                  <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #78716C;">Tes sudah selesai diisi.</p>
+                </div>
               </div>
 
               <div *ngIf="riasecTest">
@@ -476,9 +484,14 @@
         </div>
 
         <div *ngIf="talentSubTab === 'ai'">
-          <ion-button expand="block" color="primary" (click)="onRunAiAnalysis()" [disabled]="isAnalyzingAi" style="margin-bottom: 14px;">
-            {{ isAnalyzingAi ? 'Proses AI...' : 'Perbarui Analisis AI' }}
-          </ion-button>
+          <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+            <ion-button expand="block" color="primary" (click)="onRunAiAnalysis()" [disabled]="isAnalyzingAi" style="flex: 2; margin: 0;">
+              {{ isAnalyzingAi ? 'Proses AI...' : 'Perbarui Analisis AI' }}
+            </ion-button>
+            <ion-button *ngIf="aiAnalysis" expand="block" color="danger" fill="outline" (click)="onResetAiAnalysis()" style="flex: 1; margin: 0; font-weight: 800; --border-radius: 14px;">
+              <i class="fa-solid fa-trash-can" style="margin-right: 4px;"></i> Reset AI
+            </ion-button>
+          </div>
 
           <div *ngIf="aiAnalysis">
             <!-- Bakat Utama -->

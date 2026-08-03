@@ -299,6 +299,33 @@ class DashboardController extends Controller
     }
 
     /**
+     * Reset RIASEC test result from web dashboard.
+     */
+    public function resetTestWeb()
+    {
+        $user = Auth::user();
+        $student = Student::where('user_id', $user->id)->first();
+        if ($student) {
+            InterestTestResult::where('student_id', $student->id)->delete();
+            InterestTestAnswer::where('student_id', $student->id)->delete();
+        }
+        return redirect('/dashboard')->with('success', 'Hasil tes RIASEC berhasil di-reset.');
+    }
+
+    /**
+     * Reset AI Analysis result from web dashboard.
+     */
+    public function resetAiWeb()
+    {
+        $user = Auth::user();
+        $student = Student::where('user_id', $student->id)->first();
+        if ($student) {
+            AiAnalysis::where('student_id', $student->id)->delete();
+        }
+        return redirect('/dashboard')->with('success', 'Laporan analisis AI berhasil di-reset.');
+    }
+
+    /**
      * Teacher inputs student grade.
      */
     public function teacherSaveGrade(Request $request)

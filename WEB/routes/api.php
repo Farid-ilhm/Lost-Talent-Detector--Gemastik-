@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\InstitutionApiController;
 Route::get('/institutions', [AuthController::class, 'getInstitutions']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Authenticated routes
@@ -28,7 +29,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/student/achievements/{id}', [StudentApiController::class, 'deleteAchievement']);
     Route::get('/student/test', [StudentApiController::class, 'getRiasecTest']);
     Route::post('/student/test/submit', [StudentApiController::class, 'submitTestAnswers']);
+    Route::post('/student/test/reset', [StudentApiController::class, 'resetRiasecTest']);
     Route::post('/student/analyze', [StudentApiController::class, 'analyzeTalent']);
+    Route::post('/student/analyze/reset', [StudentApiController::class, 'resetAiAnalysis']);
     Route::post('/student/grades', [StudentApiController::class, 'saveIndependentGrade']);
     Route::delete('/student/grades/{id}', [StudentApiController::class, 'deleteIndependentGrade']);
 

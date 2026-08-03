@@ -241,6 +241,81 @@ export class HomePage {
     });
   }
 
+  async onResetRiasecTest() {
+    const alert = await this.alertController.create({
+      header: 'Konfirmasi Reset',
+      message: 'Apakah Anda yakin ingin meriset jawaban tes minat RIASEC? Semua skor tes sebelumnya akan dihapus.',
+      buttons: [
+        { text: 'Batal', role: 'cancel' },
+        {
+          text: 'Ya, Reset',
+          role: 'destructive',
+          handler: () => {
+            this.apiService.resetRiasecTest().subscribe({
+              next: async (res: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Hasil tes RIASEC berhasil di-reset.',
+                  duration: 2000,
+                  color: 'success'
+                });
+                await toast.present();
+                this.testResult = null;
+                this.riasecAnswers = {};
+                this.loadDashboardData();
+              },
+              error: async () => {
+                const toast = await this.toastController.create({
+                  message: 'Gagal meriset tes RIASEC.',
+                  duration: 2000,
+                  color: 'danger'
+                });
+                await toast.present();
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async onResetAiAnalysis() {
+    const alert = await this.alertController.create({
+      header: 'Konfirmasi Reset',
+      message: 'Apakah Anda yakin ingin meriset laporan analisis AI? Hasil analisis saat ini akan dihapus.',
+      buttons: [
+        { text: 'Batal', role: 'cancel' },
+        {
+          text: 'Ya, Reset',
+          role: 'destructive',
+          handler: () => {
+            this.apiService.resetAiAnalysis().subscribe({
+              next: async (res: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Laporan analisis AI berhasil di-reset.',
+                  duration: 2000,
+                  color: 'success'
+                });
+                await toast.present();
+                this.aiAnalysis = null;
+                this.loadDashboardData();
+              },
+              error: async () => {
+                const toast = await this.toastController.create({
+                  message: 'Gagal meriset laporan AI.',
+                  duration: 2000,
+                  color: 'danger'
+                });
+                await toast.present();
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
   async onUpdateProfile() {
     const data = {
       hobbies: this.profileData.hobbies.split(',').map(s => s.trim()).filter(s => s.length > 0),

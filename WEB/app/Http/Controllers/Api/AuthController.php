@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\Institution;
+use App\Mail\SendOtpMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -54,6 +56,9 @@ class AuthController extends Controller
             $request->merge(['semester' => null]);
         }
 
+        // Cleanup any previous unverified registration attempts for this email
+        User::where('email', $request->email)->where('status', 'pending_otp')->delete();
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -88,8 +93,14 @@ class AuthController extends Controller
             'phone' => $request->phone,
             'otp_code' => $otpCode,
             'otp_expires_at' => $otpExpiresAt,
-            'status' => 'active',
+            'status' => 'pending_otp',
         ]);
+
+        try {
+            Mail::to($user->email)->send(new SendOtpMail($otpCode, $user->name));
+        } catch (\Exception $e) {
+            Log::error("Failed to send OTP email to {$user->email}: " . $e->getMessage());
+        }
 
         if ($request->role === 'institusi') {
             Institution::create([
@@ -145,7 +156,8 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Registrasi berhasil. Silakan login.',
+            'requires_otp' => true,
+            'message' => 'Registrasi berhasil. Silakan masukkan kode OTP yang dikirim ke email Anda.',
             'data' => [
                 'user_id' => $user->id,
                 'email' => $user->email,
@@ -211,6 +223,49 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user
+        ]);
+    }
+
+    /**
+     * Resend OTP code to user's email.
+     */
+    public function resendOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $otpCode = strval(rand(100000, 999999));
+        $user->otp_code = $otpCode;
+        $user->otp_expires_at = Carbon::now()->addMinutes(10);
+        $user->save();
+
+        try {
+            Mail::to($user->email)->send(new SendOtpMail($otpCode, $user->name));
+        } catch (\Exception $e) {
+            Log::error("Failed to resend OTP email to {$user->email}: " . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kode OTP baru telah dikirimkan ke email Anda.'
         ]);
     }
 

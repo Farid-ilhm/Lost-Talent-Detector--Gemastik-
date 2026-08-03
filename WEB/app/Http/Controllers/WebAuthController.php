@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Student;
+use App\Mail\SendOtpMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class WebAuthController extends Controller
 {
@@ -28,6 +31,15 @@ class WebAuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+
+            if ($user->status === 'pending_otp') {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect()->route('verify-otp.show', ['email' => $user->email])
+                    ->with('warning', 'Akun Anda belum diaktivasi. Silakan masukkan kode OTP yang telah dikirim ke email Anda.');
+            }
+
             if (in_array($user->role, ['siswa', 'mahasiswa', 'umum'])) {
                 Auth::logout();
                 $request->session()->invalidate();
@@ -71,6 +83,9 @@ class WebAuthController extends Controller
             $request->merge(['semester' => null]);
         }
 
+        // Cleanup any previous unverified registration attempts for this email
+        User::where('email', $request->email)->where('status', 'pending_otp')->delete();
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -86,26 +101,36 @@ class WebAuthController extends Controller
             'semester' => ['required_if:role,mahasiswa', 'nullable', 'integer', 'min:1', 'max:14'],
         ]);
 
+        $otpCode = strval(rand(100000, 999999));
+        $otpExpiresAt = Carbon::now()->addMinutes(10);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'phone' => $request->phone,
-            'status' => 'active',
+            'otp_code' => $otpCode,
+            'otp_expires_at' => $otpExpiresAt,
+            'status' => 'pending_otp',
         ]);
+
+        try {
+            Mail::to($user->email)->send(new SendOtpMail($otpCode, $user->name));
+        } catch (\Exception $e) {
+            Log::error("Failed to send OTP email to {$user->email}: " . $e->getMessage());
+        }
 
         if ($request->role === 'institusi') {
             \App\Models\Institution::create([
                 'user_id' => $user->id,
                 'npsn' => $request->npsn,
                 'type' => 'sekolah',
-                'is_verified' => false, // Set false until approved by Admin
+                'is_verified' => false,
             ]);
         } else {
             $classroomId = null;
             if (($request->role === 'siswa' || $request->role === 'mahasiswa') && $request->filled('institution_id')) {
-                // Find or create default academic year for this school/university
                 $academicYear = \App\Models\AcademicYear::firstOrCreate(
                     [
                         'institution_id' => $request->institution_id,
@@ -116,7 +141,6 @@ class WebAuthController extends Controller
                     ]
                 );
 
-                // Find or create Major if filled
                 $majorId = null;
                 if ($request->filled('major')) {
                     $major = \App\Models\Major::firstOrCreate([
@@ -126,10 +150,8 @@ class WebAuthController extends Controller
                     $majorId = $major->id;
                 }
 
-                // For mahasiswa, classroom name defaults to "Semester [Number]"
                 $classroomName = $request->role === 'mahasiswa' ? ("Semester " . $request->semester) : $request->classroom;
 
-                // Find or create classroom
                 if ($classroomName) {
                     $classroom = \App\Models\Classroom::firstOrCreate([
                         'name' => $classroomName,
@@ -141,7 +163,6 @@ class WebAuthController extends Controller
                 }
             }
 
-            // Create student profile
             Student::create([
                 'user_id' => $user->id,
                 'institution_id' => in_array($request->role, ['siswa', 'mahasiswa']) ? $request->institution_id : null,
@@ -152,9 +173,78 @@ class WebAuthController extends Controller
             ]);
         }
 
-        Auth::login($user);
+        return redirect()->route('verify-otp.show', ['email' => $user->email])
+            ->with('success', 'Registrasi berhasil! Kode OTP telah dikirimkan ke email Anda.');
+    }
 
-        return redirect('/dashboard');
+    public function showVerifyOtp(Request $request)
+    {
+        if (Auth::check()) {
+            return redirect('/dashboard');
+        }
+        $email = $request->query('email', session('email'));
+        return view('auth.verify-otp', compact('email'));
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+            'otp_code' => ['required', 'string', 'size:6'],
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email tidak ditemukan.'])->withInput();
+        }
+
+        if ($user->otp_code !== $request->otp_code) {
+            return back()->withErrors(['otp_code' => 'Kode OTP yang Anda masukkan salah.'])->withInput();
+        }
+
+        if (Carbon::now()->isAfter($user->otp_expires_at)) {
+            return back()->withErrors(['otp_code' => 'Kode OTP telah kadaluarsa. Silakan minta kode baru.'])->withInput();
+        }
+
+        $user->status = 'active';
+        $user->otp_code = null;
+        $user->otp_expires_at = null;
+        $user->email_verified_at = Carbon::now();
+        $user->save();
+
+        if (in_array($user->role, ['siswa', 'mahasiswa', 'umum'])) {
+            return redirect('/login')->with('success', 'Akun Anda berhasil diverifikasi! Silakan login melalui aplikasi Mobile.');
+        }
+
+        Auth::login($user);
+        return redirect('/dashboard')->with('success', 'Akun berhasil diverifikasi dan diaktifkan!');
+    }
+
+    public function resendWebOtp(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email tidak ditemukan.']);
+        }
+
+        $otpCode = strval(rand(100000, 999999));
+        $user->otp_code = $otpCode;
+        $user->otp_expires_at = Carbon::now()->addMinutes(10);
+        $user->save();
+
+        try {
+            Mail::to($user->email)->send(new SendOtpMail($otpCode, $user->name));
+        } catch (\Exception $e) {
+            Log::error("Failed to resend OTP email: " . $e->getMessage());
+        }
+
+        return back()->with('success', 'Kode OTP baru telah berhasil dikirimkan ke email Anda.');
     }
 
     public function logout(Request $request)

@@ -32,6 +32,25 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/register`, userData);
   }
 
+  verifyOtp(data: { email: string; otp_code: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-otp`, data).pipe(
+      tap((res: any) => {
+        const token = res && (res.access_token || res.token);
+        if (token) {
+          localStorage.setItem('auth_token', token);
+          if (res.user) {
+            localStorage.setItem('user_role', res.user.role);
+            localStorage.setItem('user_name', res.user.name);
+          }
+        }
+      })
+    );
+  }
+
+  resendOtp(data: { email: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/resend-otp`, data);
+  }
+
   logout(): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.post(`${this.apiUrl}/logout`, {}, { headers }).pipe(

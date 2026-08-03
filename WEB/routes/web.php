@@ -18,6 +18,9 @@ Route::get('/login', [WebAuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [WebAuthController::class, 'login']);
 Route::get('/register', [WebAuthController::class, 'showRegister']);
 Route::post('/register', [WebAuthController::class, 'register']);
+Route::get('/verify-otp', [WebAuthController::class, 'showVerifyOtp'])->name('verify-otp.show');
+Route::post('/verify-otp', [WebAuthController::class, 'verifyOtp'])->name('verify-otp.post');
+Route::post('/resend-otp', [WebAuthController::class, 'resendWebOtp'])->name('resend-otp.post');
 Route::post('/logout', [WebAuthController::class, 'logout']);
 
 // Protected Dashboard Routes
@@ -29,7 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/student/achievements', [DashboardController::class, 'saveAchievement']);
     Route::delete('/student/achievements/{id}', [DashboardController::class, 'deleteAchievement']);
     Route::post('/student/test', [DashboardController::class, 'saveTest']);
+    Route::post('/student/test/reset', [DashboardController::class, 'resetTestWeb']);
     Route::post('/student/analyze', [DashboardController::class, 'triggerAi']);
+    Route::post('/student/analyze/reset', [DashboardController::class, 'resetAiWeb']);
     Route::post('/student/grades', [DashboardController::class, 'studentSaveGrade']);
 
     // Teacher Actions
