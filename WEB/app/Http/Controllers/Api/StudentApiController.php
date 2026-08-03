@@ -546,7 +546,7 @@ class StudentApiController extends Controller
         $isSports = str_contains($allText, 'olahraga') || str_contains($allText, 'atlet') || str_contains($allText, 'bola') || str_contains($allText, 'senam') || str_contains($allText, 'lari') || str_contains($allText, 'renang') || str_contains($allText, 'futsal') || str_contains($allText, 'badminton') || str_contains($allText, 'silat') || str_contains($allText, 'karate') ||
                     $grades->contains(function($g) {
                         $name = strtolower($g->subject_name);
-                        return str_contains($name, 'olahraga') || str_contains($name, 'penjas') || str_contains($name, 'atletik') || str_contains($name, 'fisik') || str_contains($name, 'kesehatan rekreasi');
+                        return str_contains($name, 'olahraga') || str_contains($name, 'penjas') || str_contains($name, 'atletik') || (str_contains($name, 'fisik') && !str_contains($name, 'fisika')) || str_contains($name, 'kesehatan rekreasi');
                     });
 
         $isMedical = str_contains($allText, 'medis') || str_contains($allText, 'dokter') || str_contains($allText, 'perawat') || str_contains($allText, 'sakit') || str_contains($allText, 'obat') || str_contains($allText, 'farmasi') || str_contains($allText, 'bidan') || str_contains($allText, 'klinik') || str_contains($allText, 'anatomi') ||
@@ -685,6 +685,50 @@ class StudentApiController extends Controller
             }
         }
 
+        // Rule: Heuristics based on interests
+        foreach ($interests as $i) {
+            $iLower = strtolower($i);
+            if (str_contains($iLower, 'coding') || str_contains($iLower, 'pemrograman') || str_contains($iLower, 'developer') || str_contains($iLower, 'program')) {
+                $talentScores['Programming'] += 20;
+            }
+            if (str_contains($iLower, 'robot') || str_contains($iLower, 'arduino') || str_contains($iLower, 'iot') || str_contains($iLower, 'hardware')) {
+                $talentScores['Robotik'] += 20;
+            }
+            if (str_contains($iLower, 'riset') || str_contains($iLower, 'sains') || str_contains($iLower, 'penelitian') || str_contains($iLower, 'analis')) {
+                $talentScores['Sains & Riset'] += 20;
+            }
+            if (str_contains($iLower, 'desain') || str_contains($iLower, 'gambar') || str_contains($iLower, 'art') || str_contains($iLower, 'creative')) {
+                $talentScores['Desain Kreatif & UI/UX'] += 20;
+            }
+            if (str_contains($iLower, 'bisnis') || str_contains($iLower, 'usaha') || str_contains($iLower, 'wirausaha') || str_contains($iLower, 'dagang') || str_contains($iLower, 'marketing')) {
+                $talentScores['Bisnis & Kewirausahaan'] += 20;
+            }
+            if (str_contains($iLower, 'sosial') || str_contains($iLower, 'didik') || str_contains($iLower, 'guru') || str_contains($iLower, 'dosen') || str_contains($iLower, 'ajar')) {
+                $talentScores['Sosial & Pendidikan'] += 20;
+            }
+            if (str_contains($iLower, 'masak') || str_contains($iLower, 'boga') || str_contains($iLower, 'kuliner') || str_contains($iLower, 'chef') || str_contains($iLower, 'koki')) {
+                $talentScores['Seni Kuliner & Tata Boga'] += 20;
+            }
+            if (str_contains($iLower, 'musik') || str_contains($iLower, 'nyanyi') || str_contains($iLower, 'vokal') || str_contains($iLower, 'tari') || str_contains($iLower, 'sing') || str_contains($iLower, 'dance')) {
+                $talentScores['Seni Musik & Pertunjukan'] += 20;
+            }
+            if (str_contains($iLower, 'olahraga') || str_contains($iLower, 'atlet') || str_contains($iLower, 'bola') || str_contains($iLower, 'lari') || str_contains($iLower, 'futsal')) {
+                $talentScores['Olahraga & Kesehatan Fisik'] += 20;
+            }
+            if (str_contains($iLower, 'medis') || str_contains($iLower, 'dokter') || str_contains($iLower, 'perawat') || str_contains($iLower, 'bidan') || str_contains($iLower, 'klinik') || str_contains($iLower, 'obat') || str_contains($iLower, 'sehat')) {
+                $talentScores['Kesehatan & Keperawatan (Medis)'] += 20;
+            }
+            if (str_contains($iLower, 'tani') || str_contains($iLower, 'kebun') || str_contains($iLower, 'tanaman') || str_contains($iLower, 'agro') || str_contains($iLower, 'ternak')) {
+                $talentScores['Pertanian & Agroteknologi'] += 20;
+            }
+            if (str_contains($iLower, 'ikan') || str_contains($iLower, 'mancing') || str_contains($iLower, 'laut') || str_contains($iLower, 'perairan') || str_contains($iLower, 'akuakultur')) {
+                $talentScores['Perikanan & Kelautan'] += 20;
+            }
+            if (str_contains($iLower, 'terbang') || str_contains($iLower, 'pilot') || str_contains($iLower, 'dirgantara') || str_contains($iLower, 'penerbangan') || str_contains($iLower, 'pesawat')) {
+                $talentScores['Penerbangan & Kedirgantaraan'] += 20;
+            }
+        }
+
         // Rule: Achievements weight
         foreach ($achievements as $ach) {
             $achLower = strtolower($ach->title);
@@ -745,16 +789,16 @@ class StudentApiController extends Controller
             foreach ($talentScores as $domain => $score) {
                 // Check if this domain has academic relevance
                 $hasAcademicMatch = false;
-                if ($domain === 'Robotik' && $avgInformatika > 0) $hasAcademicMatch = true;
-                elseif ($domain === 'Programming' && $avgInformatika > 0) $hasAcademicMatch = true;
+                if ($domain === 'Robotik' && ($avgInformatika > 0 || $grades->contains(function($g) { $n = strtolower($g->subject_name); return str_contains($n, 'listrik') || str_contains($n, 'kelistrikan') || str_contains($n, 'elektro') || str_contains($n, 'mekatronik') || str_contains($n, 'mesin') || str_contains($n, 'bubut') || str_contains($n, 'las') || str_contains($n, 'welding') || str_contains($n, 'otomotif'); }))) $hasAcademicMatch = true;
+                elseif ($domain === 'Programming' && ($avgInformatika > 0 || $grades->contains(function($g) { $n = strtolower($g->subject_name); return str_contains($n, 'rpl') || str_contains($n, 'tkj') || str_contains($n, 'jaringan') || str_contains($n, 'database') || str_contains($n, 'basis data'); }))) $hasAcademicMatch = true;
                 elseif ($domain === 'Sains & Riset' && $avgSains > 0) $hasAcademicMatch = true;
-                elseif ($domain === 'Desain Kreatif & UI/UX' && ($avgInformatika > 0 || $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'seni') || str_contains(strtolower($g->subject_name), 'desain'); }))) $hasAcademicMatch = true;
-                elseif ($domain === 'Seni Kuliner & Tata Boga' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'boga') || str_contains(strtolower($g->subject_name), 'masak') || str_contains(strtolower($g->subject_name), 'makanan') || str_contains(strtolower($g->subject_name), 'patisserie') || str_contains(strtolower($g->subject_name), 'gizi'); })) $hasAcademicMatch = true;
-                elseif ($domain === 'Seni Musik & Pertunjukan' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'musik') || str_contains(strtolower($g->subject_name), 'vokal') || str_contains(strtolower($g->subject_name), 'sing') || str_contains(strtolower($g->subject_name), 'tari') || str_contains(strtolower($g->subject_name), 'dance'); })) $hasAcademicMatch = true;
-                elseif ($domain === 'Olahraga & Kesehatan Fisik' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'olahraga') || str_contains(strtolower($g->subject_name), 'penjas') || str_contains(strtolower($g->subject_name), 'atletik') || str_contains(strtolower($g->subject_name), 'fisik'); })) $hasAcademicMatch = true;
-                elseif ($domain === 'Kesehatan & Keperawatan (Medis)' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'anatomi') || str_contains(strtolower($g->subject_name), 'farmasi') || str_contains(strtolower($g->subject_name), 'perawat') || str_contains(strtolower($g->subject_name), 'bidan'); })) $hasAcademicMatch = true;
-                elseif ($domain === 'Pertanian & Agroteknologi' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'tani') || str_contains(strtolower($g->subject_name), 'kebun') || str_contains(strtolower($g->subject_name), 'botani') || str_contains(strtolower($g->subject_name), 'agro'); })) $hasAcademicMatch = true;
-                elseif ($domain === 'Perikanan & Kelautan' && $grades->contains(function($g) { return str_contains(strtolower($g->subject_name), 'ikan') || str_contains(strtolower($g->subject_name), 'perikanan') || str_contains(strtolower($g->subject_name), 'perairan') || str_contains(strtolower($g->subject_name), 'kelautan'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Desain Kreatif & UI/UX' && ($avgInformatika > 0 || $grades->contains(function($g) { $n = strtolower($g->subject_name); return str_contains($n, 'seni') || str_contains($n, 'desain') || str_contains($n, 'rupa') || str_contains($n, 'gambar') || str_contains($n, 'grafis') || str_contains($n, 'multimedia') || str_contains($n, 'animasi') || str_contains($n, 'busana') || str_contains($n, 'jahit') || str_contains($n, 'kriya') || str_contains($n, 'arsitektur'); }))) $hasAcademicMatch = true;
+                elseif ($domain === 'Seni Kuliner & Tata Boga' && $grades->contains(function($g) { $n = strtolower($g->subject_name); return str_contains($n, 'boga') || str_contains($n, 'masak') || str_contains($n, 'makanan') || str_contains($n, 'patisserie') || str_contains($n, 'pastry') || str_contains($n, 'gizi') || str_contains($n, 'kuliner') || str_contains($n, 'katering'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Seni Musik & Pertunjukan' && $grades->contains(function($g) { $n = strtolower($g->subject_name); return str_contains($n, 'musik') || str_contains($n, 'vokal') || str_contains($n, 'sing') || str_contains($n, 'tari') || str_contains($n, 'dance') || str_contains($n, 'teater') || str_contains($n, 'koreografi'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Olahraga & Kesehatan Fisik' && $grades->contains(function($g) { $n = strtolower($g->subject_name); return str_contains($n, 'olahraga') || str_contains($n, 'penjas') || str_contains($n, 'atletik') || (str_contains($n, 'fisik') && !str_contains($n, 'fisika')); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Kesehatan & Keperawatan (Medis)' && $grades->contains(function($g) { $n = strtolower($g->subject_name); return str_contains($n, 'anatomi') || str_contains($n, 'farmasi') || str_contains($n, 'perawat') || str_contains($n, 'bidan') || str_contains($n, 'medis') || str_contains($n, 'kesehatan') || str_contains($n, 'klinis') || str_contains($n, 'fisiologi') || str_contains($n, 'patologi') || str_contains($n, 'mikrobiologi') || str_contains($n, 'parasitologi') || str_contains($n, 'farmakologi'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Pertanian & Agroteknologi' && $grades->contains(function($g) { $n = strtolower($g->subject_name); return str_contains($n, 'tani') || str_contains($n, 'kebun') || str_contains($n, 'botani') || str_contains($n, 'agro') || str_contains($n, 'hama') || str_contains($n, 'tanaman') || str_contains($n, 'klimatologi') || str_contains($n, 'peternakan') || str_contains($n, 'ternak') || str_contains($n, 'pakan'); })) $hasAcademicMatch = true;
+                elseif ($domain === 'Perikanan & Kelautan' && $grades->contains(function($g) { $n = strtolower($g->subject_name); return str_contains($n, 'ikan') || str_contains($n, 'perikanan') || str_contains($n, 'perairan') || str_contains($n, 'kelautan') || str_contains($n, 'akuakultur') || str_contains($n, 'budidaya') || str_contains($n, 'maritim'); })) $hasAcademicMatch = true;
                 elseif ($domain === 'Penerbangan & Kedirgantaraan' && $avgAviation > 0) $hasAcademicMatch = true;
                 
                 // If no academic match, dampen the score by 50%
@@ -848,8 +892,28 @@ class StudentApiController extends Controller
         if ($testResult) {
             $reasoning[] = "Hasil tes minat bakat RIASEC dominan pada kategori {$dominant} (" . $riasec[$dominant] . "%)";
         }
-        if ($achievements->count() > 0) {
-            $reasoning[] = "Memiliki " . $achievements->count() . " prestasi yang relevan dan terverifikasi di bidang " . strtolower($primary);
+        $matchedAchCount = 0;
+        foreach ($achievements as $ach) {
+            $achLower = strtolower($ach->title);
+            $isMatch = false;
+            if ($primary === 'Robotik' && (str_contains($achLower, 'robot') || str_contains($achLower, 'stem') || str_contains($achLower, 'mekanik'))) $isMatch = true;
+            elseif ($primary === 'Programming' && (str_contains($achLower, 'informasi') || str_contains($achLower, 'coding') || str_contains($achLower, 'komputer') || str_contains($achLower, 'pemrograman'))) $isMatch = true;
+            elseif ($primary === 'Sains & Riset' && (str_contains($achLower, 'sains') || str_contains($achLower, 'fisika') || str_contains($achLower, 'matematika') || str_contains($achLower, 'karya tulis') || str_contains($achLower, 'penelitian'))) $isMatch = true;
+            elseif ($primary === 'Desain Kreatif & UI/UX' && (str_contains($achLower, 'desain') || str_contains($achLower, 'poster') || str_contains($achLower, 'seni') || str_contains($achLower, 'ui/ux'))) $isMatch = true;
+            elseif ($primary === 'Seni Kuliner & Tata Boga' && (str_contains($achLower, 'masak') || str_contains($achLower, 'boga') || str_contains($achLower, 'kuliner') || str_contains($achLower, 'makanan') || str_contains($achLower, 'baking') || str_contains($achLower, 'koki'))) $isMatch = true;
+            elseif ($primary === 'Seni Musik & Pertunjukan' && (str_contains($achLower, 'musik') || str_contains($achLower, 'nyanyi') || str_contains($achLower, 'tari') || str_contains($achLower, 'vokal') || str_contains($achLower, 'sing') || str_contains($achLower, 'talent') || str_contains($achLower, 'seni'))) $isMatch = true;
+            elseif ($primary === 'Olahraga & Kesehatan Fisik' && (str_contains($achLower, 'olahraga') || str_contains($achLower, 'bola') || str_contains($achLower, 'juara') || str_contains($achLower, 'tanding') || str_contains($achLower, 'futsal') || str_contains($achLower, 'atlet') || str_contains($achLower, 'lari') || str_contains($achLower, 'marathon'))) $isMatch = true;
+            elseif ($primary === 'Kesehatan & Keperawatan (Medis)' && (str_contains($achLower, 'medis') || str_contains($achLower, 'dokter') || str_contains($achLower, 'kesehatan') || str_contains($achLower, 'palang merah') || str_contains($achLower, 'pmr') || str_contains($achLower, 'perawat') || str_contains($achLower, 'bidan'))) $isMatch = true;
+            elseif ($primary === 'Pertanian & Agroteknologi' && (str_contains($achLower, 'tani') || str_contains($achLower, 'kebun') || str_contains($achLower, 'agro') || str_contains($achLower, 'pangan'))) $isMatch = true;
+            elseif ($primary === 'Perikanan & Kelautan' && (str_contains($achLower, 'mancing') || str_contains($achLower, 'pancing') || str_contains($achLower, 'ikan') || str_contains($achLower, 'perikanan') || str_contains($achLower, 'perairan') || str_contains($achLower, 'kelautan'))) $isMatch = true;
+            elseif ($primary === 'Penerbangan & Kedirgantaraan' && (str_contains($achLower, 'terbang') || str_contains($achLower, 'dirgantara') || str_contains($achLower, 'aeromodelling') || str_contains($achLower, 'pilot') || str_contains($achLower, 'pesawat'))) $isMatch = true;
+            
+            if ($isMatch) {
+                $matchedAchCount++;
+            }
+        }
+        if ($matchedAchCount > 0) {
+            $reasoning[] = "Memiliki " . $matchedAchCount . " prestasi yang relevan dan terverifikasi di bidang " . strtolower($primary);
         }
         if (count($hobbies) > 0) {
             $reasoning[] = "Minat personal ditopang oleh hobi Anda: " . implode(', ', array_slice($hobbies, 0, 3));

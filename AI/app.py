@@ -166,6 +166,9 @@ def text_match(text, keywords):
         kw_cleaned = clean_text(kw)
         if not kw_cleaned:
             continue
+        # Indonesian semantic exclusion: "fisika" (physics) is not "fisik" (physical/sports)
+        if (kw_cleaned == "fisik" and "fisika" in cleaned) or (cleaned == "fisik" and "fisika" in kw_cleaned):
+            continue
         if kw_cleaned in cleaned or cleaned in kw_cleaned:
             return True
     return False
@@ -386,6 +389,8 @@ def predict():
         medical_list = [v for k, v in grades.items() if text_match(k, ["Anatomi", "Farmasi", "Keperawatan", "Perawat", "Bidan"])]
         agri_list = [v for k, v in grades.items() if text_match(k, ["Tani", "Tanah", "Kebun", "Botani", "Agro", "Ternak", "Tanaman"])]
         fish_list = [v for k, v in grades.items() if text_match(k, ["Ikan", "Perikanan", "Perairan", "Kelautan", "Maritim", "Akuakultur", "Iktiologi", "Mancing"])]
+        robotics_list = [v for k, v in grades.items() if text_match(k, ["Robotik", "Elektronika", "Sensor", "Mekatronika", "Sistem Kontrol", "Rangkaian Listrik", "Kelistrikan", "Listrik"])]
+        aviation_list = [v for k, v in grades.items() if text_match(k, ["Penerbangan", "Kedirgantaraan", "Aerodinamika", "Prinsip Terbang", "Navigasi Udara", "Meteorologi Penerbangan", "Pesawat", "Aircraft"])]
 
         grade_math = sum(math_list)/len(math_list) if math_list else 70.0
         grade_science = sum(science_list)/len(science_list) if science_list else 70.0
@@ -397,6 +402,8 @@ def predict():
         grade_medical = sum(medical_list)/len(medical_list) if medical_list else 70.0
         grade_agriculture = sum(agri_list)/len(agri_list) if agri_list else 70.0
         grade_fishery = sum(fish_list)/len(fish_list) if fish_list else 70.0
+        grade_robotics = sum(robotics_list)/len(robotics_list) if robotics_list else 70.0
+        grade_aviation = sum(aviation_list)/len(aviation_list) if aviation_list else 70.0
 
         achievement_tech = sum(1 for a in achievements if a.get('category','').lower() in ['teknologi', 'komputer'])
         achievement_science = sum(1 for a in achievements if a.get('category','').lower() in ['sains', 'matematika', 'akademik'])
@@ -410,6 +417,7 @@ def predict():
             'grade_music': grade_music, 'grade_culinary': grade_culinary,
             'grade_sports': grade_sports, 'grade_medical': grade_medical,
             'grade_agriculture': grade_agriculture, 'grade_fishery': grade_fishery,
+            'grade_robotics': grade_robotics, 'grade_aviation': grade_aviation,
             'achievement_tech': achievement_tech, 'achievement_science': achievement_science,
             'achievement_art': achievement_art
         }])

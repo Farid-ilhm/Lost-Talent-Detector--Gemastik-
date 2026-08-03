@@ -23,7 +23,7 @@
         <p><small>Kategori: {{ q.category }}</small></p>
         
         <ion-radio-group [(ngModel)]="answers[q.id]" [name]="'q_' + q.id" required>
-          <ion-item lines="none" style="--padding-start:0;">
+          <ion-item lines="none" style="--padding-start: 16px; --inner-padding-end: 16px;">
             <ion-label>1</ion-label>
             <ion-radio value="1" slot="start"></ion-radio>
             

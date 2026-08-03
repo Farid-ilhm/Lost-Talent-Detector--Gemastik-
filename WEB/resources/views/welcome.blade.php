@@ -145,7 +145,6 @@
                         <li style="margin-bottom: 8px;"><strong>Kuesioner Minat RIASEC Interaktif</strong>: Siswa dapat mengisi tes kuesioner minat bakat 6 dimensi kapan saja melalui smartphone.</li>
                         <li style="margin-bottom: 8px;"><strong>Upload Sertifikat Cepat</strong>: Mengambil foto piagam dan mengunggahnya secara langsung via kamera ponsel.</li>
                         <li style="margin-bottom: 8px;"><strong>Hasil Prediksi Bakat AI Real-time</strong>: Menerima rekomendasi karir & potensi bakat secara instan.</li>
-                        <li><strong>Notifikasi Lomba GEMASTIK</strong>: Pemberitahuan rekomendasi kompetisi dan pengingat batas waktu pendaftaran.</li>
                     </ul>
                 </div>
             </div>
