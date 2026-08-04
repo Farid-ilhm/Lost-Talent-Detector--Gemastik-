@@ -65,20 +65,26 @@ class DashboardController extends Controller
         }
 
         if ($user->role === 'admin') {
-            $usersCount = User::count();
+            $usersCount = User::where('role', '!=', 'admin')->count();
             $verifiedInstitutionsCount = Institution::where('is_verified', true)->count();
             $pendingInstitutionsCount = Institution::where('is_verified', false)->count();
             $aiAnalysesCount = AiAnalysis::count();
-            $institutions = Institution::with('user')->get();
-            $competitions = \App\Models\Competition::orderBy('created_at', 'desc')->get();
+
+            // Counts by role for the chart
+            $roleCounts = [
+                'siswa' => User::where('role', 'siswa')->count(),
+                'mahasiswa' => User::where('role', 'mahasiswa')->count(),
+                'guru' => User::where('role', 'guru')->count(),
+                'institusi' => User::where('role', 'institusi')->count(),
+                'umum' => User::where('role', 'umum')->count(),
+            ];
 
             return view('dashboard.admin', compact(
                 'usersCount', 
                 'verifiedInstitutionsCount', 
                 'pendingInstitutionsCount', 
-                'aiAnalysesCount', 
-                'institutions', 
-                'competitions'
+                'aiAnalysesCount',
+                'roleCounts'
             ));
         }
 
@@ -140,6 +146,19 @@ class DashboardController extends Controller
             'description' => $request->description,
             'is_verified' => $autoVerify,
         ]);
+
+        if (!$autoVerify) {
+            $teachers = \App\Models\Teacher::where('institution_id', $student->institution_id)->get();
+            foreach ($teachers as $t) {
+                \App\Models\CustomNotification::create([
+                    'user_id' => $t->user_id,
+                    'title' => 'Verifikasi Sertifikat Baru',
+                    'message' => 'Siswa "' . $user->name . '" telah mengajukan sertifikat "' . $request->title . '" untuk diverifikasi.',
+                    'type' => 'system',
+                    'is_read' => false,
+                ]);
+            }
+        }
 
         $msg = $autoVerify 
             ? 'Sertifikat prestasi berhasil disimpan.' 
@@ -362,7 +381,7 @@ class DashboardController extends Controller
         $ach->verified_by = Auth::id();
         $ach->save();
 
-        return redirect('/dashboard')->with('success', 'Sertifikat berhasil diverifikasi.');
+        return redirect('/teacher/achievements')->with('success', 'Sertifikat berhasil diverifikasi.');
     }
 
     /**
@@ -433,7 +452,7 @@ class DashboardController extends Controller
             );
         }
 
-        return redirect('/dashboard')->with('success', 'Data nilai dan catatan murid berhasil disimpan.');
+        return redirect('/teacher/grades')->with('success', 'Data nilai dan catatan murid berhasil disimpan.');
     }
 
     /**
@@ -464,7 +483,7 @@ class DashboardController extends Controller
             'subject' => $request->subject,
         ]);
 
-        return redirect('/dashboard')->with('success', 'Guru berhasil didaftarkan.');
+        return redirect('/institution/teachers')->with('success', 'Guru berhasil didaftarkan.');
     }
 
     /**
@@ -476,7 +495,7 @@ class DashboardController extends Controller
         $inst->is_verified = true;
         $inst->save();
 
-        return redirect('/dashboard')->with('success', 'Institusi berhasil diverifikasi.');
+        return redirect('/admin/institutions')->with('success', 'Institusi berhasil diverifikasi.');
     }
 
     /**
@@ -518,7 +537,7 @@ class DashboardController extends Controller
             'type' => $request->type,
         ]);
 
-        return redirect('/dashboard')->with('success', 'Data institusi berhasil diperbarui.');
+        return redirect('/admin/institutions')->with('success', 'Data institusi berhasil diperbarui.');
     }
 
     /**
@@ -534,7 +553,7 @@ class DashboardController extends Controller
             $user->delete();
         }
 
-        return redirect('/dashboard')->with('success', 'Institusi berhasil dihapus.');
+        return redirect('/admin/institutions')->with('success', 'Institusi berhasil dihapus.');
     }
 
     /**
@@ -554,12 +573,11 @@ class DashboardController extends Controller
             'category' => $request->category,
             'organizer' => $request->organizer,
             'registration_deadline' => $request->registration_deadline,
-            'link' => $request->link,
             'description' => $request->description,
             'is_active' => true,
         ]);
 
-        return redirect('/dashboard')->with('success', 'Kompetisi berhasil ditambahkan ke database master.');
+        return redirect('/admin/competitions')->with('success', 'Kompetisi berhasil ditambahkan ke database master.');
     }
 
     /**
@@ -583,7 +601,6 @@ class DashboardController extends Controller
             'category' => 'required',
             'organizer' => 'nullable|string',
             'registration_deadline' => 'nullable|date',
-            'link' => 'nullable|url',
         ]);
 
         $competition->update([
@@ -591,11 +608,10 @@ class DashboardController extends Controller
             'category' => $request->category,
             'organizer' => $request->organizer,
             'registration_deadline' => $request->registration_deadline,
-            'link' => $request->link,
             'description' => $request->description,
         ]);
 
-        return redirect('/dashboard')->with('success', 'Kompetisi berhasil diperbarui.');
+        return redirect('/admin/competitions')->with('success', 'Kompetisi berhasil diperbarui.');
     }
 
     /**
@@ -606,7 +622,7 @@ class DashboardController extends Controller
         $competition = \App\Models\Competition::findOrFail($id);
         $competition->delete();
 
-        return redirect('/dashboard')->with('success', 'Kompetisi berhasil dihapus.');
+        return redirect('/admin/competitions')->with('success', 'Kompetisi berhasil dihapus.');
     }
 
     /**
@@ -661,7 +677,7 @@ class DashboardController extends Controller
             'subject' => $request->subject,
         ]);
 
-        return redirect('/dashboard')->with('success', 'Data guru berhasil diperbarui.');
+        return redirect('/institution/teachers')->with('success', 'Data guru berhasil diperbarui.');
     }
 
     /**
@@ -682,7 +698,7 @@ class DashboardController extends Controller
             $user->delete();
         }
 
-        return redirect('/dashboard')->with('success', 'Guru berhasil dihapus.');
+        return redirect('/institution/teachers')->with('success', 'Guru berhasil dihapus.');
     }
 
     /**
@@ -774,7 +790,7 @@ class DashboardController extends Controller
 
         $student->update($studentUpdate);
 
-        return redirect('/dashboard')->with('success', 'Data murid berhasil diperbarui.');
+        return redirect('/teacher/students')->with('success', 'Data murid berhasil diperbarui.');
     }
 
     /**
@@ -795,7 +811,7 @@ class DashboardController extends Controller
             $user->delete();
         }
 
-        return redirect('/dashboard')->with('success', 'Akun murid berhasil dihapus.');
+        return redirect('/teacher/students')->with('success', 'Akun murid berhasil dihapus.');
     }
 
     /**
@@ -815,7 +831,89 @@ class DashboardController extends Controller
 
         $classroom->delete();
 
-        return redirect('/dashboard')->with('success', 'Kelas berhasil dihapus.');
+        return redirect('/institution/classrooms')->with('success', 'Kelas berhasil dihapus.');
+    }
+
+    /**
+     * Institution Classrooms View
+     */
+    public function institutionClassroomsView()
+    {
+        $user = Auth::user();
+        if ($user->role !== 'institusi') {
+            abort(403);
+        }
+
+        $institution = Institution::where('user_id', $user->id)->firstOrFail();
+        $classrooms = Classroom::where('institution_id', $institution->id)->with('students')->get();
+
+        return view('dashboard.institusi_classrooms', compact('institution', 'classrooms'));
+    }
+
+    /**
+     * Institution Teachers View
+     */
+    public function institutionTeachersView()
+    {
+        $user = Auth::user();
+        if ($user->role !== 'institusi') {
+            abort(403);
+        }
+
+        $institution = Institution::where('user_id', $user->id)->firstOrFail();
+        $teachers = Teacher::where('institution_id', $institution->id)->with('user')->get();
+
+        return view('dashboard.institusi_teachers', compact('institution', 'teachers'));
+    }
+
+    /**
+     * Teacher Achievements View
+     */
+    public function teacherAchievementsView()
+    {
+        $user = Auth::user();
+        if ($user->role !== 'guru') {
+            abort(403);
+        }
+
+        $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+        $pendingAchievements = Achievement::whereHas('student', function ($q) use ($teacher) {
+            $q->where('institution_id', $teacher->institution_id);
+        })->where('is_verified', false)->with('student.user')->get();
+
+        return view('dashboard.guru_achievements', compact('teacher', 'pendingAchievements'));
+    }
+
+    /**
+     * Teacher Grades & Notes View
+     */
+    public function teacherGradesView()
+    {
+        $user = Auth::user();
+        if ($user->role !== 'guru') {
+            abort(403);
+        }
+
+        $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+        $students = Student::where('institution_id', $teacher->institution_id)->with(['user', 'classroom'])->get();
+
+        return view('dashboard.guru_grades', compact('teacher', 'students'));
+    }
+
+    /**
+     * Teacher Students List View
+     */
+    public function teacherStudentsView()
+    {
+        $user = Auth::user();
+        if ($user->role !== 'guru') {
+            abort(403);
+        }
+
+        $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+        $students = Student::where('institution_id', $teacher->institution_id)->with(['user', 'classroom'])->get();
+
+        return view('dashboard.guru_students', compact('teacher', 'students'));
     }
 
     /**
@@ -831,9 +929,278 @@ class DashboardController extends Controller
         $ids = $request->input('comp_ids', []);
         if (count($ids) > 0) {
             \App\Models\Competition::whereIn('id', $ids)->delete();
-            return redirect('/dashboard')->with('success', count($ids) . ' kompetisi berhasil dihapus sekaligus.');
+            return redirect('/admin/competitions')->with('success', count($ids) . ' kompetisi berhasil dihapus sekaligus.');
         }
 
-        return redirect('/dashboard')->with('error', 'Tidak ada kompetisi yang dipilih.');
+        return redirect('/admin/competitions')->with('error', 'Tidak ada kompetisi yang dipilih.');
+    }
+
+    /**
+     * Admin Institutions View
+     */
+    public function adminInstitutionsView()
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+        $institutions = Institution::with('user')->get();
+        return view('dashboard.admin_institutions', compact('institutions'));
+    }
+
+    /**
+     * Admin Competitions View
+     */
+    public function adminCompetitionsView()
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+        $competitions = \App\Models\Competition::orderBy('created_at', 'desc')->get();
+        return view('dashboard.admin_competitions', compact('competitions'));
+    }
+
+    /**
+     * Admin Users View with Search/Filter
+     */
+    public function adminUsersView(Request $request)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $query = User::query()->where('role', '!=', 'admin');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('role') && $request->role !== 'all') {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->get();
+        $institutions = Institution::where('is_verified', true)->with('user')->get();
+
+        return view('dashboard.admin_users', compact('users', 'institutions'));
+    }
+
+    /**
+     * Admin Save User
+     */
+    public function adminSaveUser(Request $request)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:siswa,mahasiswa,umum,guru,institusi,admin',
+            'phone' => 'nullable|string',
+            'institution_id' => 'required_if:role,guru,siswa,mahasiswa|nullable|exists:institutions,id',
+            'npsn' => 'required_if:role,institusi|nullable|string|unique:institutions,npsn',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'phone' => $request->phone,
+            'status' => 'active',
+        ]);
+
+        if (in_array($request->role, ['siswa', 'mahasiswa', 'umum'])) {
+            Student::create([
+                'user_id' => $user->id,
+                'institution_id' => $request->institution_id,
+            ]);
+        } elseif ($request->role === 'guru') {
+            Teacher::create([
+                'user_id' => $user->id,
+                'institution_id' => $request->institution_id,
+            ]);
+        } elseif ($request->role === 'institusi') {
+            Institution::create([
+                'user_id' => $user->id,
+                'npsn' => $request->npsn,
+                'type' => 'sekolah',
+                'is_verified' => true,
+            ]);
+        }
+
+        return redirect('/admin/users')->with('success', 'User ' . $user->name . ' berhasil ditambahkan.');
+    }
+
+    /**
+     * Admin Edit User
+     */
+    public function adminEditUser($id)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $user = User::with(['student', 'teacher', 'institution'])->findOrFail($id);
+        $institutions = Institution::where('is_verified', true)->with('user')->get();
+
+        return view('dashboard.admin_edit_user', compact('user', 'institutions'));
+    }
+
+    /**
+     * Admin Update User
+     */
+    public function adminUpdateUser(Request $request, $id)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:siswa,mahasiswa,umum,guru,institusi,admin',
+            'phone' => 'nullable|string',
+            'password' => 'nullable|string|min:8',
+            'institution_id' => 'required_if:role,guru,siswa,mahasiswa|nullable|exists:institutions,id',
+            'npsn' => 'required_if:role,institusi|nullable|string|unique:institutions,npsn,' . ($user->institution->id ?? 'NULL'),
+        ]);
+
+        $oldRole = $user->role;
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+        $user->role = $request->role;
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+        $user->save();
+
+        // Delete old profile if role changed
+        if ($oldRole !== $request->role) {
+            if (in_array($oldRole, ['siswa', 'mahasiswa', 'umum'])) {
+                Student::where('user_id', $user->id)->delete();
+            } elseif ($oldRole === 'guru') {
+                Teacher::where('user_id', $user->id)->delete();
+            } elseif ($oldRole === 'institusi') {
+                Institution::where('user_id', $user->id)->delete();
+            }
+        }
+
+        // Create or update new profile
+        if (in_array($request->role, ['siswa', 'mahasiswa', 'umum'])) {
+            Student::updateOrCreate(
+                ['user_id' => $user->id],
+                ['institution_id' => $request->institution_id]
+            );
+        } elseif ($request->role === 'guru') {
+            Teacher::updateOrCreate(
+                ['user_id' => $user->id],
+                ['institution_id' => $request->institution_id]
+            );
+        } elseif ($request->role === 'institusi') {
+            Institution::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'npsn' => $request->npsn,
+                    'type' => 'sekolah',
+                    'is_verified' => true,
+                ]
+            );
+        }
+
+        return redirect('/admin/users')->with('success', 'User ' . $user->name . ' berhasil diperbarui.');
+    }
+
+    /**
+     * Admin Delete User
+     */
+    public function adminDeleteUser($id)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $user = User::findOrFail($id);
+        if ($user->id === Auth::id()) {
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        $user->delete();
+
+        return redirect('/admin/users')->with('success', 'User berhasil dihapus.');
+    }
+
+    /**
+     * Change Password
+     */
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:8|confirmed',
+        ], [
+            'current_password.required' => 'Kata sandi saat ini wajib diisi.',
+            'new_password.required' => 'Kata sandi baru wajib diisi.',
+            'new_password.min' => 'Kata sandi baru minimal harus 8 karakter.',
+            'new_password.confirmed' => 'Konfirmasi kata sandi baru tidak cocok.',
+        ]);
+
+        $user = Auth::user();
+
+        if (!\Hash::check($request->current_password, $user->password)) {
+            return redirect()->back()->withErrors(['current_password' => 'Kata sandi saat ini salah.']);
+        }
+
+        $user->password = \Hash::make($request->new_password);
+        $user->save();
+
+        return redirect()->back()->with('success', 'Kata sandi Anda berhasil diperbarui!');
+    }
+
+    /**
+     * Get User Notifications
+     */
+    public function getNotifications()
+    {
+        $user = Auth::user();
+        if (!$user || !in_array($user->role, ['admin', 'guru'])) {
+            return response()->json(['count' => 0, 'notifications' => []]);
+        }
+
+        $notifications = \App\Models\CustomNotification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'count' => $notifications->count(),
+            'notifications' => $notifications
+        ]);
+    }
+
+    /**
+     * Mark User Notifications as Read
+     */
+    public function markNotificationsRead()
+    {
+        $user = Auth::user();
+        if ($user && in_array($user->role, ['admin', 'guru'])) {
+            \App\Models\CustomNotification::where('user_id', $user->id)
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+        }
+
+        return response()->json(['status' => 'success']);
     }
 }

@@ -28,7 +28,7 @@ def call_gemini_llm(api_key, context_data):
     if not api_key:
         return None
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
 
     prompt = f"""
@@ -61,20 +61,21 @@ Kembalikan HANYA format JSON murni berikut tanpa tag ```json atau teks lainnya:
     }
 
     try:
-        res = requests.post(url, headers=headers, json=payload, timeout=8)
+        res = requests.post(url, headers=headers, json=payload, timeout=3)
         if res.status_code == 200:
             res_data = res.json()
             candidates = res_data.get('candidates', [])
             if candidates:
                 text_content = candidates[0]['content']['parts'][0]['text']
                 text_clean = text_content.strip()
+                text_clean = re.sub(r'<think>.*?</think>', '', text_clean, flags=re.DOTALL).strip()
                 if text_clean.startswith("```json"):
                     text_clean = text_clean[7:]
                 if text_clean.startswith("```"):
                     text_clean = text_clean[3:]
                 if text_clean.endswith("```"):
                     text_clean = text_clean[:-3]
-                return json.loads(text_clean.strip())
+                return json.loads(text_clean.strip(), strict=False)
         else:
             print(f"Gemini API returned status {res.status_code}: {res.text}", file=sys.stderr)
     except Exception as e:
@@ -114,9 +115,8 @@ Kembalikan HANYA format JSON murni berikut tanpa tag ```json atau teks lainnya:
 """
 
     models_to_try = [
-        "deepseek/deepseek-r1:free",
-        "deepseek/deepseek-chat",
-        "meta-llama/llama-3.3-70b-instruct:free"
+        "openrouter/free",
+        "meta-llama/llama-3.3-70b-instruct"
     ]
 
     for model_name in models_to_try:
@@ -126,24 +126,26 @@ Kembalikan HANYA format JSON murni berikut tanpa tag ```json atau teks lainnya:
                 {"role": "system", "content": "You are a professional career guidance AI that outputs valid JSON only."},
                 {"role": "user", "content": prompt}
             ],
-            "temperature": 0.3
+            "temperature": 0.3,
+            "max_tokens": 2048
         }
 
         try:
-            res = requests.post(url, headers=headers, json=payload, timeout=12)
+            res = requests.post(url, headers=headers, json=payload, timeout=3)
             if res.status_code == 200:
                 res_data = res.json()
                 choices = res_data.get('choices', [])
                 if choices:
                     text_content = choices[0]['message']['content']
                     text_clean = text_content.strip()
+                    text_clean = re.sub(r'<think>.*?</think>', '', text_clean, flags=re.DOTALL).strip()
                     if text_clean.startswith("```json"):
                         text_clean = text_clean[7:]
                     if text_clean.startswith("```"):
                         text_clean = text_clean[3:]
                     if text_clean.endswith("```"):
                         text_clean = text_clean[:-3]
-                    return json.loads(text_clean.strip())
+                    return json.loads(text_clean.strip(), strict=False)
             else:
                 print(f"OpenRouter ({model_name}) status {res.status_code}: {res.text}", file=sys.stderr)
         except Exception as e:
@@ -185,6 +187,57 @@ if os.path.exists(kb_path):
         print(f"Error loading knowledge base: {e}", file=sys.stderr)
 else:
     print(f"Warning: Knowledge base not found at {kb_path}", file=sys.stderr)
+
+def generate_local_expert_narrative(context_data, categories):
+    primary = context_data.get('primary_talent', '')
+    confidence = context_data.get('confidence_score', 50)
+    grades = context_data.get('grades', {})
+    achievements = context_data.get('achievements', [])
+    hobbies = context_data.get('hobbies', [])
+    interests = context_data.get('interests', [])
+    riasec = context_data.get('riasec', {})
+    
+    high_subjects = [k for k, v in grades.items() if float(v) >= 80]
+    dominant_riasec = sorted(riasec.items(), key=lambda x: float(x[1]), reverse=True)
+    dominant_riasec_names = [k for k, v in dominant_riasec if float(v) >= 60]
+    if not dominant_riasec_names:
+        dominant_riasec_names = [dominant_riasec[0][0]] if dominant_riasec else []
+        
+    p1 = f"Berdasarkan hasil evaluasi Hybrid Explainable AI, Anda menunjukkan potensi dominan yang luar biasa di bidang **{primary}** dengan tingkat keyakinan **{confidence}%**."
+    if dominant_riasec_names:
+        p1 += f" Potensi ini didukung kuat oleh tipe kepribadian dominan Anda yaitu **{', '.join(dominant_riasec_names)}**."
+    
+    if high_subjects:
+        p1 += f" Kekuatan akademis Anda tecermin secara nyata melalui penguasaan mata pelajaran kunci seperti **{', '.join(high_subjects[:3])}** yang bernilai sangat baik. Kombinasi kecakapan teoritis dan minat praktis ini menunjukkan bahwa Anda memiliki dasar kognitif yang kokoh untuk memahami konsep-konsep tingkat lanjut di bidang ini."
+    else:
+        p1 += " Pola nilai akademis Anda menunjukkan konsistensi belajar yang stabil, memberikan fondasi yang baik untuk menyerap keterampilan baru secara terstruktur."
+        
+    p2 = ""
+    ach_names = [a.get('title', '') for a in achievements if a.get('title')]
+    if ach_names:
+        p2 += f"Rekam jejak prestasi Anda, terutama melalui **{', '.join(ach_names[:2])}**, membuktikan bahwa bakat Anda tidak hanya berupa potensi laten, tetapi telah teruji secara kompetitif dan diakui secara formal."
+    else:
+        p2 += "Meskipun belum ada prestasi formal yang tercatat di sistem, potensi Anda sangat terbuka lebar untuk diasah melalui berbagai ajang kompetisi di masa mendatang."
+        
+    personal_signals = []
+    if hobbies:
+        personal_signals.append(f"hobi Anda seperti {', '.join(hobbies[:2])}")
+    if interests:
+        personal_signals.append(f"minat karir di bidang {', '.join(interests[:2])}")
+        
+    if personal_signals:
+        p2 += f" Aktivitas personal Anda, didorong oleh {' dan '.join(personal_signals)}, bertindak sebagai motor penggerak alami yang secara tidak langsung melatih intuisi serta keterampilan praktis Anda di luar ruang kelas."
+    else:
+        p2 += " Eksplorasi hobi baru yang sejalan dengan bidang ini sangat disarankan untuk memperkuat keterampilan non-teknis (soft skills) Anda."
+        
+    p3 = f"Untuk mengoptimalkan bakat **{primary}** Anda, langkah strategis berikutnya adalah memfokuskan pengembangan diri pada penguasaan teknologi relevan dan terlibat dalam proyek-proyek praktis. Membangun portofolio karya nyata sejak dini akan menjadi nilai tambah yang signifikan di dunia kerja maupun perguruan tinggi."
+    
+    primary_kb = next((c for c in categories if c['name'] == primary), None)
+    careers = primary_kb['careers'] if primary_kb else []
+    if careers:
+        p3 += f" Jalur karir ideal yang sangat direkomendasikan untuk Anda eksplorasi meliputi peran sebagai **{', '.join(careers[:3])}**."
+        
+    return f"{p1}\n\n{p2}\n\n{p3}"
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -391,6 +444,9 @@ def predict():
         fish_list = [v for k, v in grades.items() if text_match(k, ["Ikan", "Perikanan", "Perairan", "Kelautan", "Maritim", "Akuakultur", "Iktiologi", "Mancing"])]
         robotics_list = [v for k, v in grades.items() if text_match(k, ["Robotik", "Elektronika", "Sensor", "Mekatronika", "Sistem Kontrol", "Rangkaian Listrik", "Kelistrikan", "Listrik"])]
         aviation_list = [v for k, v in grades.items() if text_match(k, ["Penerbangan", "Kedirgantaraan", "Aerodinamika", "Prinsip Terbang", "Navigasi Udara", "Meteorologi Penerbangan", "Pesawat", "Aircraft"])]
+        business_list = [v for k, v in grades.items() if text_match(k, ["Ekonomi", "Akuntansi", "Bisnis", "Kewirausahaan", "Manajemen", "Pemasaran", "Marketing", "Keuangan", "Administrasi", "Koperasi", "Perpajakan", "Dagang", "Business"])]
+        social_list = [v for k, v in grades.items() if text_match(k, ["Sosiologi", "Sejarah", "IPS", "Pendidikan", "Pedagogi", "Psikologi", "BK", "Pancasila", "PPKn", "Agama", "Bahasa Indonesia", "Komunikasi", "Sastra", "Filosofi", "Antropologi", "Geografi", "Sosial"])]
+        design_list = [v for k, v in grades.items() if text_match(k, ["Seni Rupa", "Desain", "Grafis", "UI/UX", "Figma", "Gambar", "Multimedia", "Fotografi", "Videografi", "Animasi", "Editing", "Sketsa", "Layout", "Typography", "Arsitektur", "Busana", "Jahit", "Kriya"])]
 
         grade_math = sum(math_list)/len(math_list) if math_list else 70.0
         grade_science = sum(science_list)/len(science_list) if science_list else 70.0
@@ -404,6 +460,9 @@ def predict():
         grade_fishery = sum(fish_list)/len(fish_list) if fish_list else 70.0
         grade_robotics = sum(robotics_list)/len(robotics_list) if robotics_list else 70.0
         grade_aviation = sum(aviation_list)/len(aviation_list) if aviation_list else 70.0
+        grade_business = sum(business_list)/len(business_list) if business_list else 70.0
+        grade_social = sum(social_list)/len(social_list) if social_list else 70.0
+        grade_design = sum(design_list)/len(design_list) if design_list else 70.0
 
         achievement_tech = sum(1 for a in achievements if a.get('category','').lower() in ['teknologi', 'komputer'])
         achievement_science = sum(1 for a in achievements if a.get('category','').lower() in ['sains', 'matematika', 'akademik'])
@@ -418,6 +477,8 @@ def predict():
             'grade_sports': grade_sports, 'grade_medical': grade_medical,
             'grade_agriculture': grade_agriculture, 'grade_fishery': grade_fishery,
             'grade_robotics': grade_robotics, 'grade_aviation': grade_aviation,
+            'grade_business': grade_business, 'grade_social': grade_social,
+            'grade_design': grade_design,
             'achievement_tech': achievement_tech, 'achievement_science': achievement_science,
             'achievement_art': achievement_art
         }])
@@ -500,13 +561,7 @@ def predict():
         if llm_res and llm_res.get('analisis_mendalam'):
             analisis_mendalam = llm_res.get('analisis_mendalam')
         else:
-            analisis_mendalam = f"Berdasarkan analisis Hybrid Explainable AI, Anda menunjukkan potensi dominan di bidang {primary_talent} dengan tingkat keyakinan {confidence_score}%. "
-            if grades:
-                analisis_mendalam += "Kecakapan akademis Anda pada mata pelajaran penunjang sangat mendukung pemahaman konsep penting di bidang ini. "
-            if achievements:
-                analisis_mendalam += "Didukung rekam jejak prestasi, Anda memiliki daya saing yang baik. "
-            if hobbies or interests:
-                analisis_mendalam += f"Aktivitas hobi dan minat Anda seperti {', '.join((hobbies+interests)[:2])} secara aktif mengasah bakat alami Anda."
+            analisis_mendalam = generate_local_expert_narrative(context_data, categories)
 
         res_payload = {
             'success': True,
@@ -547,4 +602,4 @@ def predict():
         }), 500
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='127.0.0.1', port=5001, debug=False, threaded=True)

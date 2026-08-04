@@ -55,143 +55,38 @@
 </div>
 
 @if($institution->is_verified)
-    <!-- 2. Tabel Kelas -->
+    <!-- Quick Actions Panel -->
     <div class="content-box" style="margin-top: 24px;">
-        <div class="section-title-row" style="margin-top: 0;">
-            <h3 class="section-title"><i class="fa-solid fa-door-open"></i> Daftar Kelas Terdaftar</h3>
+        <div style="margin-bottom: 20px;">
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-bolt" style="color: #6366F1;"></i> Akses Cepat Panel Institusi
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Kelola data guru pendamping dan ruang kelas terdaftar institusi Anda secara efisien.</p>
         </div>
-
-        @if($classrooms->isEmpty())
-            <div class="alert-custom alert-warning">
-                <i class="fa-solid fa-info-circle"></i>
-                <span>Belum ada kelas yang didaftarkan.</span>
-            </div>
-        @else
-            <div class="table-responsive">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>Nama Kelas</th>
-                            <th>Jurusan</th>
-                            <th>Tahun Akademik</th>
-                            <th>Jumlah Siswa</th>
-                            <th>Aksi Management</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($classrooms as $room)
-                            <tr>
-                                <td><strong>{{ $room->name }}</strong></td>
-                                <td><span class="card-cat-badge">{{ $room->major->name ?? '-' }}</span></td>
-                                <td>{{ $room->academicYear->name ?? '-' }}</td>
-                                <td><strong>{{ $room->students->count() }} Murid</strong></td>
-                                <td>
-                                    <form action="/institution/classrooms/{{ $room->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelas ini?');">
-                                        @csrf
-                                        <button type="submit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: #FBE3E2; color: #991B1B;">
-                                            <i class="fa-solid fa-trash"></i> Hapus Kelas
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-    </div>
-
-    <!-- 3. Daftar Guru Pendamping -->
-    <div class="content-box" style="margin-top: 24px;">
-        <div class="section-title-row" style="margin-top: 0;">
-            <h3 class="section-title"><i class="fa-solid fa-users-view-finder"></i> Daftar Guru Pendamping Terdaftar</h3>
-        </div>
-
-        @if($teachers->isEmpty())
-            <div class="alert-custom alert-warning">
-                <i class="fa-solid fa-info-circle"></i>
-                <span>Belum ada guru pendamping yang didaftarkan.</span>
-            </div>
-        @else
-            <div class="table-responsive">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>Nama Guru</th>
-                            <th>Email Login</th>
-                            <th>NIP</th>
-                            <th>Mata Pelajaran Utama</th>
-                            <th>Aksi Management</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($teachers as $t)
-                            <tr>
-                                <td><strong>{{ $t->user->name }}</strong></td>
-                                <td>{{ $t->user->email }}</td>
-                                <td>{{ $t->nip ?? '-' }}</td>
-                                <td><span class="card-cat-badge">{{ $t->subject ?? '-' }}</span></td>
-                                <td>
-                                    <div style="display: flex; gap: 8px; align-items: center;">
-                                        <a href="/institution/teachers/{{ $t->id }}/edit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: var(--bg-pill); color: var(--text-dark);">
-                                            <i class="fa-solid fa-pen"></i> Edit
-                                        </a>
-                                        <form action="/institution/teachers/{{ $t->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus guru ini?');">
-                                            @csrf
-                                            <button type="submit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: #FBE3E2; color: #991B1B;">
-                                                <i class="fa-solid fa-trash"></i> Hapus
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-    </div>
-
-    <!-- 4. Daftarkan Guru Baru -->
-    <div class="content-box" style="margin-top: 24px;">
-        <div class="section-title-row" style="margin-top: 0;">
-            <h3 class="section-title"><i class="fa-solid fa-user-plus"></i> Daftarkan Guru Pendamping Baru</h3>
-        </div>
-
-        <form action="/institution/teachers" method="POST">
-            @csrf
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
-                <div>
-                    <label for="name" class="form-label">Nama Guru:</label>
-                    <input type="text" id="name" name="name" class="form-control" required placeholder="contoh: Ibu Maria, S.Pd.">
-                </div>
-                <div>
-                    <label for="email" class="form-label">Email Login Guru:</label>
-                    <input type="email" id="email" name="email" class="form-control" required placeholder="contoh: maria@school.id">
-                </div>
-                <div>
-                    <label for="nip" class="form-label">NIP Guru:</label>
-                    <input type="text" id="nip" name="nip" class="form-control" placeholder="contoh: 199208082015022001">
-                </div>
-                <div>
-                    <label for="subject" class="form-label">Mata Pelajaran Utama:</label>
-                    <input type="text" id="subject" name="subject" class="form-control" placeholder="contoh: Matematika">
-                </div>
-                <div>
-                    <label for="password" class="form-label">Password Default:</label>
-                    <div class="password-toggle-wrapper">
-                        <input type="password" id="password" name="password" class="form-control" required placeholder="Minimal 8 karakter">
-                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password', this)" title="Lihat Password">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+            <!-- Card Kelola Kelas -->
+            <a href="/institution/classrooms" style="text-decoration: none; color: inherit; display: block;">
+                <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 24px; border-radius: var(--radius-md); transition: all 0.2s ease;" class="hover-scale-subtle">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background-color: #FAF0E4; color: #92400E; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 16px;">
+                        <i class="fa-solid fa-door-open"></i>
                     </div>
+                    <h4 style="font-weight: 700; margin-bottom: 6px; font-size: 1rem; color: var(--text-dark);">Kelola Kelas</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Lihat kelas terdaftar, jurusan, serta statistika jumlah murid.</p>
                 </div>
+            </a>
 
-            </div>
-            <button type="submit" class="btn-primary-dark">
-                <i class="fa-solid fa-plus"></i> Daftarkan Guru Sekarang
-            </button>
-        </form>
+            <!-- Card Kelola Guru -->
+            <a href="/institution/teachers" style="text-decoration: none; color: inherit; display: block;">
+                <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 24px; border-radius: var(--radius-md); transition: all 0.2s ease;" class="hover-scale-subtle">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background-color: #E8EAFF; color: #3730A3; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 16px;">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <h4 style="font-weight: 700; margin-bottom: 6px; font-size: 1rem; color: var(--text-dark);">Kelola Guru Pendamping</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Daftarkan guru pembimbing baru, edit data guru, atau hapus akses guru.</p>
+                </div>
+            </a>
+        </div>
     </div>
 @endif
 @endsection

@@ -55,253 +55,185 @@
     </div>
 </div>
 
-<!-- 2. Kelola Verifikasi Institusi -->
+<!-- 2. Quick Actions Panel -->
 <div class="content-box" style="margin-top: 24px;">
-    <div class="section-title-row" style="margin-top: 0;">
-        <h3 class="section-title"><i class="fa-solid fa-school-flag"></i> Kelola Verifikasi Institusi</h3>
+    <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-bolt" style="color: #6366F1;"></i> Akses Cepat Panel Admin
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Kelola berbagai data master sistem secara efisien melalui navigasi di bawah ini.</p>
     </div>
-
-    @if($institutions->isEmpty())
-        <div class="alert-custom alert-warning">
-            <i class="fa-solid fa-info-circle"></i>
-            <span>Belum ada institusi terdaftar dalam database.</span>
-        </div>
-    @else
-        <div class="table-responsive">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>Nama Institusi</th>
-                        <th>Email Admin</th>
-                        <th>NPSN</th>
-                        <th>Tipe</th>
-                        <th>No. Telp</th>
-                        <th>Status</th>
-                        <th>Aksi Management</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($institutions as $inst)
-                        <tr>
-                            <td><strong>{{ $inst->user->name }}</strong></td>
-                            <td>{{ $inst->user->email }}</td>
-                            <td>{{ $inst->npsn ?? '-' }}</td>
-                            <td><span class="card-cat-badge">{{ ucfirst($inst->type) }}</span></td>
-                            <td>{{ $inst->user->phone ?? '-' }}</td>
-                            <td>
-                                @if($inst->is_verified)
-                                    <span class="card-rating-badge" style="background-color: #D1F5E4; color: #065F46;">
-                                        <i class="fa-solid fa-circle-check"></i> Terverifikasi
-                                    </span>
-                                @else
-                                    <span class="card-rating-badge" style="background-color: #FEF3C7; color: #92400E;">
-                                        <i class="fa-solid fa-clock"></i> Pending
-                                    </span>
-                                @endif
-                            </td>
-                            <td>
-                                @if(!$inst->is_verified)
-                                    <div style="display: flex; gap: 8px; align-items: center;">
-                                        <form action="/admin/institutions/{{ $inst->id }}/verify" method="POST" style="margin:0;">
-                                            @csrf
-                                            <button type="submit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: #059669; color: #FFFFFF;">
-                                                <i class="fa-solid fa-check"></i> Setujui
-                                            </button>
-                                        </form>
-                                        <form action="/admin/institutions/{{ $inst->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Yakin ingin menolak pendaftaran institusi ini?');">
-                                            @csrf
-                                            <button type="submit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: #FBE3E2; color: #991B1B;">
-                                                <i class="fa-solid fa-xmark"></i> Tolak
-                                            </button>
-                                        </form>
-                                    </div>
-                                @else
-                                    <div style="display: flex; gap: 8px; align-items: center;">
-                                        <a href="/admin/institutions/{{ $inst->id }}/edit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: var(--bg-pill); color: var(--text-dark);">
-                                            <i class="fa-solid fa-pen"></i> Edit
-                                        </a>
-                                        <form action="/admin/institutions/{{ $inst->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus institusi ini secara permanen dari database?');">
-                                            @csrf
-                                            <button type="submit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: #FBE3E2; color: #991B1B;">
-                                                <i class="fa-solid fa-trash"></i> Hapus
-                                            </button>
-                                        </form>
-                                    </div>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-</div>
-
-<!-- 3. Kelola Master Data Lomba -->
-<div class="content-box" style="margin-top: 24px;">
-    <div class="section-title-row" style="margin-top: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
-        <h3 class="section-title" style="margin: 0;"><i class="fa-solid fa-trophy"></i> Kelola Master Kompetisi Nasional/Internasional</h3>
-        <button type="button" id="btn-delete-selected" class="btn-primary-dark" style="background-color: #FBE3E2; color: #991B1B; padding: 8px 16px; font-weight: 700; border-radius: 12px; display: none; align-items: center; gap: 8px; border: none; cursor: pointer; font-size: 0.85rem; transition: all 0.2s ease;">
-            <i class="fa-solid fa-trash"></i> Hapus Terpilih
-        </button>
-    </div>
-
-    <div class="table-responsive" style="margin-bottom: 24px; overflow-x: auto;">
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th style="width: 40px; text-align: center; padding: 12px 8px;">
-                        <input type="checkbox" id="select-all-comp" style="transform: scale(1.3); cursor: pointer; margin: 0;">
-                    </th>
-                    <th>Judul Kompetisi</th>
-                    <th>Kategori</th>
-                    <th>Penyelenggara</th>
-                    <th>Batas Pendaftaran</th>
-                    <th>Deskripsi</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($competitions as $comp)
-                    <tr>
-                        <td style="text-align: center; padding: 12px 8px;">
-                            <input type="checkbox" value="{{ $comp->id }}" class="comp-checkbox" style="transform: scale(1.3); cursor: pointer; margin: 0;">
-                        </td>
-                        <td><strong>{{ $comp->title }}</strong></td>
-                        <td><span class="card-cat-badge">{{ ucfirst($comp->category) }}</span></td>
-                        <td>{{ $comp->organizer ?? '-' }}</td>
-                        <td>{{ $comp->registration_deadline ? $comp->registration_deadline->format('d-m-Y') : '-' }}</td>
-                        <td>{{ $comp->description ?? '-' }}</td>
-                        <td>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <a href="/admin/competitions/{{ $comp->id }}/edit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: var(--bg-pill); color: var(--text-dark);">
-                                    <i class="fa-solid fa-pen"></i> Edit
-                                </a>
-                                <form action="/admin/competitions/{{ $comp->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Yakin ingin menghapus kompetisi ini?');">
-                                    @csrf
-                                    <button type="submit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: #FBE3E2; color: #991B1B; border: none; cursor: pointer;">
-                                        <i class="fa-solid fa-trash"></i> Hapus
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Form Tambah Lomba -->
-    <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
-        <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;">Tambah Master Kompetisi Baru</h4>
-        <form action="/admin/competitions" method="POST">
-            @csrf
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
-                <div>
-                    <label for="title" class="form-label">Judul Kompetisi:</label>
-                    <input type="text" id="title" name="title" class="form-control">
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+        <!-- Card Kelola Institusi -->
+        <a href="/admin/institutions" style="text-decoration: none; color: inherit; display: block;">
+            <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 24px; border-radius: var(--radius-md); transition: all 0.2s ease;" class="hover-scale-subtle">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background-color: var(--bg-card-sand) ?? #FAF0E4; color: var(--card-sand-accent) ?? #92400E; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 16px;">
+                    <i class="fa-solid fa-school-flag"></i>
                 </div>
-                <div>
-                    <label for="category" class="form-label">Kategori Lomba:</label>
-                    <select id="category" name="category" class="form-control" required>
-                        <option value="teknologi">Teknologi / IT</option>
-                        <option value="sains">Sains / Matematika</option>
-                        <option value="seni">Seni & Desain</option>
-                        <option value="lainnya">Lainnya</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="organizer" class="form-label">Penyelenggara / Institusi:</label>
-                    <input type="text" id="organizer" name="organizer" class="form-control" placeholder="contoh: Puspresnas">
-                </div>
-                <div>
-                    <label for="registration_deadline" class="form-label">Batas Pendaftaran:</label>
-                    <input type="date" id="registration_deadline" name="registration_deadline" class="form-control">
-                </div>
-                <div>
-                    <label for="link" class="form-label">Link Pendaftaran:</label>
-                    <input type="text" id="link" name="link" class="form-control">
-                </div>
+                <h4 style="font-weight: 700; margin-bottom: 6px; font-size: 1rem; color: var(--text-dark);">Kelola Institusi</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Verifikasi & edit data sekolah atau universitas terdaftar.</p>
             </div>
-            <div style="margin-bottom: 20px;">
-                <label for="description" class="form-label">Deskripsi Lomba:</label>
-                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Deskripsikan perlombaan..."></textarea>
+        </a>
+
+        <!-- Card Kelola Kompetisi -->
+        <a href="/admin/competitions" style="text-decoration: none; color: inherit; display: block;">
+            <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 24px; border-radius: var(--radius-md); transition: all 0.2s ease;" class="hover-scale-subtle">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background-color: var(--bg-card-lavender) ?? #E8EAFF; color: var(--card-lavender-accent) ?? #3730A3; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 16px;">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h4 style="font-weight: 700; margin-bottom: 6px; font-size: 1rem; color: var(--text-dark);">Kelola Kompetisi</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Atur data master perlombaan GEMASTIK, sains, dan seni.</p>
             </div>
-            <button type="submit" class="btn-primary-dark">
-                <i class="fa-solid fa-plus"></i> Tambah Master Kompetisi
-            </button>
-        </form>
+        </a>
+
+        <!-- Card Kelola Pengguna -->
+        <a href="/admin/users" style="text-decoration: none; color: inherit; display: block;">
+            <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 24px; border-radius: var(--radius-md); transition: all 0.2s ease;" class="hover-scale-subtle">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background-color: var(--bg-card-mint) ?? #D8F5E8; color: var(--card-mint-accent) ?? #065F46; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 16px;">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <h4 style="font-weight: 700; margin-bottom: 6px; font-size: 1rem; color: var(--text-dark);">Kelola Pengguna</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Pantau, tambah, edit, atau hapus akun pengguna sistem.</p>
+            </div>
+        </a>
     </div>
 </div>
 
+<!-- 3. Chart Section -->
+<div class="content-box" style="margin-top: 24px;">
+    <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-chart-bar" style="color: #10B981;"></i> Distribusi Akun Pengguna Aktif
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Visualisasi persentase penyebaran peran pengguna aktif di dalam platform.</p>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: center; flex-wrap: wrap;">
+        <!-- Left: Chart Canvas -->
+        <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 20px; border-radius: var(--radius-md); height: 320px; position: relative;">
+            <canvas id="userRolesChart" style="max-height: 100%; max-width: 100%;"></canvas>
+        </div>
+        
+        <!-- Right: Summary cards or tables -->
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 16px; border-radius: var(--radius-md);">
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Peran Mayoritas</span>
+                @php
+                    $maxRole = 'Tidak ada data';
+                    $maxCount = 0;
+                    foreach($roleCounts as $role => $count) {
+                        if($count > $maxCount) {
+                            $maxCount = $count;
+                            $maxRole = ucfirst($role);
+                        }
+                    }
+                @endphp
+                <h4 style="font-size: 1.2rem; font-weight: 800; color: var(--text-dark); margin: 6px 0 0 0;">
+                    {{ $maxRole }} ({{ $maxCount }} User)
+                </h4>
+            </div>
+            
+            <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 16px; border-radius: var(--radius-md);">
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Rata-rata Akun per Role</span>
+                <h4 style="font-size: 1.2rem; font-weight: 800; color: var(--text-dark); margin: 6px 0 0 0;">
+                    {{ number_format(array_sum($roleCounts) / count($roleCounts), 1) }} Akun
+                </h4>
+            </div>
+            
+            <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 16px; border-radius: var(--radius-md);">
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Kepadatan Data</span>
+                <h4 style="font-size: 1.2rem; font-weight: 800; color: #10B981; margin: 6px 0 0 0;">
+                    Sangat Baik <i class="fa-solid fa-circle-check"></i>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const selectAllCheckbox = document.getElementById('select-all-comp');
-    const checkboxes = document.querySelectorAll('.comp-checkbox');
-    const deleteSelectedBtn = document.getElementById('btn-delete-selected');
-
-    function toggleDeleteButtonVisibility() {
-        const checkedCount = document.querySelectorAll('.comp-checkbox:checked').length;
-        if (checkedCount > 0) {
-            deleteSelectedBtn.style.display = 'inline-flex';
-            deleteSelectedBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Hapus Terpilih (' + checkedCount + ')';
-        } else {
-            deleteSelectedBtn.style.display = 'none';
-        }
-    }
-
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
-            checkboxes.forEach(function(cb) {
-                cb.checked = selectAllCheckbox.checked;
-            });
-            toggleDeleteButtonVisibility();
-        });
-    }
-
-    checkboxes.forEach(function(cb) {
-        cb.addEventListener('change', function() {
-            if (!cb.checked) {
-                if (selectAllCheckbox) selectAllCheckbox.checked = false;
-            } else {
-                const allChecked = Array.from(checkboxes).every(c => c.checked);
-                if (selectAllCheckbox) selectAllCheckbox.checked = allChecked;
-            }
-            toggleDeleteButtonVisibility();
-        });
+    const ctx = document.getElementById('userRolesChart').getContext('2d');
+    
+    // Data from Controller
+    const rawData = @json($roleCounts);
+    
+    const labels = Object.keys(rawData).map(function(key) {
+        return key.charAt(0).toUpperCase() + key.slice(1);
     });
-
-    if (deleteSelectedBtn) {
-        deleteSelectedBtn.addEventListener('click', function() {
-            const checkedCheckboxes = document.querySelectorAll('.comp-checkbox:checked');
-            if (checkedCheckboxes.length === 0) return;
-            
-            if (confirm('Yakin ingin menghapus ' + checkedCheckboxes.length + ' kompetisi yang terpilih secara massal?')) {
-                const tempForm = document.createElement('form');
-                tempForm.method = 'POST';
-                tempForm.action = '/admin/competitions/delete-multiple';
-                
-                // Add CSRF Token
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_token';
-                csrfInput.value = '{{ csrf_token() }}';
-                tempForm.appendChild(csrfInput);
-                
-                // Add selected IDs
-                checkedCheckboxes.forEach(function(cb) {
-                    const idInput = document.createElement('input');
-                    idInput.type = 'hidden';
-                    idInput.name = 'comp_ids[]';
-                    idInput.value = cb.value;
-                    tempForm.appendChild(idInput);
-                });
-                
-                document.body.appendChild(tempForm);
-                tempForm.submit();
+    const values = Object.values(rawData);
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jumlah Pengguna',
+                data: values,
+                backgroundColor: [
+                    'rgba(244, 63, 94, 0.75)',  // Siswa
+                    'rgba(59, 130, 246, 0.75)',  // Mahasiswa
+                    'rgba(139, 92, 246, 0.75)',  // Guru
+                    'rgba(245, 158, 11, 0.75)',  // Institusi
+                    'rgba(16, 185, 129, 0.75)'   // Umum
+                ],
+                borderColor: [
+                    '#F43F5E',
+                    '#3B82F6',
+                    '#8B5CF6',
+                    '#F59E0B',
+                    '#10B981'
+                ],
+                borderWidth: 1.5,
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#1E293B',
+                    titleColor: '#FFFFFF',
+                    bodyColor: '#FFFFFF',
+                    padding: 12,
+                    cornerRadius: 8
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        color: '#64748B',
+                        font: {
+                            weight: '600'
+                        }
+                    },
+                    grid: {
+                        color: '#E2E8F0'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#64748B',
+                        font: {
+                            weight: '600'
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
             }
-        });
-    }
+        }
+    });
 });
 </script>
 @endsection

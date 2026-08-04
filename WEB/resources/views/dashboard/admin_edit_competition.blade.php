@@ -35,11 +35,6 @@
             <input type="date" id="registration_deadline" name="registration_deadline" class="form-control" value="{{ old('registration_deadline', $competition->registration_deadline ? $competition->registration_deadline->format('Y-m-d') : '') }}">
         </div>
 
-        <div style="margin-bottom: 16px;">
-            <label for="link" class="form-label">Link Pendaftaran:</label>
-            <input type="url" id="link" name="link" class="form-control" value="{{ old('link', $competition->link) }}">
-        </div>
-
         <div style="margin-bottom: 24px;">
             <label for="description" class="form-label">Deskripsi Lomba:</label>
             <textarea id="description" name="description" class="form-control" rows="4">{{ old('description', $competition->description) }}</textarea>
@@ -49,7 +44,7 @@
             <button type="submit" class="btn-primary-dark">
                 <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
             </button>
-            <a href="/dashboard" class="btn-primary-dark" style="background-color: var(--bg-pill); color: var(--text-dark);">Batal</a>
+            <a href="/admin/competitions" class="btn-primary-dark" style="background-color: var(--bg-pill); color: var(--text-dark); text-decoration: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 20px;">Batal</a>
         </div>
     </form>
 </div>

@@ -41,6 +41,9 @@ def generate_synthetic_data(num_samples=1500):
         fishery = np.random.randint(50, 80)
         robotics = np.random.randint(50, 80)
         aviation = np.random.randint(50, 80)
+        business = np.random.randint(50, 80)
+        social = np.random.randint(50, 80)
+        design = np.random.randint(50, 80)
         
         tech_ach = np.random.randint(0, 2)
         sci_ach = np.random.randint(0, 2)
@@ -65,10 +68,12 @@ def generate_synthetic_data(num_samples=1500):
             sci_ach = np.random.randint(1, 4)
         elif target == 'Desain Kreatif & UI/UX':
             a = np.random.randint(80, 100)
+            design = np.random.randint(85, 100)
             art_ach = np.random.randint(1, 4)
             eng = np.random.randint(75, 100)
         elif target == 'Bisnis & Kewirausahaan':
             e = np.random.randint(80, 100)
+            business = np.random.randint(85, 100)
             eng = np.random.randint(80, 100)
             s = np.random.randint(65, 90)
         elif target == 'Seni Kuliner & Tata Boga':
@@ -92,6 +97,7 @@ def generate_synthetic_data(num_samples=1500):
             medical = np.random.randint(80, 100)
         elif target == 'Sosial & Pendidikan':
             s = np.random.randint(80, 100)
+            social = np.random.randint(85, 100)
             e = np.random.randint(70, 95)
             eng = np.random.randint(80, 100)
         elif target == 'Pertanian & Agroteknologi':
@@ -121,6 +127,8 @@ def generate_synthetic_data(num_samples=1500):
             'grade_sports': sports, 'grade_medical': medical,
             'grade_agriculture': agriculture, 'grade_fishery': fishery,
             'grade_robotics': robotics, 'grade_aviation': aviation,
+            'grade_business': business, 'grade_social': social,
+            'grade_design': design,
             'achievement_tech': tech_ach, 'achievement_science': sci_ach,
             'achievement_art': art_ach,
             'talent': target

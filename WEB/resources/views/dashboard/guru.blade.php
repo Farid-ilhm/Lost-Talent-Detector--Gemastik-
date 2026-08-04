@@ -24,198 +24,48 @@
     </div>
 </div>
 
-<!-- 1. Verifikasi Prestasi Siswa -->
+<!-- Quick Actions Panel -->
 <div class="content-box" style="margin-top: 24px;">
-    <div class="section-title-row" style="margin-top: 0;">
-        <h3 class="section-title"><i class="fa-solid fa-circle-check"></i> Verifikasi Sertifikat Prestasi Siswa</h3>
+    <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-bolt" style="color: #6366F1;"></i> Akses Cepat Panel Pengajar
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Kelola seluruh verifikasi dan evaluasi minat bakat murid di kelas Anda.</p>
     </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+        <!-- Card Verifikasi Prestasi -->
+        <a href="/teacher/achievements" style="text-decoration: none; color: inherit; display: block;">
+            <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 24px; border-radius: var(--radius-md); transition: all 0.2s ease;" class="hover-scale-subtle">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background-color: #E8EAFF; color: #3730A3; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 16px;">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h4 style="font-weight: 700; margin-bottom: 6px; font-size: 1rem; color: var(--text-dark);">Verifikasi Prestasi</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Periksa, setujui, atau tolak unggahan sertifikat prestasi siswa.</p>
+            </div>
+        </a>
 
-    @if($pendingAchievements->isEmpty())
-        <div class="alert-custom alert-success">
-            <i class="fa-solid fa-circle-check"></i>
-            <span>Tidak ada pengajuan prestasi siswa yang perlu diverifikasi saat ini.</span>
-        </div>
-    @else
-        <div class="table-responsive">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>Nama Murid</th>
-                        <th>Judul Prestasi</th>
-                        <th>Kategori</th>
-                        <th>Tingkat</th>
-                        <th>Peringkat</th>
-                        <th>Bukti</th>
-                        <th>Aksi Verifikasi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($pendingAchievements as $ach)
-                        <tr>
-                            <td><strong>{{ $ach->student->user->name }}</strong></td>
-                            <td>{{ $ach->title }}</td>
-                            <td><span class="card-cat-badge">{{ ucfirst($ach->category) }}</span></td>
-                            <td>{{ ucfirst($ach->level) }}</td>
-                            <td>{{ $ach->rank }}</td>
-                            <td>
-                                @if($ach->certificate_path)
-                                    <a href="{{ asset($ach->certificate_path) }}" target="_blank" class="btn-primary-dark" style="background-color: #EEF2F6; color: #1C1917; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 10px; border: 1px solid #E2E8F0; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                                        <i class="fa-solid fa-image"></i> Lihat Bukti
-                                    </a>
-                                @else
-                                    <span style="color: var(--text-muted); font-size: 0.85rem;">Tidak ada bukti</span>
-                                @endif
-                            </td>
-                            <td>
-                                <form action="/teacher/achievements/{{ $ach->id }}/verify" method="POST" style="margin: 0;">
-                                    @csrf
-                                    <button type="submit" class="btn-primary-dark" style="padding: 6px 14px; font-size: 0.8rem;">
-                                        <i class="fa-solid fa-check"></i> Verifikasi / Setujui
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-</div>
+        <!-- Card Input Nilai -->
+        <a href="/teacher/grades" style="text-decoration: none; color: inherit; display: block;">
+            <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 24px; border-radius: var(--radius-md); transition: all 0.2s ease;" class="hover-scale-subtle">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background-color: #FAF0E4; color: #92400E; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 16px;">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+                <h4 style="font-weight: 700; margin-bottom: 6px; font-size: 1rem; color: var(--text-dark);">Input Nilai & Catatan</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Input nilai rapor dan tulis catatan minat bakat perkembangan murid.</p>
+            </div>
+        </a>
 
-<!-- 2. Kelola Nilai & Catatan Murid -->
-<div class="content-box" style="margin-top: 24px;">
-    <div class="section-title-row" style="margin-top: 0;">
-        <h3 class="section-title"><i class="fa-solid fa-pen-to-square"></i> Kelola Nilai Rapor & Catatan Murid</h3>
+        <!-- Card Kelola Murid -->
+        <a href="/teacher/students" style="text-decoration: none; color: inherit; display: block;">
+            <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 24px; border-radius: var(--radius-md); transition: all 0.2s ease;" class="hover-scale-subtle">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background-color: #E2FBF0; color: #065F46; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 16px;">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <h4 style="font-weight: 700; margin-bottom: 6px; font-size: 1rem; color: var(--text-dark);">Kelola Akun Murid</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Kelola profil murid, edit info akademik, atau hapus akun murid.</p>
+            </div>
+        </a>
     </div>
-
-    @if($students->isEmpty())
-        <div class="alert-custom alert-warning">
-            <i class="fa-solid fa-info-circle"></i>
-            <span>Belum ada murid yang terdaftar di institusi Anda.</span>
-        </div>
-    @else
-        <div class="table-responsive">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>Nama Siswa</th>
-                        <th>NISN</th>
-                        <th>Kelas</th>
-                        <th>Form Input Nilai & Catatan Perkembangan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($students as $st)
-                        <tr>
-                            <td><strong>{{ $st->user->name }}</strong></td>
-                            <td>{{ $st->nisn ?? '-' }}</td>
-                            <td><span class="card-cat-badge">{{ $st->classroom->name ?? '-' }}</span></td>
-                            <td>
-                                <form action="/teacher/student-data" method="POST" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 0;">
-                                    @csrf
-                                    <input type="hidden" name="student_id" value="{{ $st->id }}">
-                                    
-                                    <select name="semester" class="form-control" style="width: auto; padding: 6px 10px; font-size: 0.85rem;">
-                                        <option value="">Sem</option>
-                                        <option value="1">Sem 1</option>
-                                        <option value="2">Sem 2</option>
-                                        <option value="3">Sem 3</option>
-                                        <option value="4">Sem 4</option>
-                                        <option value="5">Sem 5</option>
-                                        <option value="6">Sem 6</option>
-                                    </select>
-                                    
-                                    <input type="text" name="subject_name" class="form-control" placeholder="Nama Mapel" list="subjects-{{ $st->id }}" style="width: 130px; padding: 6px 10px; font-size: 0.85rem;">
-                                    <datalist id="subjects-{{ $st->id }}">
-                                        <option value="Matematika">
-                                        <option value="Informatika">
-                                        <option value="Fisika">
-                                        <option value="Bahasa Inggris">
-                                    </datalist>
-                                    
-                                    <input type="number" name="score" step="0.01" min="0" max="100" class="form-control" placeholder="Nilai" style="width: 80px; padding: 6px 10px; font-size: 0.85rem;">
-                                    
-                                    <input type="text" name="notes" class="form-control" placeholder="Catatan minat/bakat..." style="width: 180px; padding: 6px 10px; font-size: 0.85rem;">
-                                    
-                                    <button type="submit" class="btn-primary-dark" style="padding: 6px 14px; font-size: 0.8rem;">
-                                        <i class="fa-solid fa-floppy-disk"></i> Simpan
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-</div>
-
-<!-- 3. Daftar Murid Terdaftar -->
-<div class="content-box" style="margin-top: 24px;">
-    <div class="section-title-row" style="margin-top: 0;">
-        <h3 class="section-title"><i class="fa-solid fa-users"></i> Daftar Murid Terdaftar</h3>
-    </div>
-
-    @if($students->isEmpty())
-        <div class="alert-custom alert-warning">
-            <i class="fa-solid fa-info-circle"></i>
-            <span>Belum ada murid yang terdaftar.</span>
-        </div>
-    @else
-        <div class="table-responsive">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>Nama Murid</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>NISN / NIM</th>
-                        <th>Kelas / Semester</th>
-                        <th>Aksi Management</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($students as $st)
-                        <tr>
-                            <td><strong>{{ $st->user->name }}</strong></td>
-                            <td>{{ $st->user->email }}</td>
-                            <td><span class="card-cat-badge">{{ ucfirst($st->user->role) }}</span></td>
-                            <td>
-                                @if($st->user->role === 'siswa')
-                                    {{ $st->nisn ?? '-' }}
-                                @elseif($st->user->role === 'mahasiswa')
-                                    {{ $st->nim ?? '-' }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td>
-                                @if($st->user->role === 'siswa')
-                                    {{ $st->classroom->name ?? '-' }} ({{ $st->classroom->major->name ?? '-' }})
-                                @elseif($st->user->role === 'mahasiswa')
-                                    Semester {{ $st->semester ?? '-' }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td>
-                                <div style="display: flex; gap: 8px; align-items: center;">
-                                    <a href="/teacher/students/{{ $st->id }}/edit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: var(--bg-pill); color: var(--text-dark);">
-                                        <i class="fa-solid fa-pen"></i> Edit
-                                    </a>
-                                    <form action="/teacher/students/{{ $st->id }}/delete" method="POST" style="margin:0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun murid ini secara permanen?');">
-                                        @csrf
-                                        <button type="submit" class="btn-primary-dark" style="padding: 6px 12px; font-size: 0.8rem; background-color: #FBE3E2; color: #991B1B;">
-                                            <i class="fa-solid fa-trash"></i> Hapus
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
 </div>
 @endsection

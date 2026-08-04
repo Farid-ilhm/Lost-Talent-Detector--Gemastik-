@@ -72,7 +72,7 @@
             <button type="submit" class="btn-primary-dark">
                 <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
             </button>
-            <a href="/dashboard" class="btn-primary-dark" style="background-color: var(--bg-pill); color: var(--text-dark);">Batal</a>
+            <a href="/teacher/students" class="btn-primary-dark" style="background-color: var(--bg-pill); color: var(--text-dark); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 20px;">Batal</a>
         </div>
     </form>
 </div>

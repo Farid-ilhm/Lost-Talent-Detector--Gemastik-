@@ -38,8 +38,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/student/grades', [DashboardController::class, 'studentSaveGrade']);
 
     // Teacher Actions
-    Route::post('/teacher/grades', [DashboardController::class, 'teacherSaveGrade']);
+    Route::get('/teacher/achievements', [DashboardController::class, 'teacherAchievementsView']);
+    Route::get('/teacher/grades', [DashboardController::class, 'teacherGradesView']);
+    Route::get('/teacher/students', [DashboardController::class, 'teacherStudentsView']);
     Route::post('/teacher/achievements/{id}/verify', [DashboardController::class, 'teacherVerify']);
+    Route::post('/teacher/grades', [DashboardController::class, 'teacherSaveGrade']);
     Route::post('/teacher/notes', [DashboardController::class, 'teacherSaveNote']);
     Route::post('/teacher/student-data', [DashboardController::class, 'teacherSaveStudentData']);
     Route::get('/teacher/students/{id}/edit', [DashboardController::class, 'teacherEditStudent']);
@@ -47,6 +50,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/teacher/students/{id}/delete', [DashboardController::class, 'teacherDeleteStudent']);
 
     // Institution Actions
+    Route::get('/institution/classrooms', [DashboardController::class, 'institutionClassroomsView']);
+    Route::get('/institution/teachers', [DashboardController::class, 'institutionTeachersView']);
     Route::post('/institution/teachers', [DashboardController::class, 'institutionSaveTeacher']);
     Route::get('/institution/teachers/{id}/edit', [DashboardController::class, 'institutionEditTeacher']);
     Route::post('/institution/teachers/{id}/update', [DashboardController::class, 'institutionUpdateTeacher']);
@@ -63,4 +68,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/competitions/{id}/edit', [DashboardController::class, 'adminEditCompetition']);
     Route::post('/admin/competitions/{id}/update', [DashboardController::class, 'adminUpdateCompetition']);
     Route::post('/admin/competitions/{id}/delete', [DashboardController::class, 'adminDeleteCompetition']);
+
+    // Admin View Routes
+    Route::get('/admin/institutions', [DashboardController::class, 'adminInstitutionsView']);
+    Route::get('/admin/competitions', [DashboardController::class, 'adminCompetitionsView']);
+    Route::get('/admin/users', [DashboardController::class, 'adminUsersView']);
+    
+    // Admin User CRUD Routes
+    Route::post('/admin/users', [DashboardController::class, 'adminSaveUser']);
+    Route::get('/admin/users/{id}/edit', [DashboardController::class, 'adminEditUser']);
+    Route::post('/admin/users/{id}/update', [DashboardController::class, 'adminUpdateUser']);
+    Route::post('/admin/users/{id}/delete', [DashboardController::class, 'adminDeleteUser']);
+
+    // General Profile Settings Route
+    Route::post('/profile/change-password', [DashboardController::class, 'changePassword']);
+
+    // Notifications Routes
+    Route::get('/notifications', [DashboardController::class, 'getNotifications']);
+    Route::post('/notifications/mark-read', [DashboardController::class, 'markNotificationsRead']);
 });

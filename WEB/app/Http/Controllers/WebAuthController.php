@@ -213,6 +213,19 @@ class WebAuthController extends Controller
         $user->email_verified_at = Carbon::now();
         $user->save();
 
+        if ($user->role === 'institusi') {
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                \App\Models\CustomNotification::create([
+                    'user_id' => $admin->id,
+                    'title' => 'Institusi Baru Mendaftar',
+                    'message' => 'Sekolah/Univ "' . $user->name . '" baru saja mendaftar dan menunggu verifikasi Anda.',
+                    'type' => 'system',
+                    'is_read' => false,
+                ]);
+            }
+        }
+ 
         if (in_array($user->role, ['siswa', 'mahasiswa', 'umum'])) {
             return redirect('/login')->with('success', 'Akun Anda berhasil diverifikasi! Silakan login melalui aplikasi Mobile.');
         }

@@ -170,6 +170,19 @@ class StudentApiController extends Controller
             'is_verified' => $autoVerify,
         ]);
 
+        if (!$autoVerify) {
+            $teachers = \App\Models\Teacher::where('institution_id', $student->institution_id)->get();
+            foreach ($teachers as $t) {
+                \App\Models\CustomNotification::create([
+                    'user_id' => $t->user_id,
+                    'title' => 'Verifikasi Sertifikat Baru',
+                    'message' => 'Siswa "' . $user->name . '" telah mengajukan sertifikat "' . $request->title . '" untuk diverifikasi.',
+                    'type' => 'system',
+                    'is_read' => false,
+                ]);
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => $autoVerify ? 'Achievement saved successfully.' : 'Achievement uploaded successfully. Awaiting verification.',
@@ -427,7 +440,7 @@ class StudentApiController extends Controller
             $openrouterKey = env('OPENROUTER_API_KEY') ?: (getenv('OPENROUTER_API_KEY') ?: ($_ENV['OPENROUTER_API_KEY'] ?? null));
 
             // Call Python AI Service (Multi-Engine: DeepSeek-R1 / Gemini + Local ML)
-            $response = \Illuminate\Support\Facades\Http::timeout(25)->post('http://127.0.0.1:5000/predict', [
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->post('http://127.0.0.1:5001/predict', [
                 'riasec' => $testResult ? $testResult->scores : new \stdClass(),
                 'grades' => $grades->groupBy('subject_name')->map(function ($items) {
                     return floatval($items->avg('score'));
