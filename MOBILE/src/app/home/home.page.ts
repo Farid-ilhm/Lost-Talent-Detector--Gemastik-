@@ -62,6 +62,7 @@ export class HomePage {
   teacherStudents: any[] = [];
   institutionInfo: any = null;
   institutionStats: any = null;
+  institutionTeachers: any[] = [];
   isLoadingRoleData: boolean = false;
 
   constructor(
@@ -124,6 +125,7 @@ export class HomePage {
         if (res.success) {
           this.institutionInfo = res.data?.institution;
           this.institutionStats = res.data?.stats;
+          this.institutionTeachers = res.data?.teachers || [];
         }
       },
       error: () => {

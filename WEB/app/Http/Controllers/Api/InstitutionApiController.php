@@ -44,10 +44,15 @@ class InstitutionApiController extends Controller
             $query->where('institution_id', $institution->id);
         })->where('is_verified', false)->count();
 
+        $teachers = Teacher::where('institution_id', $institution->id)
+            ->with('user')
+            ->get();
+
         return response()->json([
             'success' => true,
             'data' => [
                 'institution' => $institution,
+                'teachers' => $teachers,
                 'stats' => [
                     'teachers_count' => $teachersCount,
                     'classrooms_count' => $classroomsCount,
