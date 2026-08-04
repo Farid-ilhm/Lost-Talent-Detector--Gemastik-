@@ -17,6 +17,8 @@ export class HomePage {
   achievements: any[] = [];
   testResult: any = null;
   aiAnalysis: any = null;
+  isLoadingDashboard: boolean = false;
+  dashboardError: string | null = null;
 
   // Selection states for bulk deletion
   isSelectingGrades: boolean = false;
@@ -38,6 +40,8 @@ export class HomePage {
     hobbies: '',
     interests: ''
   };
+
+  selectedFileName: string = '';
 
   newAchievement = {
     title: '',
@@ -135,8 +139,11 @@ export class HomePage {
   }
 
   loadDashboardData() {
+    this.isLoadingDashboard = true;
+    this.dashboardError = null;
     this.apiService.getDashboard().subscribe({
       next: (res: any) => {
+        this.isLoadingDashboard = false;
         if (res.success) {
           const data = res.data || res;
           this.student = data.student;
@@ -150,9 +157,13 @@ export class HomePage {
             this.profileData.hobbies = this.student.hobbies ? this.student.hobbies.join(', ') : '';
             this.profileData.interests = this.student.interests ? this.student.interests.join(', ') : '';
           }
+        } else {
+          this.dashboardError = res.message || 'Gagal memuat data dashboard.';
         }
       },
       error: async (err: any) => {
+        this.isLoadingDashboard = false;
+        this.dashboardError = err.error?.message || 'Gagal terhubung ke backend server API (http://localhost:8000). Pastikan server Laravel sudah berjalan.';
         const toast = await this.toastController.create({
           message: 'Gagal memuat data dashboard.',
           duration: 3000,
@@ -223,16 +234,22 @@ export class HomePage {
         if (res.success) {
           const toast = await this.toastController.create({
             message: 'Analisis AI berhasil diperbarui!',
-            duration: 2000,
-            color: 'success'
+            duration: 2500,
+            color: 'success',
+            icon: 'sparkles',
+            position: 'bottom',
+            mode: 'ios'
           });
           await toast.present();
           this.loadDashboardData();
         } else {
           const toast = await this.toastController.create({
             message: res.message || 'Gagal memicu analisis.',
-            duration: 2000,
-            color: 'warning'
+            duration: 2500,
+            color: 'warning',
+            icon: 'alert-circle',
+            position: 'bottom',
+            mode: 'ios'
           });
           await toast.present();
         }
@@ -241,8 +258,11 @@ export class HomePage {
         this.isAnalyzingAi = false;
         const toast = await this.toastController.create({
           message: 'Gagal memproses analisis bakat AI.',
-          duration: 2000,
-          color: 'danger'
+          duration: 2500,
+          color: 'danger',
+          icon: 'close-circle',
+          position: 'bottom',
+          mode: 'ios'
         });
         await toast.present();
       }
@@ -354,11 +374,14 @@ export class HomePage {
   onFileChange(event: any) {
     const file = event.target.files[0];
     if (file) {
+      this.selectedFileName = file.name;
       const reader = new FileReader();
       reader.onload = () => {
         this.newAchievement.certificate = reader.result as string;
       };
       reader.readAsDataURL(file);
+    } else {
+      this.selectedFileName = '';
     }
   }
 
@@ -370,12 +393,16 @@ export class HomePage {
         
         const toast = await this.toastController.create({
           message: msg,
-          duration: 2500,
-          color: 'success'
+          duration: 3000,
+          color: 'success',
+          icon: 'checkmark-circle',
+          position: 'bottom',
+          mode: 'ios'
         });
         await toast.present();
         
         // Reset form
+        this.selectedFileName = '';
         this.newAchievement = {
           title: '',
           category: 'teknologi',
