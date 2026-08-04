@@ -31,13 +31,24 @@
 
         <div style="margin-bottom: 16px;">
             <label for="password" class="form-label">Password Baru (Kosongkan jika tidak diubah):</label>
-            <input type="password" id="password" name="password" class="form-control" placeholder="Minimal 8 karakter">
+            <div class="password-toggle-wrapper">
+                <input type="password" id="password" name="password" class="form-control" placeholder="Minimal 8 karakter">
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password', this)" title="Lihat Password">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
         </div>
 
         <div style="margin-bottom: 24px;">
             <label for="password_confirmation" class="form-label">Konfirmasi Password Baru:</label>
-            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control">
+            <div class="password-toggle-wrapper">
+                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control">
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password_confirmation', this)" title="Lihat Password">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
         </div>
+
 
         <div style="display: flex; gap: 12px; align-items: center;">
             <button type="submit" class="btn-primary-dark">

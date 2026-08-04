@@ -14,6 +14,9 @@ export class LoginPage implements OnInit {
     password: ''
   };
 
+  showPassword = false;
+
+
   constructor(
     private authService: AuthService,
     private router: Router,

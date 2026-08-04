@@ -3,9 +3,10 @@
 @section('content')
 <div class="content-box" style="max-width: 640px; margin: 24px auto;">
     <div style="text-align: center; margin-bottom: 24px;">
-        <div class="app-brand-icon" style="margin: 0 auto 12px; width: 56px; height: 56px; font-size: 1.5rem;">
-            <i class="fa-solid fa-user-plus"></i>
+        <div style="margin: 0 auto 12px; width: 56px; height: 56px;">
+            <img src="{{ asset('icon.png') }}" alt="Lost Talent Logo" style="width: 100%; height: 100%; border-radius: 16px; object-fit: cover;">
         </div>
+
         <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-dark);">Pendaftaran Akun Baru</h2>
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">Pilih tipe akun Anda dan lengkapi data profil untuk memulai analisis bakat.</p>
     </div>
@@ -80,13 +81,24 @@
 
         <div style="margin-bottom: 16px;">
             <label for="password" class="form-label">Password (Minimal 8 karakter):</label>
-            <input type="password" id="password" name="password" class="form-control" required placeholder="••••••••">
+            <div class="password-toggle-wrapper">
+                <input type="password" id="password" name="password" class="form-control" required placeholder="••••••••">
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password', this)" title="Lihat Password">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
         </div>
 
         <div style="margin-bottom: 24px;">
             <label for="password_confirmation" class="form-label">Konfirmasi Password:</label>
-            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required placeholder="••••••••">
+            <div class="password-toggle-wrapper">
+                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required placeholder="••••••••">
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password_confirmation', this)" title="Lihat Password">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
         </div>
+
 
         <button type="submit" class="btn-primary-dark" style="width: 100%; padding: 14px;">
             <i class="fa-solid fa-user-plus"></i> Daftar Akun Sekarang

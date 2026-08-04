@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lost Talent Detector - GEMASTIK</title>
+    <link rel="icon" type="image/png" href="{{ asset('icon.png') }}">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Custom Design System CSS -->
@@ -15,9 +16,10 @@
         @auth
         <aside class="left-sidebar">
             <div class="sidebar-top">
-                <a href="/dashboard" class="app-brand-icon" title="Dashboard Lost Talent Detector">
-                    <i class="fa-solid fa-brain"></i>
+                <a href="/dashboard" class="app-brand-icon" title="Dashboard Lost Talent Detector" style="background: transparent; overflow: hidden; padding: 0;">
+                    <img src="{{ asset('icon.png') }}" alt="Lost Talent Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;">
                 </a>
+
                 
                 <nav class="nav-menu">
                     <a href="/dashboard" class="nav-item active" title="Dashboard Utama">
@@ -115,5 +117,26 @@
          </aside>
         @endauth
     </div>
+    <script>
+        function togglePasswordVisibility(inputId, buttonEl) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const icon = buttonEl.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            } else {
+                input.type = 'password';
+                if (icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        }
+    </script>
 </body>
 </html>
+

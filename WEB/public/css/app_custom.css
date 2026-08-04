@@ -42,14 +42,33 @@ body {
 /* TOP NAVBAR (LANDING PAGE) */
 .landing-navbar {
     width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: rgba(247, 245, 240, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-subtle);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.landing-navbar.nav-hidden {
+    transform: translateY(-100%) !important;
+}
+
+.landing-navbar-inner {
+    width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 20px 24px;
+    padding: 16px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: transparent;
 }
+
+
 
 .nav-brand {
     display: flex;
@@ -665,3 +684,40 @@ body {
     .hero-title { font-size: 1.8rem; }
     .landing-navbar { flex-direction: column; gap: 16px; }
 }
+
+/* PASSWORD VISIBILITY TOGGLE */
+.password-toggle-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-toggle-wrapper .form-control {
+    padding-right: 42px;
+    width: 100%;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+    z-index: 5;
+}
+
+.password-toggle-btn:hover {
+    color: var(--text-dark);
+}
+

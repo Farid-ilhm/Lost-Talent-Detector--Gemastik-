@@ -179,8 +179,14 @@
                 </div>
                 <div>
                     <label for="password" class="form-label">Password Default:</label>
-                    <input type="password" id="password" name="password" class="form-control" required placeholder="Minimal 8 karakter">
+                    <div class="password-toggle-wrapper">
+                        <input type="password" id="password" name="password" class="form-control" required placeholder="Minimal 8 karakter">
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password', this)" title="Lihat Password">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
+
             </div>
             <button type="submit" class="btn-primary-dark">
                 <i class="fa-solid fa-plus"></i> Daftarkan Guru Sekarang

@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lost Talent Detector - GEMASTIK</title>
+    <link rel="icon" type="image/png" href="{{ asset('icon.png') }}">
     <!-- FontAwesome Icons -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Custom Design System CSS -->
     <link rel="stylesheet" href="{{ asset('css/app_custom.css') }}">
@@ -16,41 +18,47 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.03);
             border: 1px solid var(--border-subtle);
         }
+        .landing-navbar.nav-hidden {
+            transform: translateY(-100%) !important;
+        }
     </style>
+
 </head>
 <body style="background-color: var(--bg-main);">
 
     <!-- 1. TOP NAVBAR LANDING PAGE -->
-    <header class="landing-navbar" style="border-bottom: 1px solid var(--border-subtle); background-color: rgba(247, 245, 240, 0.9); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000;">
-        <a href="/" class="nav-brand">
-            <div class="nav-brand-logo">
-                <i class="fa-solid fa-brain"></i>
-            </div>
-            <div>
-                <span style="display: block; line-height: 1.2;">Lost Talent Detector</span>
-                <span style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Intelijen Bakat AI</span>
-            </div>
-        </a>
-
-        <ul class="nav-links">
-            <li><a href="#beranda">Beranda</a></li>
-            <li><a href="#penjelasan">Web & Mobile App</a></li>
-            <li><a href="#fitur">Fitur & Modul</a></li>
-            <li><a href="/login">Masuk / Login</a></li>
-        </ul>
-
-        <div class="nav-auth-buttons">
-            <a href="/login" class="btn-primary-dark" style="padding: 10px 22px; font-size: 0.9rem;">
-                <i class="fa-solid fa-right-to-bracket"></i> Masuk (Login)
+    <header class="landing-navbar">
+        <div class="landing-navbar-inner">
+            <a href="/" class="nav-brand">
+                <img src="{{ asset('icon.png') }}" alt="Lost Talent Detector Logo" style="width: 44px; height: 44px; border-radius: 14px; object-fit: cover;">
+                <div>
+                    <span style="display: block; line-height: 1.2;">Lost Talent Detector</span>
+                    <span style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Intelijen Bakat AI</span>
+                </div>
             </a>
-            <a href="/register" class="btn-primary-dark" style="padding: 10px 22px; font-size: 0.9rem; background-color: var(--bg-pill); color: var(--text-dark);">
-                <i class="fa-solid fa-user-plus"></i> Pendaftaran
-            </a>
+
+            <ul class="nav-links">
+                <li><a href="#beranda">Beranda</a></li>
+                <li><a href="#penjelasan">Web & Mobile App</a></li>
+                <li><a href="#fitur">Fitur & Modul</a></li>
+                <li><a href="/login">Masuk / Login</a></li>
+            </ul>
+
+            <div class="nav-auth-buttons">
+                <a href="/login" class="btn-primary-dark" style="padding: 10px 22px; font-size: 0.9rem;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Masuk (Login)
+                </a>
+                <a href="/register" class="btn-primary-dark" style="padding: 10px 22px; font-size: 0.9rem; background-color: var(--bg-pill); color: var(--text-dark);">
+                    <i class="fa-solid fa-user-plus"></i> Pendaftaran
+                </a>
+            </div>
         </div>
     </header>
 
+
     <!-- CONTAINER UTAMA LANDING PAGE -->
-    <main style="max-width: 1200px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 48px;">
+    <main style="max-width: 1200px; margin: 84px auto 0; padding: 40px 24px; display: flex; flex-direction: column; gap: 48px;">
+
 
         <!-- 2. HERO SECTION PUBLIK -->
         <section id="beranda" class="landing-hero-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; align-items: center; background: linear-gradient(135deg, #FFFFFF 0%, #FAF8F5 100%);">
@@ -244,5 +252,30 @@
         </div>
     </footer>
 
+    <script>
+        let lastScrollY = window.scrollY;
+        const navbar = document.querySelector('.landing-navbar');
+
+        if (navbar) {
+            window.addEventListener('scroll', () => {
+                const currentScrollY = window.scrollY;
+                
+                if (currentScrollY <= 50) {
+                    navbar.classList.remove('nav-hidden');
+                    lastScrollY = currentScrollY;
+                    return;
+                }
+
+                if (currentScrollY > lastScrollY && currentScrollY > 80) {
+                    navbar.classList.add('nav-hidden');
+                } else if (currentScrollY < lastScrollY) {
+                    navbar.classList.remove('nav-hidden');
+                }
+                
+                lastScrollY = currentScrollY;
+            }, { passive: true });
+        }
+    </script>
 </body>
 </html>
+

@@ -94,13 +94,16 @@
 
         <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
           <ion-label position="stacked">Password</ion-label>
-          <ion-input type="password" name="password" [(ngModel)]="userData.password" placeholder="••••••••" required></ion-input>
+          <ion-input [type]="showPassword ? 'text' : 'password'" name="password" [(ngModel)]="userData.password" placeholder="••••••••" required></ion-input>
+          <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'" (click)="showPassword = !showPassword" slot="end" style="color: #78716C; font-size: 1rem; cursor: pointer; padding: 8px 4px; margin-top: 14px;" title="Lihat Password"></i>
         </ion-item>
 
         <ion-item style="--border-radius: 14px; margin-bottom: 14px;">
           <ion-label position="stacked">Konfirmasi Password</ion-label>
-          <ion-input type="password" name="password_confirmation" [(ngModel)]="userData.password_confirmation" placeholder="••••••••" required></ion-input>
+          <ion-input [type]="showConfirmPassword ? 'text' : 'password'" name="password_confirmation" [(ngModel)]="userData.password_confirmation" placeholder="••••••••" required></ion-input>
+          <i class="fa-solid" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'" (click)="showConfirmPassword = !showConfirmPassword" slot="end" style="color: #78716C; font-size: 1rem; cursor: pointer; padding: 8px 4px; margin-top: 14px;" title="Lihat Password"></i>
         </ion-item>
+
 
         <ion-button expand="block" color="primary" type="submit" style="font-weight: 800; height: 50px; --border-radius: 16px;">
           <i class="fa-solid fa-user-plus" style="margin-right: 8px;"></i> Daftar Akun

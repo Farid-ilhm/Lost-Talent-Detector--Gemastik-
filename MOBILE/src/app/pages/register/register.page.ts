@@ -28,6 +28,10 @@ export class RegisterPage {
 
   institutions: any[] = [];
 
+  showPassword = false;
+  showConfirmPassword = false;
+
+
   constructor(
     private authService: AuthService,
     private apiService: ApiService,
