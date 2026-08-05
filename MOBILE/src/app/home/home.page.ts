@@ -31,9 +31,25 @@ export class HomePage {
   isSelectingCerts: boolean = false;
   selectedCerts: Set<number> = new Set<number>();
 
+  // Sidebar state
+  isSidebarOpen: boolean = false;
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar() {
+    this.isSidebarOpen = false;
+  }
+
+  openTabFromSidebar(tabName: string) {
+    this.selectTab(tabName);
+    this.closeSidebar();
+  }
+
   // Active tab state for mobile navigation
   selectedTab: string = 'home';
-  talentSubTab: string = 'test';
+  talentSubTab: string = 'interest';
 
   // RIASEC & AI unified state
   riasecTest: any = null;
@@ -392,6 +408,9 @@ export class HomePage {
           color: 'success'
         });
         await toast.present();
+        if (this.talentSubTab === 'interest') {
+          this.talentSubTab = 'test';
+        }
         this.loadDashboardData();
       },
       error: async (err: any) => {
