@@ -8,6 +8,7 @@ use App\Models\Teacher;
 use App\Models\Classroom;
 use App\Models\Student;
 use App\Models\User;
+use App\Models\InstitutionAnnouncement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -140,6 +141,101 @@ class InstitutionApiController extends Controller
         return response()->json([
             'success' => true,
             'classrooms' => $classrooms
+        ]);
+    }
+
+    /**
+     * Get institution announcements list for institution manager.
+     */
+    public function getAnnouncements(Request $request)
+    {
+        $user = $request->user();
+        $institution = Institution::where('user_id', $user->id)->first();
+
+        if (!$institution) {
+            return response()->json(['success' => false, 'message' => 'Institution profile not found'], 404);
+        }
+
+        $announcements = InstitutionAnnouncement::where('institution_id', $institution->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $announcements
+        ]);
+    }
+
+    /**
+     * Store new announcement via API.
+     */
+    public function storeAnnouncement(Request $request)
+    {
+        $user = $request->user();
+        $institution = Institution::where('user_id', $user->id)->first();
+
+        if (!$institution) {
+            return response()->json(['success' => false, 'message' => 'Institution profile not found'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'category' => 'required|in:pengumuman,beasiswa,pelatihan,lomba,kegiatan',
+            'target_talent' => 'nullable|string|max:100',
+            'content' => 'required|string',
+            'external_link' => 'nullable|url',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $announcement = InstitutionAnnouncement::create([
+            'institution_id' => $institution->id,
+            'title' => $request->title,
+            'category' => $request->category,
+            'target_talent' => $request->target_talent ?? 'Semua',
+            'content' => $request->content,
+            'external_link' => $request->external_link,
+            'is_published' => $request->has('is_published') ? (bool)$request->is_published : true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Announcement created successfully',
+            'data' => $announcement
+        ], 201);
+    }
+
+    /**
+     * Delete announcement via API.
+     */
+    public function deleteAnnouncement(Request $request, $id)
+    {
+        $user = $request->user();
+        $institution = Institution::where('user_id', $user->id)->first();
+
+        if (!$institution) {
+            return response()->json(['success' => false, 'message' => 'Institution profile not found'], 404);
+        }
+
+        $announcement = InstitutionAnnouncement::where('id', $id)
+            ->where('institution_id', $institution->id)
+            ->first();
+
+        if (!$announcement) {
+            return response()->json(['success' => false, 'message' => 'Announcement not found'], 404);
+        }
+
+        $announcement->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Announcement deleted successfully'
         ]);
     }
 }

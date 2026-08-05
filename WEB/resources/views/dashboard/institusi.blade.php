@@ -86,6 +86,17 @@
                     <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Daftarkan guru pembimbing baru, edit data guru, atau hapus akses guru.</p>
                 </div>
             </a>
+
+            <!-- Card Papan Informasi -->
+            <a href="/institution/announcements" style="text-decoration: none; color: inherit; display: block;">
+                <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 24px; border-radius: var(--radius-md); transition: all 0.2s ease;" class="hover-scale-subtle">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background-color: #FCE7F3; color: #9D174D; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 16px;">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <h4 style="font-weight: 700; margin-bottom: 6px; font-size: 1rem; color: var(--text-dark);">Papan Informasi & Pengumuman</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Publikasikan info beasiswa, event, pelatihan bakat, dan pengumuman untuk siswa.</p>
+                </div>
+            </a>
         </div>
     </div>
 @endif

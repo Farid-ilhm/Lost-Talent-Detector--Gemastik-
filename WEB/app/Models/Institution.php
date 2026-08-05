@@ -60,4 +60,9 @@ class Institution extends Model
     {
         return $this->hasMany(Student::class);
     }
+
+    public function announcements()
+    {
+        return $this->hasMany(InstitutionAnnouncement::class);
+    }
 }

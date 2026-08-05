@@ -14,6 +14,7 @@ use App\Models\InterestTestResult;
 use App\Models\AiAnalysis;
 use App\Models\Classroom;
 use App\Models\User;
+use App\Models\InstitutionAnnouncement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -1202,5 +1203,120 @@ class DashboardController extends Controller
         }
 
         return response()->json(['status' => 'success']);
+    }
+
+    /**
+     * View Institution Announcements page.
+     */
+    public function institutionAnnouncementsView()
+    {
+        $user = Auth::user();
+        $institution = Institution::where('user_id', $user->id)->firstOrFail();
+        $announcements = InstitutionAnnouncement::where('institution_id', $institution->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('dashboard.institusi_announcements', compact('institution', 'announcements'));
+    }
+
+    /**
+     * Save new Institution Announcement.
+     */
+    public function institutionSaveAnnouncement(Request $request)
+    {
+        $user = Auth::user();
+        $institution = Institution::where('user_id', $user->id)->firstOrFail();
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|in:pengumuman,beasiswa,pelatihan,lomba,kegiatan',
+            'target_talent' => 'nullable|string|max:100',
+            'content' => 'required|string',
+            'external_link' => 'nullable|url',
+            'banner_image' => 'nullable|image|max:2048',
+        ]);
+
+        $bannerPath = null;
+        if ($request->hasFile('banner_image')) {
+            $bannerPath = $request->file('banner_image')->store('announcements', 'public');
+        }
+
+        InstitutionAnnouncement::create([
+            'institution_id' => $institution->id,
+            'title' => $request->title,
+            'category' => $request->category,
+            'target_talent' => $request->target_talent ?? 'Semua',
+            'content' => $request->content,
+            'banner_image' => $bannerPath,
+            'external_link' => $request->external_link,
+            'is_published' => $request->has('is_published') ? (bool)$request->is_published : true,
+        ]);
+
+        return redirect('/institution/announcements')->with('success', 'Informasi/Pengumuman berhasil dipublikasikan.');
+    }
+
+    /**
+     * Show edit page for an announcement.
+     */
+    public function institutionEditAnnouncement($id)
+    {
+        $user = Auth::user();
+        $institution = Institution::where('user_id', $user->id)->firstOrFail();
+        $announcement = InstitutionAnnouncement::where('id', $id)
+            ->where('institution_id', $institution->id)
+            ->firstOrFail();
+
+        return view('dashboard.institusi_edit_announcement', compact('announcement'));
+    }
+
+    /**
+     * Update an announcement.
+     */
+    public function institutionUpdateAnnouncement(Request $request, $id)
+    {
+        $user = Auth::user();
+        $institution = Institution::where('user_id', $user->id)->firstOrFail();
+        $announcement = InstitutionAnnouncement::where('id', $id)
+            ->where('institution_id', $institution->id)
+            ->firstOrFail();
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|in:pengumuman,beasiswa,pelatihan,lomba,kegiatan',
+            'target_talent' => 'nullable|string|max:100',
+            'content' => 'required|string',
+            'external_link' => 'nullable|url',
+            'banner_image' => 'nullable|image|max:2048',
+        ]);
+
+        if ($request->hasFile('banner_image')) {
+            $announcement->banner_image = $request->file('banner_image')->store('announcements', 'public');
+        }
+
+        $announcement->title = $request->title;
+        $announcement->category = $request->category;
+        $announcement->target_talent = $request->target_talent ?? 'Semua';
+        $announcement->content = $request->content;
+        $announcement->external_link = $request->external_link;
+        $announcement->is_published = $request->has('is_published') ? (bool)$request->is_published : true;
+        $announcement->save();
+
+        return redirect('/institution/announcements')->with('success', 'Informasi/Pengumuman berhasil diperbarui.');
+    }
+
+    /**
+     * Delete an announcement.
+     */
+    public function institutionDeleteAnnouncement($id)
+    {
+        $user = Auth::user();
+        $institution = Institution::where('user_id', $user->id)->firstOrFail();
+        $announcement = InstitutionAnnouncement::where('id', $id)
+            ->where('institution_id', $institution->id)
+            ->firstOrFail();
+
+        $announcement->delete();
+
+        return redirect('/institution/announcements')->with('success', 'Informasi/Pengumuman berhasil dihapus.');
     }
 }

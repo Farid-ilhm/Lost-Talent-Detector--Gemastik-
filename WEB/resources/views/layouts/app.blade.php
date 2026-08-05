@@ -45,6 +45,9 @@
                         <a href="/institution/teachers" class="nav-item {{ Request::is('institution/teachers*') ? 'active' : '' }}" title="Kelola Guru Pendamping">
                             <i class="fa-solid fa-chalkboard-user"></i>
                         </a>
+                        <a href="/institution/announcements" class="nav-item {{ Request::is('institution/announcements*') ? 'active' : '' }}" title="Papan Informasi & Pengumuman Komunitas">
+                            <i class="fa-solid fa-bullhorn"></i>
+                        </a>
                     @elseif(Auth::check() && Auth::user()->role === 'guru')
                         <a href="/dashboard" class="nav-item {{ Request::is('dashboard') ? 'active' : '' }}" title="Dashboard Utama">
                             <i class="fa-solid fa-border-all"></i>

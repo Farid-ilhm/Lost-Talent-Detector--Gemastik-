@@ -20,6 +20,11 @@ export class HomePage {
   isLoadingDashboard: boolean = false;
   dashboardError: string | null = null;
 
+  // Announcements state
+  announcements: any[] = [];
+  announcementFilter: string = 'semua';
+  isLoadingAnnouncements: boolean = false;
+
   // Selection states for bulk deletion
   isSelectingGrades: boolean = false;
   selectedGrades: Set<number> = new Set<number>();
@@ -103,6 +108,9 @@ export class HomePage {
     if (tabName === 'talent' && !this.riasecTest) {
       this.loadRiasecTest();
     }
+    if (tabName === 'info' && this.announcements.length === 0) {
+      this.loadAnnouncements();
+    }
   }
 
   loadTeacherData() {
@@ -157,6 +165,7 @@ export class HomePage {
             this.profileData.hobbies = this.student.hobbies ? this.student.hobbies.join(', ') : '';
             this.profileData.interests = this.student.interests ? this.student.interests.join(', ') : '';
           }
+          this.loadAnnouncements();
         } else {
           this.dashboardError = res.message || 'Gagal memuat data dashboard.';
         }
@@ -188,6 +197,31 @@ export class HomePage {
         }
       }
     });
+  }
+
+  loadAnnouncements() {
+    this.isLoadingAnnouncements = true;
+    this.apiService.getAnnouncements().subscribe({
+      next: (res: any) => {
+        this.isLoadingAnnouncements = false;
+        if (res.success) {
+          this.announcements = res.data || [];
+        }
+      },
+      error: () => {
+        this.isLoadingAnnouncements = false;
+      }
+    });
+  }
+
+  getFilteredAnnouncements() {
+    if (this.announcementFilter === 'semua') {
+      return this.announcements;
+    }
+    if (this.announcementFilter === 'rekomendasi') {
+      return this.announcements.filter(a => a.is_recommended);
+    }
+    return this.announcements.filter(a => a.category === this.announcementFilter);
   }
 
   isRiasecFormValid(): boolean {

@@ -10,6 +10,7 @@ use App\Models\InterestTestAnswer;
 use App\Models\InterestTestResult;
 use App\Models\AiAnalysis;
 use App\Models\AcademicGrade;
+use App\Models\InstitutionAnnouncement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -1263,6 +1264,55 @@ class StudentApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Sertifikat yang dipilih berhasil dihapus.'
+        ]);
+    }
+
+    /**
+     * Get Institution Announcements for Student Feed (with talent recommendation matching).
+     */
+    public function getAnnouncements(Request $request)
+    {
+        $user = $request->user();
+        $student = Student::where('user_id', $user->id)->first();
+
+        $query = InstitutionAnnouncement::with('institution.user')
+            ->where('is_published', true);
+
+        if ($student && $student->institution_id) {
+            $query->where('institution_id', $student->institution_id);
+        }
+
+        $announcements = $query->orderBy('created_at', 'desc')->get();
+
+        // Get student's AI analysis / talent profile to determine recommendations
+        $aiAnalysis = $student ? AiAnalysis::where('student_id', $student->id)->latest()->first() : null;
+        $primaryTalent = null;
+        if ($aiAnalysis && !empty($aiAnalysis->kategori_bakat_utama)) {
+            $primaryTalent = strtolower($aiAnalysis->kategori_bakat_utama);
+        }
+
+        $formatted = $announcements->map(function ($item) use ($primaryTalent) {
+            $target = strtolower($item->target_talent ?? 'semua');
+            $isRecommended = ($target === 'semua') || ($primaryTalent && str_contains($primaryTalent, $target));
+
+            return [
+                'id' => $item->id,
+                'title' => $item->title,
+                'category' => $item->category,
+                'target_talent' => $item->target_talent ?? 'Semua',
+                'content' => $item->content,
+                'banner_image_url' => $item->banner_image ? asset('storage/' . $item->banner_image) : null,
+                'external_link' => $item->external_link,
+                'institution_name' => $item->institution ? $item->institution->name : 'Institusi',
+                'is_recommended' => $isRecommended,
+                'created_at' => $item->created_at->format('Y-m-d H:i:s'),
+                'created_at_formatted' => $item->created_at->isoFormat('D MMMM YYYY'),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $formatted
         ]);
     }
 }

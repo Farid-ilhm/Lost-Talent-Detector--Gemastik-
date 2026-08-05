@@ -105,4 +105,9 @@ export class ApiService {
     const headers = this.authService.getAuthHeaders();
     return this.http.post(`${this.apiUrl}/student/achievements/bulk-delete`, { ids, all }, { headers });
   }
+
+  getAnnouncements(): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get(`${this.apiUrl}/student/announcements`, { headers });
+  }
 }

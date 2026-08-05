@@ -57,6 +57,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/institution/teachers/{id}/update', [DashboardController::class, 'institutionUpdateTeacher']);
     Route::post('/institution/teachers/{id}/delete', [DashboardController::class, 'institutionDeleteTeacher']);
     Route::post('/institution/classrooms/{id}/delete', [DashboardController::class, 'institutionDeleteClassroom']);
+    
+    // Institution Announcements / Bulletin Board Routes
+    Route::get('/institution/announcements', [DashboardController::class, 'institutionAnnouncementsView']);
+    Route::post('/institution/announcements', [DashboardController::class, 'institutionSaveAnnouncement']);
+    Route::get('/institution/announcements/{id}/edit', [DashboardController::class, 'institutionEditAnnouncement']);
+    Route::post('/institution/announcements/{id}/update', [DashboardController::class, 'institutionUpdateAnnouncement']);
+    Route::post('/institution/announcements/{id}/delete', [DashboardController::class, 'institutionDeleteAnnouncement']);
 
     // Admin Actions
     Route::post('/admin/institutions/{id}/verify', [DashboardController::class, 'adminVerifyInstitution']);
