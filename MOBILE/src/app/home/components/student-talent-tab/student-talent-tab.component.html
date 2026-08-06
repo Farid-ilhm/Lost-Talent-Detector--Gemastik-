@@ -1,0 +1,198 @@
+<!-- TAB 5: TES RIASEC & AI ENGINE -->
+<div *ngIf="selectedTab === 'talent'">
+  <div
+    style="display: flex; gap: 6px; margin-bottom: 14px; background: #FFFFFF; padding: 4px; border-radius: 16px; border: 1px solid #E8E5DC;">
+    <button (click)="setTalentSubTab('interest')"
+      [style.background]="talentSubTab === 'interest' ? '#1C1917' : 'transparent'"
+      [style.color]="talentSubTab === 'interest' ? '#FFFFFF' : '#78716C'"
+      style="flex: 1; border: none; padding: 10px 4px; border-radius: 12px; font-weight: 800; font-size: 0.8rem; white-space: nowrap;">
+      Minat & Hobi
+    </button>
+    <button (click)="setTalentSubTab('test')"
+      [style.background]="talentSubTab === 'test' ? '#1C1917' : 'transparent'"
+      [style.color]="talentSubTab === 'test' ? '#FFFFFF' : '#78716C'"
+      style="flex: 1; border: none; padding: 10px 4px; border-radius: 12px; font-weight: 800; font-size: 0.8rem; white-space: nowrap;">
+      Tes RIASEC
+    </button>
+    <button (click)="setTalentSubTab('ai')" [style.background]="talentSubTab === 'ai' ? '#1C1917' : 'transparent'"
+      [style.color]="talentSubTab === 'ai' ? '#FFFFFF' : '#78716C'"
+      style="flex: 1; border: none; padding: 10px 4px; border-radius: 12px; font-weight: 800; font-size: 0.8rem; white-space: nowrap;">
+      Laporan AI
+    </button>
+  </div>
+
+  <!-- SUB-TAB 1: INPUT HOBI & MINAT -->
+  <div *ngIf="talentSubTab === 'interest'">
+    <ion-card class="card-sand" style="margin: 0; border-radius: 20px; border: 1px solid #E8E5DC;">
+      <ion-card-header style="padding: 14px 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <ion-card-title style="font-size: 1.05rem; font-weight: 800; color: #1C1917;">
+            <i class="fa-solid" style="color: #EC4899; margin-right: 6px;"></i> Hobi & Minat Siswa
+          </ion-card-title>
+          <span *ngIf="profileData.hobbies || profileData.interests" style="background: #DCFCE7; color: #166534; font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 999px;">
+            ✓ Terisi
+          </span>
+        </div>
+      </ion-card-header>
+      <ion-card-content style="padding: 0 16px 16px 16px;">
+        <p style="font-size: 0.8rem; color: #78716C; margin: 0 0 14px 0;">
+          Isi hobi & minat Anda terlebih dahulu sebelum menjawab kuesioner RIASEC untuk hasil analisis AI yang maksimal.
+        </p>
+
+        <form (ngSubmit)="onUpdateProfile()">
+          <ion-item style="--border-radius: 12px; margin-bottom: 10px;">
+            <ion-label position="stacked" style="font-weight: 700;">Hobi (Pisahkan dengan koma):</ion-label>
+            <ion-input type="text" name="hobbies" [(ngModel)]="profileData.hobbies" required placeholder="contoh: Coding, Design, Fotografi"></ion-input>
+          </ion-item>
+
+          <ion-item style="--border-radius: 12px; margin-bottom: 14px;">
+            <ion-label position="stacked" style="font-weight: 700;">Minat (Pisahkan dengan koma):</ion-label>
+            <ion-input type="text" name="interests" [(ngModel)]="profileData.interests" required placeholder="contoh: Artificial Intelligence, Web Development"></ion-input>
+          </ion-item>
+
+          <ion-button expand="block" color="secondary" type="submit" style="font-weight: 800; --border-radius: 14px; height: 46px;">
+            <i class="fa-solid fa-floppy-disk" style="margin-right: 6px;"></i> Simpan & Lanjut ke RIASEC
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- SUB-TAB 2: KUESIONER MINAT RIASEC -->
+  <div *ngIf="talentSubTab === 'test'">
+    <ion-card class="card-lavender" style="margin: 0; border-radius: 20px;">
+      <ion-card-header style="padding: 14px 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <ion-card-title style="font-size: 1.05rem; font-weight: 800;">
+            <i class="fa-solid fa-clipboard-question" style="color: #4F46E5; margin-right: 6px;"></i> Kuesioner Minat RIASEC
+          </ion-card-title>
+          <ion-button *ngIf="riasecTest" size="small" color="danger" fill="outline" (click)="onResetRiasecTest()"
+            style="--border-radius: 12px; font-weight: 800;">
+            <i class="fa-solid fa-rotate-left" style="margin-right: 4px;"></i> Reset Tes
+          </ion-button>
+        </div>
+      </ion-card-header>
+      <ion-card-content style="padding: 0 16px 14px 16px;">
+        <div *ngIf="riasecTest">
+          <form (ngSubmit)="onSubmitRiasecTest()">
+            <div *ngFor="let q of riasecTest.questions" class="ion-margin-bottom"
+              style="background: #FFFFFF; padding: 14px; border-radius: 14px; border: 1px solid #E8E5DC;">
+              <p style="font-size: 0.88rem; font-weight: 800; color: #1C1917; margin-bottom: 10px;">{{ q.question_text }}</p>
+              <ion-radio-group [(ngModel)]="riasecAnswers[q.id]" [name]="'q_' + q.id" required>
+                <ion-row class="ion-align-items-center ion-text-center">
+                  <ion-col size="2.4" *ngFor="let val of [1, 2, 3, 4, 5]">
+                    <span style="font-size: 0.75rem; font-weight: 700; color: #78716C; display: block; margin-bottom: 2px;">{{ val }}</span>
+                    <ion-radio [value]="val.toString()"></ion-radio>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </div>
+
+            <ion-button expand="block" color="primary" type="submit" [disabled]="!isRiasecFormValid()"
+              class="ion-margin-top">
+              Kirim Jawaban RIASEC
+            </ion-button>
+          </form>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- SUB-TAB 3: LAPORAN AI -->
+  <div *ngIf="talentSubTab === 'ai'">
+    <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+      <ion-button expand="block" color="primary" (click)="onRunAiAnalysis()" [disabled]="isAnalyzingAi"
+        style="flex: 2; margin: 0;">
+        {{ isAnalyzingAi ? 'Proses AI...' : 'Perbarui Analisis AI' }}
+      </ion-button>
+      <ion-button *ngIf="aiAnalysis" expand="block" color="danger" fill="outline" (click)="onResetAiAnalysis()"
+        style="flex: 1; margin: 0; font-weight: 800; --border-radius: 14px;">
+        <i class="fa-solid fa-trash-can" style="margin-right: 4px;"></i> Reset AI
+      </ion-button>
+    </div>
+
+    <div *ngIf="aiAnalysis">
+      <!-- Bakat Utama -->
+      <ion-card class="card-mint" style="margin-bottom: 12px;">
+        <ion-card-header style="padding: 14px 16px;">
+          <ion-card-subtitle>Bakat Utama</ion-card-subtitle>
+          <ion-card-title style="font-size: 1.4rem; font-weight: 800;">{{ aiAnalysis.primary_talent }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content style="padding: 0 16px 14px 16px;">
+          <div class="badge-pill"
+            style="background: #FFFFFF; font-weight: 700; color: #065F46; display: inline-block;">
+            Keyakinan AI: {{ aiAnalysis.confidence_score }}%
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Bakat Pendukung -->
+      <ion-card style="margin-bottom: 12px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+        <ion-card-header style="padding: 14px 16px;">
+          <ion-card-title style="font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-star"
+              style="color: #F59E0B; margin-right: 6px;"></i>Bakat Pendukung</ion-card-title>
+        </ion-card-header>
+        <ion-card-content style="padding: 0 16px 14px 16px;">
+          <ion-list lines="full">
+            <ion-item *ngFor="let st of aiAnalysis.supporting_talents"
+              style="--padding-start: 16px; --inner-padding-end: 16px; font-size: 0.9rem;">
+              <ion-label style="font-weight: 700; color: #1C1917;">{{ st.talent }}</ion-label>
+              <span slot="end" style="font-size: 0.85rem; font-weight: 600; color: #78716C;">{{ st.confidence }}%</span>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Rekomendasi Karir -->
+      <ion-card style="margin-bottom: 12px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+        <ion-card-header style="padding: 14px 16px;">
+          <ion-card-title style="font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-briefcase"
+              style="color: #3B82F6; margin-right: 6px;"></i>Rekomendasi Karir</ion-card-title>
+        </ion-card-header>
+        <ion-card-content style="padding: 0 16px 14px 16px;">
+          <ul style="padding-left: 20px; color: #1C1917; line-height: 1.6; margin: 8px 0 0 0; font-size: 0.9rem;">
+            <li *ngFor="let career of aiAnalysis.career_recommendations"
+              style="margin-bottom: 6px; font-weight: 600;">
+              {{ career }}
+            </li>
+          </ul>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Rekomendasi Lomba -->
+      <ion-card style="margin-bottom: 12px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+        <ion-card-header style="padding: 14px 16px;">
+          <ion-card-title style="font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-trophy"
+              style="color: #10B981; margin-right: 6px;"></i>Rekomendasi Lomba</ion-card-title>
+        </ion-card-header>
+        <ion-card-content style="padding: 0 16px 14px 16px;">
+          <ul style="padding-left: 20px; color: #1C1917; line-height: 1.6; margin: 8px 0 0 0; font-size: 0.9rem;">
+            <li *ngFor="let comp of aiAnalysis.competition_recommendations"
+              style="margin-bottom: 6px; font-weight: 600;">
+              {{ comp }}
+            </li>
+          </ul>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Penjelasan Analisis (XAI) -->
+      <ion-card style="margin-bottom: 12px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+        <ion-card-header style="padding: 14px 16px;">
+          <ion-card-title style="font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-circle-info"
+              style="color: #6366F1; margin-right: 6px;"></i>Penjelasan Analisis (XAI)</ion-card-title>
+        </ion-card-header>
+        <ion-card-content style="padding: 0 16px 14px 16px;">
+          <ul style="padding-left: 20px; color: #1C1917; line-height: 1.6; margin: 8px 0 0 0; font-size: 0.88rem;">
+            <li *ngFor="let reason of aiAnalysis.reasoning" style="margin-bottom: 6px; font-weight: 500;">
+              {{ reason }}
+            </li>
+          </ul>
+        </ion-card-content>
+      </ion-card>
+
+      <div style="margin-top: 12px; font-size: 0.75rem; color: #78716C; text-align: right; padding-right: 8px; margin-bottom: 20px;">
+        Ver. Model: {{ aiAnalysis.model_version }} | Waktu Analisis: {{ aiAnalysis.analyzed_at }}
+      </div>
+    </div>
+  </div>
+</div>

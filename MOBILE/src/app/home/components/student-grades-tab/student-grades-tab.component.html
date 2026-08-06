@@ -1,0 +1,126 @@
+<!-- TAB 3: NILAI RAPOR -->
+<div *ngIf="selectedTab === 'grades'">
+  <ion-card style="margin-bottom: 12px;">
+    <ion-card-header style="padding: 14px 16px;">
+      <ion-card-title style="font-size: 1.1rem;">Nilai Akademik</ion-card-title>
+    </ion-card-header>
+    <ion-card-content style="padding: 0 16px 14px 16px;">
+      <!-- Tombol untuk membuka Modal List Nilai -->
+      <ion-button expand="block" color="secondary" id="open-grades-modal"
+        style="font-weight: 800; margin-bottom: 5px; --border-radius: 16px; height: 50px;">
+        <ion-icon name="school-outline" style="margin-right: 8px; font-size: 1.3rem;"></ion-icon>
+        Lihat Nilai ({{ grades.length }} Terdaftar)
+      </ion-button>
+
+      <!-- Modal List Nilai -->
+      <ion-modal #gradeModal trigger="open-grades-modal" [initialBreakpoint]="0.85"
+        [breakpoints]="[0, 0.5, 0.85, 1]">
+        <ng-template>
+          <ion-header>
+            <ion-toolbar style="--background: #FFFFFF;">
+              <ion-title style="font-weight: 800; color: #1C1917; font-size: 1.1rem;">Daftar Nilai</ion-title>
+              <ion-buttons slot="end">
+                <ion-button (click)="gradeModal.dismiss()" color="medium"
+                  style="font-weight: 800; font-size: 0.9rem;">Tutup</ion-button>
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content class="ion-padding" style="--background: #FAFAF9;">
+            <!-- Bulk Actions Bar for Grades -->
+            <div *ngIf="grades.length > 0"
+              style="display: flex; gap: 8px; margin-bottom: 12px; justify-content: flex-end; align-items: center; width: 100%;">
+              <ion-button size="small" fill="outline" color="primary" (click)="toggleGradeSelectionMode()"
+                style="font-weight: 700; margin: 0;">
+                {{ isSelectingGrades ? 'Selesai' : 'Pilih Beberapa' }}
+              </ion-button>
+              <ion-button *ngIf="isSelectingGrades" size="small" fill="solid" color="danger"
+                (click)="onDeleteSelectedGrades()" [disabled]="selectedGrades.size === 0"
+                style="font-weight: 700; margin: 0;">
+                Hapus Terpilih ({{ selectedGrades.size }})
+              </ion-button>
+              <ion-button *ngIf="!isSelectingGrades && !student?.institution_id" size="small" fill="solid"
+                color="danger" (click)="onDeleteAllGrades()" style="font-weight: 700; margin: 0;">
+                Hapus Semua
+              </ion-button>
+            </div>
+
+            <div *ngIf="grades.length === 0" class="ion-text-center ion-padding">
+              <p style="color: #78716C;">Belum ada nilai akademik terdaftar.</p>
+            </div>
+            <ion-list *ngIf="grades.length > 0" lines="full" style="background: transparent;">
+              <ion-item *ngFor="let grade of grades"
+                style="--border-radius: 12px; margin-bottom: 8px; --background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <ion-checkbox slot="start" *ngIf="isSelectingGrades" [checked]="selectedGrades.has(grade.id)"
+                  (ionChange)="toggleSelectGrade(grade.id)" style="margin-right: 8px;"></ion-checkbox>
+                <ion-label style="margin: 8px 0;">
+                  <h3 style="font-weight: 800; color: #1C1917;">
+                    <span *ngIf="userRole !== 'umum'">Sem {{ grade.semester }} • </span>{{ grade.subject_name }}
+                  </h3>
+                </ion-label>
+                <div slot="end" style="display: flex; align-items: center; gap: 8px;">
+                  <div style="font-size: 1.2rem; font-weight: 800; color: #1C1917;">
+                    {{ grade.score }}
+                  </div>
+                  <ion-button *ngIf="!student?.institution_id && !isSelectingGrades"
+                    (click)="onDeleteGrade(grade.id)" fill="clear" color="danger"
+                    style="--padding-start: 4px; --padding-end: 4px; margin: 0; height: 32px;">
+                    <ion-icon name="trash-outline" style="font-size: 1.3rem; color: #DC2626;"></ion-icon>
+                  </ion-button>
+                </div>
+              </ion-item>
+            </ion-list>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Form Input Nilai Mandiri (Hanya untuk Siswa Mandiri/Umum) -->
+  <ion-card *ngIf="!student?.institution_id"
+    style="border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+    <ion-card-header style="padding: 14px 16px;">
+      <ion-card-title style="font-size: 1.1rem;">Input Nilai Akademik Mandiri</ion-card-title>
+    </ion-card-header>
+    <ion-card-content style="padding: 0 16px 14px 16px;">
+      <form (ngSubmit)="onSubmitIndependentGrade()">
+        <ion-item *ngIf="userRole !== 'umum'" style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">Semester</ion-label>
+          <ion-select name="grade_semester" [(ngModel)]="newGrade.semester" required>
+            <ion-select-option *ngFor="let sem of [1,2,3,4,5,6,7,8,9,10,11,12,13,14]" [value]="sem">
+              Semester {{ sem }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">Nama Mapel / Mata Kuliah</ion-label>
+          <ion-input type="text" name="grade_subject" [(ngModel)]="newGrade.subject_name" required
+            placeholder="Contoh: Matematika, Algoritma"></ion-input>
+        </ion-item>
+        <ion-item style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">Nilai (0 - 100)</ion-label>
+          <ion-input type="number" name="grade_score" min="0" max="100" step="0.01" [(ngModel)]="newGrade.score"
+            required placeholder="85.50"></ion-input>
+        </ion-item>
+        <ion-button expand="block" color="primary" class="ion-margin-top" type="submit"
+          style="font-weight: 800; height: 50px; --border-radius: 16px;">
+          <i class="fa-solid fa-plus" style="margin-right: 8px;"></i> Simpan Nilai Mandiri
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Keterangan Nilai Institusi (Hanya untuk Siswa/Mahasiswa yang terhubung institusi) -->
+  <ion-card *ngIf="student?.institution_id"
+    style="border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background-color: #FEF3C7; border: 1px solid #FDE68A;">
+    <ion-card-content style="padding: 16px; display: flex; align-items: flex-start; gap: 12px;">
+      <ion-icon name="information-circle"
+        style="font-size: 1.6rem; color: #D97706; flex-shrink: 0; margin-top: 2px;"></ion-icon>
+      <div>
+        <h3 style="font-weight: 800; color: #92400E; margin: 0 0 4px 0; font-size: 0.95rem;">Informasi Nilai Akademik</h3>
+        <p style="color: #B45309; font-size: 0.82rem; margin: 0; line-height: 1.45;">
+          Akun Anda terhubung dengan institusi <strong>{{ student?.institution?.name || 'Sekolah/Kampus' }}</strong>. Penginputan dan pengelolaan nilai akademik dikelola langsung oleh <strong>Guru Pembimbing atau Dosen</strong> Anda.
+        </p>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</div>

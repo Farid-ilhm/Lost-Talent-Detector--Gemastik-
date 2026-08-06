@@ -7,7 +7,7 @@
         <p style="color: var(--text-muted); font-size: 0.9rem;">Perbarui master data perlombaan & kompetisi nasional.</p>
     </div>
 
-    <form action="/admin/competitions/{{ $competition->id }}/update" method="POST">
+    <form action="/admin/competitions/{{ $competition->id }}/update" method="POST" enctype="multipart/form-data">
         @csrf
         <div style="margin-bottom: 16px;">
             <label for="title" class="form-label">Judul Kompetisi:</label>
@@ -20,6 +20,7 @@
                 <option value="teknologi" {{ old('category', $competition->category) == 'teknologi' ? 'selected' : '' }}>Teknologi / IT</option>
                 <option value="sains" {{ old('category', $competition->category) == 'sains' ? 'selected' : '' }}>Sains / MIPA</option>
                 <option value="seni" {{ old('category', $competition->category) == 'seni' ? 'selected' : '' }}>Seni / Budaya</option>
+                <option value="bisnis" {{ old('category', $competition->category) == 'bisnis' ? 'selected' : '' }}>Bisnis / Kewirausahaan</option>
                 <option value="olahraga" {{ old('category', $competition->category) == 'olahraga' ? 'selected' : '' }}>Olahraga</option>
                 <option value="lainnya" {{ old('category', $competition->category) == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
             </select>
@@ -33,6 +34,21 @@
         <div style="margin-bottom: 16px;">
             <label for="registration_deadline" class="form-label">Batas Pendaftaran:</label>
             <input type="date" id="registration_deadline" name="registration_deadline" class="form-control" value="{{ old('registration_deadline', $competition->registration_deadline ? $competition->registration_deadline->format('Y-m-d') : '') }}">
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="link" class="form-label">Tautan Eksternal / Form Pendaftaran (Opsional):</label>
+            <input type="url" id="link" name="link" class="form-control" value="{{ old('link', $competition->link) }}" placeholder="https://contoh-link-lomba.com">
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="poster" class="form-label">Upload Gambar Poster Banner (Opsional):</label>
+            <input type="file" id="poster" name="poster" class="form-control" accept="image/*">
+            @if($competition->poster_path)
+                <div style="margin-top: 8px;">
+                    <img src="{{ asset('storage/' . $competition->poster_path) }}" alt="Poster {{ $competition->title }}" style="width: 100px; height: 60px; object-fit: cover; border-radius: 8px;">
+                </div>
+            @endif
         </div>
 
         <div style="margin-bottom: 24px;">

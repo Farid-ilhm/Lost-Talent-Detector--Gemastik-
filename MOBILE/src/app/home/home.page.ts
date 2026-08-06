@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
 import { AlertController, ToastController } from '@ionic/angular';
@@ -45,6 +46,18 @@ export class HomePage {
   openTabFromSidebar(tabName: string) {
     this.selectTab(tabName);
     this.closeSidebar();
+  }
+
+  getTabTitle(): string {
+    switch (this.selectedTab) {
+      case 'home': return 'Beranda';
+      case 'profile': return 'Profil Pengguna';
+      case 'info': return 'Papan Informasi';
+      case 'grades': return 'Nilai Akademik';
+      case 'achievements': return 'Sertifikat Prestasi';
+      case 'talent': return 'Tes & Analisis AI';
+      default: return 'Beranda';
+    }
   }
 
   // Active tab state for mobile navigation
@@ -94,6 +107,8 @@ export class HomePage {
     private authService: AuthService,
     private apiService: ApiService,
     private router: Router,
+    private route: ActivatedRoute,
+    private location: Location,
     private alertController: AlertController,
     private toastController: ToastController
   ) {}
@@ -106,12 +121,20 @@ export class HomePage {
     this.userRole = this.authService.getUserRole();
     this.userName = this.authService.getUserName();
 
+    // Sync active tab from query param if available
+    const urlTab = this.route.snapshot.queryParamMap.get('tab');
+    if (urlTab && ['home', 'profile', 'info', 'grades', 'achievements', 'talent'].includes(urlTab)) {
+      this.selectedTab = urlTab;
+    }
+
     if (this.isStudentRole()) {
       this.loadDashboardData();
     } else if (this.userRole === 'guru') {
       this.loadTeacherData();
+      this.loadAnnouncements();
     } else if (this.userRole === 'institusi') {
       this.loadInstitutionData();
+      this.loadAnnouncements();
     }
   }
 
@@ -121,6 +144,8 @@ export class HomePage {
 
   selectTab(tabName: string) {
     this.selectedTab = tabName;
+    this.location.go(`/home?tab=${tabName}`);
+
     if (tabName === 'talent' && !this.riasecTest) {
       this.loadRiasecTest();
     }
@@ -221,7 +246,7 @@ export class HomePage {
       next: (res: any) => {
         this.isLoadingAnnouncements = false;
         if (res.success) {
-          this.announcements = res.data || [];
+          this.announcements = res.announcements || res.data || [];
         }
       },
       error: () => {
@@ -422,6 +447,10 @@ export class HomePage {
         await alert.present();
       }
     });
+  }
+
+  onFileSelected(event: any) {
+    this.onFileChange(event);
   }
 
   onFileChange(event: any) {

@@ -52,7 +52,7 @@
             <textarea id="content" name="content" class="form-control" rows="5" required>{{ old('content', $announcement->content) }}</textarea>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
             <div>
                 <label for="external_link" class="form-label">Link Luar / Form Pendaftaran (Opsional):</label>
                 <input type="url" id="external_link" name="external_link" class="form-control" value="{{ old('external_link', $announcement->external_link) }}">
@@ -64,13 +64,11 @@
                     <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 4px;">Banner saat ini tersimpan.</span>
                 @endif
             </div>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600;">
-                <input type="checkbox" name="is_published" value="1" {{ $announcement->is_published ? 'checked' : '' }} style="width: 18px; height: 18px; accent-color: var(--primary-color);">
-                Publikasikan Langsung ke Aplikasi Siswa
-            </label>
+            <div>
+                <label for="expired_at" class="form-label">Tanggal Kedaluwarsa (Auto-Hapus):</label>
+                <input type="date" id="expired_at" name="expired_at" class="form-control" value="{{ old('expired_at', $announcement->expired_at ? $announcement->expired_at->format('Y-m-d') : '') }}">
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Akan otomatis dihapus dari database & server saat tanggal ini lewat.</span>
+            </div>
         </div>
 
         <button type="submit" class="btn-primary-dark">

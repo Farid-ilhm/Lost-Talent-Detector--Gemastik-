@@ -567,14 +567,23 @@ class DashboardController extends Controller
             'category' => 'required',
             'organizer' => 'nullable|string',
             'registration_deadline' => 'nullable|date',
+            'link' => 'nullable|url',
+            'poster' => 'nullable|image|max:2048',
         ]);
+
+        $posterPath = null;
+        if ($request->hasFile('poster')) {
+            $posterPath = $request->file('poster')->store('competitions', 'public');
+        }
 
         \App\Models\Competition::create([
             'title' => $request->title,
             'category' => $request->category,
             'organizer' => $request->organizer,
             'registration_deadline' => $request->registration_deadline,
+            'link' => $request->link,
             'description' => $request->description,
+            'poster_path' => $posterPath,
             'is_active' => true,
         ]);
 
@@ -602,14 +611,23 @@ class DashboardController extends Controller
             'category' => 'required',
             'organizer' => 'nullable|string',
             'registration_deadline' => 'nullable|date',
+            'link' => 'nullable|url',
+            'poster' => 'nullable|image|max:2048',
         ]);
+
+        $posterPath = $competition->poster_path;
+        if ($request->hasFile('poster')) {
+            $posterPath = $request->file('poster')->store('competitions', 'public');
+        }
 
         $competition->update([
             'title' => $request->title,
             'category' => $request->category,
             'organizer' => $request->organizer,
             'registration_deadline' => $request->registration_deadline,
+            'link' => $request->link,
             'description' => $request->description,
+            'poster_path' => $posterPath,
         ]);
 
         return redirect('/admin/competitions')->with('success', 'Kompetisi berhasil diperbarui.');
@@ -956,6 +974,7 @@ class DashboardController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403);
         }
+        $this->purgeExpiredContent();
         $competitions = \App\Models\Competition::orderBy('created_at', 'desc')->get();
         return view('dashboard.admin_competitions', compact('competitions'));
     }
@@ -1206,10 +1225,44 @@ class DashboardController extends Controller
     }
 
     /**
+     * Cleanup expired announcements & master competitions from DB and storage.
+     */
+    private function purgeExpiredContent()
+    {
+        $today = \Carbon\Carbon::today();
+
+        // 1. Purge expired Institution Announcements
+        $expiredAnnouncements = InstitutionAnnouncement::whereNotNull('expired_at')
+            ->where('expired_at', '<', $today)
+            ->get();
+
+        foreach ($expiredAnnouncements as $ann) {
+            if ($ann->banner_image && \Illuminate\Support\Facades\Storage::disk('public')->exists($ann->banner_image)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($ann->banner_image);
+            }
+            $ann->delete();
+        }
+
+        // 2. Purge expired Master Competitions
+        $expiredCompetitions = \App\Models\Competition::whereNotNull('registration_deadline')
+            ->where('registration_deadline', '<', $today)
+            ->get();
+
+        foreach ($expiredCompetitions as $comp) {
+            if ($comp->poster_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($comp->poster_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($comp->poster_path);
+            }
+            $comp->delete();
+        }
+    }
+
+    /**
      * View Institution Announcements page.
      */
     public function institutionAnnouncementsView()
     {
+        $this->purgeExpiredContent();
+
         $user = Auth::user();
         $institution = Institution::where('user_id', $user->id)->firstOrFail();
         $announcements = InstitutionAnnouncement::where('institution_id', $institution->id)
@@ -1234,6 +1287,7 @@ class DashboardController extends Controller
             'content' => 'required|string',
             'external_link' => 'nullable|url',
             'banner_image' => 'nullable|image|max:2048',
+            'expired_at' => 'nullable|date|after_or_equal:today',
         ]);
 
         $bannerPath = null;
@@ -1249,7 +1303,8 @@ class DashboardController extends Controller
             'content' => $request->content,
             'banner_image' => $bannerPath,
             'external_link' => $request->external_link,
-            'is_published' => $request->has('is_published') ? (bool)$request->is_published : true,
+            'expired_at' => $request->expired_at,
+            'is_published' => true,
         ]);
 
         return redirect('/institution/announcements')->with('success', 'Informasi/Pengumuman berhasil dipublikasikan.');
@@ -1287,6 +1342,7 @@ class DashboardController extends Controller
             'content' => 'required|string',
             'external_link' => 'nullable|url',
             'banner_image' => 'nullable|image|max:2048',
+            'expired_at' => 'nullable|date',
         ]);
 
         if ($request->hasFile('banner_image')) {
@@ -1298,7 +1354,8 @@ class DashboardController extends Controller
         $announcement->target_talent = $request->target_talent ?? 'Semua';
         $announcement->content = $request->content;
         $announcement->external_link = $request->external_link;
-        $announcement->is_published = $request->has('is_published') ? (bool)$request->is_published : true;
+        $announcement->expired_at = $request->expired_at;
+        $announcement->is_published = true;
         $announcement->save();
 
         return redirect('/institution/announcements')->with('success', 'Informasi/Pengumuman berhasil diperbarui.');
@@ -1314,6 +1371,10 @@ class DashboardController extends Controller
         $announcement = InstitutionAnnouncement::where('id', $id)
             ->where('institution_id', $institution->id)
             ->firstOrFail();
+
+        if ($announcement->banner_image && \Illuminate\Support\Facades\Storage::disk('public')->exists($announcement->banner_image)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($announcement->banner_image);
+        }
 
         $announcement->delete();
 

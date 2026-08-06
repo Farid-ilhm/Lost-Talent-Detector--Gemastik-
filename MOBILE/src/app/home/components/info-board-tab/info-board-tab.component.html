@@ -1,0 +1,84 @@
+<!-- VIEW TAB PAPAN INFORMASI (SHARED FOR GURU, INSTITUSI & SISWA) -->
+<div *ngIf="selectedTab === 'info'">
+  <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2 style="font-size: 1.25rem; font-weight: 800; color: #1C1917; margin: 0;">Papan Informasi Institusi</h2>
+      <p style="font-size: 0.8rem; color: #78716C; margin: 2px 0 0 0;">Pengumuman, beasiswa, pelatihan & lomba terpercaya</p>
+    </div>
+    <button (click)="loadAnnouncements()" style="border: none; background: #EEF2FF; color: #4338CA; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer;">
+      <i class="fa-solid fa-rotate"></i>
+    </button>
+  </div>
+
+  <!-- Category Filter Chips -->
+  <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; scrollbar-width: none;">
+    <button (click)="filterCategory('semua')" [style.background]="announcementFilter === 'semua' ? '#1C1917' : '#F5F5F4'" [style.color]="announcementFilter === 'semua' ? '#FFFFFF' : '#44403C'" style="border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer;">
+      Semua
+    </button>
+    <button (click)="filterCategory('rekomendasi')" [style.background]="announcementFilter === 'rekomendasi' ? '#4F46E5' : '#EEF2FF'" [style.color]="announcementFilter === 'rekomendasi' ? '#FFFFFF' : '#4338CA'" style="border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer;">
+      ⭐ Rekomendasi Bakat
+    </button>
+    <button (click)="filterCategory('beasiswa')" [style.background]="announcementFilter === 'beasiswa' ? '#1C1917' : '#F5F5F4'" [style.color]="announcementFilter === 'beasiswa' ? '#FFFFFF' : '#44403C'" style="border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer;">
+      Beasiswa
+    </button>
+    <button (click)="filterCategory('pelatihan')" [style.background]="announcementFilter === 'pelatihan' ? '#1C1917' : '#F5F5F4'" [style.color]="announcementFilter === 'pelatihan' ? '#FFFFFF' : '#44403C'" style="border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer;">
+      Pelatihan
+    </button>
+    <button (click)="filterCategory('lomba')" [style.background]="announcementFilter === 'lomba' ? '#1C1917' : '#F5F5F4'" [style.color]="announcementFilter === 'lomba' ? '#FFFFFF' : '#44403C'" style="border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer;">
+      Lomba
+    </button>
+    <button (click)="filterCategory('pengumuman')" [style.background]="announcementFilter === 'pengumuman' ? '#1C1917' : '#F5F5F4'" [style.color]="announcementFilter === 'pengumuman' ? '#FFFFFF' : '#44403C'" style="border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer;">
+      Pengumuman
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoadingAnnouncements" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoadingAnnouncements && filteredAnnouncements.length === 0" class="ion-text-center ion-padding" style="background: #FFFFFF; border-radius: 20px; padding: 32px 16px; border: 1px dashed #E8E5DC;">
+    <i class="fa-solid fa-bullhorn" style="font-size: 2rem; color: #A8A29E; margin-bottom: 12px;"></i>
+    <h4 style="font-weight: 700; color: #44403C; margin: 0 0 4px 0;">Belum Ada Informasi</h4>
+    <p style="font-size: 0.82rem; color: #78716C; margin: 0;">Tidak ada informasi dalam kategori ini yang ditemukan saat ini.</p>
+  </div>
+
+  <!-- Feed List -->
+  <div *ngIf="!isLoadingAnnouncements && filteredAnnouncements.length > 0">
+    <ion-card *ngFor="let item of filteredAnnouncements" style="margin: 0 0 16px 0; border-radius: 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.04); overflow: hidden; border: 1px solid #F0EFEA;">
+      <!-- Banner Image if available -->
+      <div *ngIf="item.banner_image_url" style="width: 100%; height: 160px; overflow: hidden; background: #F5F5F4;">
+        <img [src]="item.banner_image_url" [alt]="item.title" style="width: 100%; height: 100%; object-fit: cover;">
+      </div>
+      
+      <ion-card-content style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span class="badge-pill" style="font-size: 0.72rem; text-transform: capitalize;">
+            {{ item.category }}
+          </span>
+          <span *ngIf="item.is_recommended" style="background: #EEF2FF; color: #4338CA; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-star"></i> Rekomendasi Bakat
+          </span>
+        </div>
+
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #1C1917; line-height: 1.35; margin: 0 0 8px 0;">
+          {{ item.title }}
+        </h3>
+
+        <p style="font-size: 0.85rem; color: #57534E; line-height: 1.5; margin: 0 0 12px 0; white-space: pre-line;">
+          {{ item.content }}
+        </p>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F5F5F4; padding-top: 10px; margin-top: 8px;">
+          <span style="font-size: 0.75rem; color: #78716C; font-weight: 600;">
+            <i class="fa-solid fa-building-columns"></i> {{ item.institution_name }} • {{ item.created_at_formatted }}
+          </span>
+          <a *ngIf="item.external_link" [href]="item.external_link" target="_blank" style="background: #1C1917; color: #FFFFFF; padding: 6px 12px; border-radius: 10px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+            Link <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
+          </a>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</div>

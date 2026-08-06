@@ -18,10 +18,12 @@ class InstitutionAnnouncement extends Model
         'banner_image',
         'external_link',
         'is_published',
+        'expired_at',
     ];
 
     protected $casts = [
         'is_published' => 'boolean',
+        'expired_at' => 'date',
     ];
 
     public function institution()

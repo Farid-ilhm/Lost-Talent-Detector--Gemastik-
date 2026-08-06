@@ -872,7 +872,11 @@ class StudentApiController extends Controller
         // Re-sort after domain affinity boost
         arsort($talentScores);
         $primary = key($talentScores);
-        $primaryVal = 99.0; // Scaled UI confidence
+        $topScore = current($talentScores);
+        
+        // Calculate dynamic primary confidence score (scaled between 85% and 98%)
+        $maxPossibleScore = 150; // Reference max score
+        $primaryVal = round(min(98.0, max(85.0, ($topScore / $maxPossibleScore) * 100)), 1);
         
         // Remove primary from array to extract top 3 supporting talents
         $tempScores = $talentScores;
@@ -880,14 +884,15 @@ class StudentApiController extends Controller
             unset($tempScores[$primary]);
         }
 
-        $topSuppScore = count($tempScores) > 0 ? reset($tempScores) : 1;
-        $basePercentages = [85.0, 75.0, 65.0];
         $supporting = [];
         $counter = 0;
         foreach ($tempScores as $talent => $score) {
             if ($counter >= 3) break;
-            $ratio = $score / max(1, $topSuppScore);
-            $calculatedConf = round(min(92.0, max(45.0, $basePercentages[$counter] * $ratio)), 1);
+            
+            // Calculate supporting talent percentage proportional to primary score (always smaller than primaryVal)
+            $ratio = $score / max(1, $topScore);
+            $calculatedConf = round(min($primaryVal - 3.0, max(45.0, $primaryVal * $ratio * 0.85)), 1);
+            
             $supporting[] = [
                 'talent' => $talent,
                 'confidence' => $calculatedConf
@@ -1268,7 +1273,7 @@ class StudentApiController extends Controller
     }
 
     /**
-     * Get Institution Announcements for Student Feed (with talent recommendation matching).
+     * Get Institution Announcements for Feed (with talent recommendation matching).
      */
     public function getAnnouncements(Request $request)
     {
@@ -1280,9 +1285,27 @@ class StudentApiController extends Controller
 
         if ($student && $student->institution_id) {
             $query->where('institution_id', $student->institution_id);
+        } else if ($user->role === 'institusi') {
+            $institution = \App\Models\Institution::where('user_id', $user->id)->first();
+            if ($institution) {
+                $query->where('institution_id', $institution->id);
+            }
+        } else if ($user->role === 'guru') {
+            $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
+            if ($teacher && $teacher->institution_id) {
+                $query->where('institution_id', $teacher->institution_id);
+            }
         }
 
         $announcements = $query->orderBy('created_at', 'desc')->get();
+
+        // If no filter matched or empty, return all published announcements so feed is never completely blank
+        if ($announcements->isEmpty()) {
+            $announcements = InstitutionAnnouncement::with('institution.user')
+                ->where('is_published', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
 
         // Get student's AI analysis / talent profile to determine recommendations
         $aiAnalysis = $student ? AiAnalysis::where('student_id', $student->id)->latest()->first() : null;
@@ -1308,11 +1331,32 @@ class StudentApiController extends Controller
                 'created_at' => $item->created_at->format('Y-m-d H:i:s'),
                 'created_at_formatted' => $item->created_at->isoFormat('D MMMM YYYY'),
             ];
-        });
+        })->toArray();
+
+        // Include Active Master Competitions posted by Super Admin into the feed
+        $masterCompetitions = \App\Models\Competition::where('is_active', true)->orderBy('created_at', 'desc')->get();
+        foreach ($masterCompetitions as $comp) {
+            $compCategory = strtolower($comp->category);
+            $isRecommended = ($primaryTalent && str_contains($primaryTalent, $compCategory));
+
+            $formatted[] = [
+                'id' => 'master_' . $comp->id,
+                'title' => '[Kompetisi Nasional] ' . $comp->title,
+                'category' => 'lomba',
+                'target_talent' => ucfirst($comp->category),
+                'content' => ($comp->description ?? 'Kompetisi Nasional resmi.') . ($comp->registration_deadline ? "\nBatas Pendaftaran: " . \Carbon\Carbon::parse($comp->registration_deadline)->isoFormat('D MMMM YYYY') : ''),
+                'banner_image_url' => $comp->poster_path ? asset('storage/' . $comp->poster_path) : null,
+                'external_link' => $comp->link,
+                'institution_name' => $comp->organizer ?? 'Pusat (Super Admin)',
+                'is_recommended' => $isRecommended,
+                'created_at' => $comp->created_at->format('Y-m-d H:i:s'),
+                'created_at_formatted' => $comp->created_at->isoFormat('D MMMM YYYY'),
+            ];
+        }
 
         return response()->json([
             'success' => true,
-            'data' => $formatted
+            'announcements' => $formatted
         ]);
     }
 }

@@ -1,0 +1,100 @@
+<!-- TAB BERANDA INSTITUSI -->
+<div *ngIf="selectedTab === 'home'">
+  <ion-card class="card-sand">
+    <ion-card-header style="padding: 16px;">
+      <div class="badge-pill" style="margin-bottom: 8px;">
+        <i class="fa-solid fa-building-columns"></i> Institusi
+      </div>
+      <ion-card-title style="font-size: 1.3rem;">{{ userName }}</ion-card-title>
+      <div style="font-size: 0.85rem; color: #78716C; margin-top: 4px;" *ngIf="institutionInfo">
+        NPSN: {{ institutionInfo.npsn || '-' }} • Status: {{ institutionInfo.is_verified ? '✓ Terverifikasi' : '⏳ Pending' }}
+      </div>
+    </ion-card-header>
+  </ion-card>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px;" *ngIf="institutionStats">
+    <div style="background: #FFFFFF; padding: 16px; border-radius: 20px; text-align: center; border: 1px solid #E8E5DC;">
+      <div style="font-size: 1.6rem; font-weight: 800; color: #1C1917;">{{ institutionStats.teachers_count || 0 }}</div>
+      <div style="font-size: 0.75rem; font-weight: 700; color: #78716C; margin-top: 2px;">Guru</div>
+    </div>
+    <div style="background: #FFFFFF; padding: 16px; border-radius: 20px; text-align: center; border: 1px solid #E8E5DC;">
+      <div style="font-size: 1.6rem; font-weight: 800; color: #1C1917;">{{ institutionStats.students_count || 0 }}</div>
+      <div style="font-size: 0.75rem; font-weight: 700; color: #78716C; margin-top: 2px;">Murid</div>
+    </div>
+  </div>
+
+  <!-- Banner Info Kelola Guru via Web -->
+  <div style="background-color: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 16px; padding: 12px 14px; margin-top: 16px; display: flex; align-items: flex-start; gap: 10px;">
+    <i class="fa-solid fa-circle-info" style="color: #2563EB; font-size: 1.1rem; margin-top: 2px;"></i>
+    <div style="font-size: 0.8rem; color: #1E40AF; line-height: 1.4; font-weight: 600;">
+      Pengelolaan data guru (tambah, edit, hapus) dilakukan melalui portal Web. Di mobile hanya dapat melihat daftar guru terdaftar.
+    </div>
+  </div>
+
+  <!-- Section Daftar Guru (Read-only) -->
+  <div class="section-heading" style="margin-top: 20px;">
+    <span>Daftar Guru</span>
+    <span class="badge-pill">{{ institutionTeachers.length }} Guru</span>
+  </div>
+
+  <ion-card style="margin-top: 8px;">
+    <ion-card-content style="padding: 12px 16px;">
+      <div *ngIf="isLoadingRoleData" class="ion-text-center ion-padding">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+
+      <div *ngIf="!isLoadingRoleData && institutionTeachers.length === 0" class="ion-text-center ion-padding">
+        <p style="color: #78716C;">Belum ada guru terdaftar di institusi ini.</p>
+      </div>
+
+      <ion-list *ngIf="!isLoadingRoleData && institutionTeachers.length > 0" lines="full">
+        <ion-item *ngFor="let t of institutionTeachers" style="--border-radius: 12px; margin-bottom: 6px;">
+          <div slot="start"
+            style="width: 40px; height: 40px; border-radius: 50%; background: #065F46; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.95rem;">
+            {{ (t.user?.name || 'G').charAt(0) }}
+          </div>
+          <ion-label style="margin: 8px 0;">
+            <h3 style="font-weight: 800; color: #1C1917; font-size: 0.95rem;">{{ t.user?.name }}</h3>
+            <p style="font-size: 0.78rem; color: #78716C; margin-top: 2px;">
+              NIP: {{ t.nip || '-' }} • Mapel: {{ t.subject || '-' }}
+            </p>
+            <p style="font-size: 0.75rem; color: #9CA3AF; margin-top: 1px;" *ngIf="t.user?.email">
+              <i class="fa-regular fa-envelope" style="margin-right: 4px;"></i>{{ t.user?.email }}
+            </p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</div>
+
+<!-- TAB PROFIL INSTITUSI -->
+<div *ngIf="selectedTab === 'profile'">
+  <ion-card style="border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 16px;">
+    <ion-card-header style="padding: 20px; text-align: center; background: #FAF9F5;">
+      <div style="width: 70px; height: 70px; border-radius: 50%; background: #10B981; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; margin: 0 auto 12px auto;">
+        <i class="fa-solid fa-building-columns"></i>
+      </div>
+      <ion-card-title style="font-size: 1.3rem; font-weight: 800; color: #0F172A;">{{ userName }}</ion-card-title>
+      <div class="badge-pill" style="display: inline-block; margin-top: 6px; background: #D1FAE5; color: #047857;">
+        {{ institutionInfo?.is_verified ? 'Verified Institution' : 'Pending Verification' }}
+      </div>
+    </ion-card-header>
+    <ion-card-content style="padding: 20px;">
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="border-bottom: 1px solid #F1F5F9; padding-bottom: 10px;">
+          <span style="font-size: 0.75rem; color: #64748B; font-weight: 700; text-transform: uppercase;">NPSN</span>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-top: 2px;">{{ institutionInfo?.npsn || '-' }}</div>
+        </div>
+        <div style="border-bottom: 1px solid #F1F5F9; padding-bottom: 10px;">
+          <span style="font-size: 0.75rem; color: #64748B; font-weight: 700; text-transform: uppercase;">Total Guru Terdaftar</span>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-top: 2px;">{{ institutionStats?.teachers_count || 0 }} Guru</div>
+        </div>
+        <div style="border-bottom: 1px solid #F1F5F9; padding-bottom: 10px;">
+          <span style="font-size: 0.75rem; color: #64748B; font-weight: 700; text-transform: uppercase;">Total Siswa Terhubung</span>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-top: 2px;">{{ institutionStats?.students_count || 0 }} Murid</div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</div>

@@ -143,7 +143,7 @@
                 <textarea id="content" name="content" class="form-control" rows="5" required placeholder="Tuliskan deskripsi lengkap, persyaratan, serta petunjuk untuk siswa..."></textarea>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
                 <div>
                     <label for="external_link" class="form-label">Link Luar / Form Pendaftaran (Opsional):</label>
                     <input type="url" id="external_link" name="external_link" class="form-control" placeholder="https://contoh-link-pendaftaran.com">
@@ -152,13 +152,11 @@
                     <label for="banner_image" class="form-label">Upload Gambar Banner (Opsional):</label>
                     <input type="file" id="banner_image" name="banner_image" class="form-control" accept="image/*">
                 </div>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600;">
-                    <input type="checkbox" name="is_published" value="1" checked style="width: 18px; height: 18px; accent-color: var(--primary-color);">
-                    Publikasikan Langsung ke Aplikasi Siswa
-                </label>
+                <div>
+                    <label for="expired_at" class="form-label">Tanggal Kedaluwarsa (Auto-Hapus):</label>
+                    <input type="date" id="expired_at" name="expired_at" class="form-control" min="{{ date('Y-m-d') }}">
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Akan otomatis dihapus dari database & server saat tanggal ini lewat.</span>
+                </div>
             </div>
 
             <button type="submit" class="btn-primary-dark" style="margin-top: 8px;">

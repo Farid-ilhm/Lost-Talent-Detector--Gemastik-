@@ -72,12 +72,12 @@
     <!-- Form Tambah Lomba -->
     <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
         <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;"><i class="fa-solid fa-circle-plus" style="color: #059669;"></i> Tambah Master Kompetisi Baru</h4>
-        <form action="/admin/competitions" method="POST">
+        <form action="/admin/competitions" method="POST" enctype="multipart/form-data">
             @csrf
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
                 <div>
                     <label for="title" class="form-label">Judul Kompetisi:</label>
-                    <input type="text" id="title" name="title" class="form-control" required>
+                    <input type="text" id="title" name="title" class="form-control" required placeholder="contoh: GEMASTIK XV 2026">
                 </div>
                 <div>
                     <label for="category" class="form-label">Kategori Lomba:</label>
@@ -85,22 +85,38 @@
                         <option value="teknologi">Teknologi / IT</option>
                         <option value="sains">Sains / Matematika</option>
                         <option value="seni">Seni & Desain</option>
+                        <option value="bisnis">Bisnis & Kewirausahaan</option>
+                        <option value="olahraga">Olahraga & Fisik</option>
                         <option value="lainnya">Lainnya</option>
                     </select>
                 </div>
                 <div>
                     <label for="organizer" class="form-label">Penyelenggara / Institusi:</label>
-                    <input type="text" id="organizer" name="organizer" class="form-control" placeholder="contoh: Puspresnas">
+                    <input type="text" id="organizer" name="organizer" class="form-control" placeholder="contoh: Puspresnas / Kemendikbud">
                 </div>
                 <div>
-                    <label for="registration_deadline" class="form-label">Batas Pendaftaran:</label>
-                    <input type="date" id="registration_deadline" name="registration_deadline" class="form-control">
+                    <label for="registration_deadline" class="form-label">Batas Pendaftaran (Auto-Hapus):</label>
+                    <input type="date" id="registration_deadline" name="registration_deadline" class="form-control" min="{{ date('Y-m-d') }}">
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Lomba otomatis dihapus saat lewat batas pendaftaran.</span>
                 </div>
             </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label for="link" class="form-label">Tautan Eksternal / Form Pendaftaran (Opsional):</label>
+                    <input type="url" id="link" name="link" class="form-control" placeholder="https://contoh-link-lomba.com">
+                </div>
+                <div>
+                    <label for="poster" class="form-label">Upload Gambar Poster Banner (Opsional):</label>
+                    <input type="file" id="poster" name="poster" class="form-control" accept="image/*">
+                </div>
+            </div>
+
             <div style="margin-bottom: 20px;">
                 <label for="description" class="form-label">Deskripsi Lomba:</label>
-                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Deskripsikan perlombaan..."></textarea>
+                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Tuliskan petunjuk lengkap, kriteria peserta, serta deskripsi perlombaan..."></textarea>
             </div>
+
             <button type="submit" class="btn-primary-dark">
                 <i class="fa-solid fa-plus"></i> Tambah Master Kompetisi
             </button>
