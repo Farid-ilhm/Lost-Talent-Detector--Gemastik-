@@ -3,12 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lost Talent Detector - GEMASTIK</title>
+    <title>Lost Talent Detector</title>
     <link rel="icon" type="image/png" href="{{ asset('icon.png') }}">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Custom Design System CSS -->
     <link rel="stylesheet" href="{{ asset('css/app_custom.css') }}">
+    
+    <!-- Early global confirm override to catch inline handlers -->
+    <script>
+        (function() {
+            let pendingConfirm = null;
+
+            window.confirm = function(message) {
+                let form = null;
+                if (document.activeElement) {
+                    if (document.activeElement.form) {
+                        form = document.activeElement.form;
+                    } else {
+                        form = document.activeElement.closest('form');
+                    }
+                }
+                
+                // If modal script is already loaded, show modal immediately
+                if (window.showCustomConfirmFromGlobal) {
+                    window.showCustomConfirmFromGlobal(message, form);
+                } else {
+                    // Save to run when DOM and modal script are loaded
+                    pendingConfirm = { message, form };
+                }
+                
+                return false; // Cancel native browser prompt
+            };
+
+            // Poll to check if pending confirm can be displayed
+            document.addEventListener('DOMContentLoaded', function() {
+                if (pendingConfirm && window.showCustomConfirmFromGlobal) {
+                    window.showCustomConfirmFromGlobal(pendingConfirm.message, pendingConfirm.form);
+                    pendingConfirm = null;
+                }
+            });
+        })();
+    </script>
 </head>
 <body>
     <div class="app-wrapper">
@@ -236,7 +272,7 @@
                             <div style="display: flex; align-items: center; gap: 10px; padding: 4px 0;">
                                 <div style="width: 32px; height: 32px; border-radius: 50%; background: #1C1917; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; overflow: hidden; border: 1.5px solid var(--border-subtle);">
                                     @if($s->user && $s->user->avatar)
-                                        <img src="{{ asset('uploads/avatars/' . $s->user->avatar) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="{{ asset($s->user->avatar) }}" style="width: 100%; height: 100%; object-fit: cover;">
                                     @else
                                         <span>{{ strtoupper(substr($s->user->name ?? 'S', 0, 1)) }}</span>
                                     @endif
@@ -583,6 +619,88 @@
             </form>
         </div>
     </div>
+    <style>
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    </style>
+    <!-- Custom Confirmation Modal -->
+    <div id="custom-confirm-modal" style="display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 99999; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px);">
+        <div style="background-color: #FFFFFF; border-radius: 24px; max-width: 420px; width: 100%; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid var(--border-subtle); text-align: center; animation: modalFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background-color: #FEE2E2; color: #DC2626; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-dark); margin: 0 0 8px 0; letter-spacing: -0.02em;">Konfirmasi Tindakan</h3>
+            <p id="custom-confirm-message" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 28px 0; font-weight: 500;"></p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button id="custom-confirm-cancel-btn" type="button" class="btn-primary-dark" style="background-color: var(--bg-pill); color: var(--text-dark); border: none; cursor: pointer; height: 42px; border-radius: 12px; padding: 0 20px; font-weight: 800; font-size: 0.88rem; flex: 1;">
+                    Batal
+                </button>
+                <button id="custom-confirm-ok-btn" type="button" class="btn-primary-dark" style="background-color: #DC2626; color: #FFFFFF; border: none; cursor: pointer; height: 42px; border-radius: 12px; padding: 0 20px; font-weight: 800; font-size: 0.88rem; flex: 1;">
+                    Ya, Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            let confirmCallback = null;
+            const modal = document.getElementById('custom-confirm-modal');
+            const messageEl = document.getElementById('custom-confirm-message');
+            const cancelBtn = document.getElementById('custom-confirm-cancel-btn');
+            const okBtn = document.getElementById('custom-confirm-ok-btn');
+            const iconEl = modal.querySelector('i');
+            const iconWrapper = iconEl.parentElement;
+
+            window.showCustomConfirm = function(message, onConfirm) {
+                messageEl.textContent = message;
+                confirmCallback = onConfirm;
+                
+                // Customize styling based on message content
+                const msgLower = message.toLowerCase();
+                if (msgLower.includes('keluar') || msgLower.includes('logout')) {
+                    iconEl.className = 'fa-solid fa-arrow-right-from-bracket';
+                    iconWrapper.style.backgroundColor = '#EFECE6';
+                    iconWrapper.style.color = '#1C1917';
+                    okBtn.style.backgroundColor = '#1C1917';
+                    okBtn.textContent = 'Ya, Keluar';
+                } else if (msgLower.includes('menolak') || msgLower.includes('reject')) {
+                    iconEl.className = 'fa-solid fa-ban';
+                    iconWrapper.style.backgroundColor = '#FEF3C7';
+                    iconWrapper.style.color = '#D97706';
+                    okBtn.style.backgroundColor = '#D97706';
+                    okBtn.textContent = 'Ya, Tolak';
+                } else {
+                    iconEl.className = 'fa-solid fa-trash-can';
+                    iconWrapper.style.backgroundColor = '#FEE2E2';
+                    iconWrapper.style.color = '#DC2626';
+                    okBtn.style.backgroundColor = '#DC2626';
+                    okBtn.textContent = 'Ya, Hapus';
+                }
+
+                modal.style.display = 'flex';
+            };
+
+            window.showCustomConfirmFromGlobal = function(message, form) {
+                window.showCustomConfirm(message, function() {
+                    if (form) form.submit();
+                });
+            };
+
+            function closeModal() {
+                modal.style.display = 'none';
+                confirmCallback = null;
+            }
+
+            cancelBtn.addEventListener('click', closeModal);
+            okBtn.addEventListener('click', function() {
+                if (confirmCallback) confirmCallback();
+                closeModal();
+            });
+        })();
+    </script>
     <style>
     @keyframes modalFadeIn {
         from { opacity: 0; transform: scale(0.95); }

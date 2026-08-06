@@ -254,19 +254,32 @@ class DashboardController extends Controller
             'Social' => 0, 'Enterprising' => 0, 'Conventional' => 0
         ];
 
+        // Eager load all target questions at once to prevent N+1 queries
+        $qIds = array_keys($request->answers);
+        $questions = \App\Models\InterestTestQuestion::whereIn('id', $qIds)->get()->keyBy('id');
+
+        $insertData = [];
+        $now = now();
+
         foreach ($request->answers as $qId => $val) {
-            InterestTestAnswer::create([
+            $insertData[] = [
                 'student_id' => $student->id,
                 'interest_test_question_id' => $qId,
-                'answer_value' => $val,
-            ]);
+                'answer_value' => (string) $val,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
 
-            $question = \App\Models\InterestTestQuestion::find($qId);
+            // Use memory-loaded questions to get category info
+            $question = $questions->get($qId);
             if ($question && isset($scores[$question->category])) {
                 $scores[$question->category] += intval($val);
                 $counts[$question->category]++;
             }
         }
+
+        // Bulk insert answers in a single transaction
+        InterestTestAnswer::insert($insertData);
 
         // Normalize
         $normalized = [];

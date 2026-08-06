@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const checkedCheckboxes = document.querySelectorAll('.comp-checkbox:checked');
             if (checkedCheckboxes.length === 0) return;
             
-            if (confirm('Yakin ingin menghapus ' + checkedCheckboxes.length + ' kompetisi yang terpilih secara massal?')) {
+            window.showCustomConfirm('Yakin ingin menghapus ' + checkedCheckboxes.length + ' kompetisi yang terpilih secara massal?', function() {
                 const tempForm = document.createElement('form');
                 tempForm.method = 'POST';
                 tempForm.action = '/admin/competitions/delete-multiple';
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 document.body.appendChild(tempForm);
                 tempForm.submit();
-            }
+            });
         });
     }
 });

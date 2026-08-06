@@ -7,10 +7,10 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f9;
+            background-color: #F7F5F0;
             margin: 0;
             padding: 0;
-            color: #333;
+            color: #1C1917;
         }
         .container {
             max-width: 560px;
@@ -18,11 +18,11 @@
             background: #ffffff;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid #E2DDD5;
         }
         .header {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #1c1917 0%, #44403c 100%);
             padding: 32px;
             text-align: center;
             color: #ffffff;
@@ -40,18 +40,18 @@
         .greeting {
             font-size: 18px;
             font-weight: 600;
-            color: #1e293b;
+            color: #1c1917;
             margin-bottom: 12px;
         }
         .text {
             font-size: 15px;
-            color: #64748b;
+            color: #78716C;
             line-height: 1.6;
             margin-bottom: 28px;
         }
         .otp-card {
-            background: #f8fafc;
-            border: 2px dashed #6366f1;
+            background: #F7F5F0;
+            border: 2px dashed #EAB308;
             border-radius: 12px;
             padding: 20px;
             margin: 0 auto 28px auto;
@@ -62,21 +62,21 @@
             font-size: 36px;
             font-weight: 800;
             letter-spacing: 8px;
-            color: #4f46e5;
+            color: #1c1917;
         }
         .warning {
             font-size: 13px;
-            color: #94a3b8;
-            border-top: 1px solid #e2e8f0;
+            color: #78716C;
+            border-top: 1px solid #E2DDD5;
             padding-top: 20px;
             margin-top: 10px;
         }
         .footer {
-            background: #f8fafc;
+            background: #F7F5F0;
             padding: 20px;
             text-align: center;
             font-size: 12px;
-            color: #94a3b8;
+            color: #78716C;
         }
     </style>
 </head>

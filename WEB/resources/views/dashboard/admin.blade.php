@@ -83,7 +83,7 @@
                     <i class="fa-solid fa-trophy"></i>
                 </div>
                 <h4 style="font-weight: 700; margin-bottom: 6px; font-size: 1rem; color: var(--text-dark);">Kelola Kompetisi</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Atur data master perlombaan GEMASTIK, sains, dan seni.</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Atur data master perlombaan.</p>
             </div>
         </a>
 

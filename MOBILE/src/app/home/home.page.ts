@@ -425,7 +425,7 @@ export class HomePage {
     await alert.present();
   }
 
-  async onSaveAccountProfile(event: { name: string; email: string }) {
+  async onSaveAccountProfile(event: { name: string; email: string; avatar?: string }) {
     this.apiService.updateAccountProfile(event).subscribe({
       next: async (res: any) => {
         const toast = await this.toastController.create({
@@ -445,6 +445,44 @@ export class HomePage {
         await alert.present();
       }
     });
+  }
+
+  async onDeleteAvatar() {
+    const alert = await this.alertController.create({
+      header: 'Hapus Foto Profil',
+      message: 'Apakah Anda yakin ingin menghapus foto profil Anda?',
+      buttons: [
+        {
+          text: 'Batal',
+          role: 'cancel'
+        },
+        {
+          text: 'Hapus',
+          handler: () => {
+            this.apiService.deleteAvatar().subscribe({
+              next: async (res: any) => {
+                const toast = await this.toastController.create({
+                  message: 'Foto profil berhasil dihapus.',
+                  duration: 2000,
+                  color: 'success'
+                });
+                await toast.present();
+                this.loadDashboardData();
+              },
+              error: async (err: any) => {
+                const errorAlert = await this.alertController.create({
+                  header: 'Gagal Hapus',
+                  message: err.error?.message || 'Gagal menghapus foto profil.',
+                  buttons: ['OK']
+                });
+                await errorAlert.present();
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   async onUpdateProfile() {

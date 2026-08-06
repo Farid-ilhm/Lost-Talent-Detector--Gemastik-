@@ -331,20 +331,34 @@ class StudentApiController extends Controller
             'Conventional' => 0
         ];
 
+        // Fetch all target questions at once to prevent N+1 query problem
+        $questionIds = array_column($request->answers, 'question_id');
+        $questions = \App\Models\InterestTestQuestion::whereIn('id', $questionIds)
+            ->get()
+            ->keyBy('id');
+
+        $insertData = [];
+        $now = now();
+
         foreach ($request->answers as $ans) {
-            InterestTestAnswer::create([
+            $insertData[] = [
                 'student_id' => $student->id,
                 'interest_test_question_id' => $ans['question_id'],
                 'answer_value' => (string) $ans['value'],
-            ]);
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
 
-            // Query category of the question to calculate totals
-            $question = \App\Models\InterestTestQuestion::find($ans['question_id']);
+            // Use memory-loaded questions to get category info
+            $question = $questions->get($ans['question_id']);
             if ($question && isset($scoresByCategory[$question->category])) {
                 $scoresByCategory[$question->category] += $ans['value'];
                 $countsByCategory[$question->category]++;
             }
         }
+
+        // Bulk insert all answers in one single transaction
+        InterestTestAnswer::insert($insertData);
 
         // Normalize scores to percentage (score out of max score: count * 5)
         $normalizedScores = [];
@@ -1152,13 +1166,6 @@ class StudentApiController extends Controller
             ], 404);
         }
 
-        if ($student->institution_id !== null) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Murid sekolah tidak dapat menghapus nilai.'
-            ], 403);
-        }
-
         $grade = AcademicGrade::where('id', $id)->where('student_id', $student->id)->first();
         if (!$grade) {
             return response()->json([
@@ -1188,13 +1195,6 @@ class StudentApiController extends Controller
                 'success' => false,
                 'message' => 'Student not found.'
             ], 404);
-        }
-
-        if ($student->institution_id !== null) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Murid sekolah tidak dapat menghapus nilai.'
-            ], 403);
         }
 
         $all = $request->input('all', false);

@@ -344,7 +344,7 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
                 <div>
                     <label for="title" class="form-label">Nama / Judul Prestasi:</label>
-                    <input type="text" id="title" name="title" class="form-control" required placeholder="contoh: Juara 1 Lomba Coding Gemastik">
+                    <input type="text" id="title" name="title" class="form-control" required placeholder="contoh: Juara 1 Lomba Coding">
                 </div>
                 <div>
                     <label for="category" class="form-label">Kategori Prestasi:</label>
@@ -519,7 +519,7 @@
 
             <!-- Competition Recommendations -->
             <div style="background-color: #FAFAF8; padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);">
-                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-trophy"></i> Rekomendasi Lomba (GEMASTIK)</h4>
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-trophy"></i> Rekomendasi Lomba</h4>
                 <ul style="padding-left: 20px; color: var(--text-dark); line-height: 1.8;">
                     @foreach($aiAnalysis->competition_recommendations as $comp)
                         <li>{{ $comp }}</li>

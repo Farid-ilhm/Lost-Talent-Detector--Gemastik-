@@ -429,6 +429,18 @@ class AuthController extends Controller
             $user->phone = $request->phone;
         }
         if ($request->hasFile('avatar')) {
+            // Delete old file if exists
+            if ($user->avatar) {
+                $oldPath = public_path($user->avatar);
+                if (file_exists($oldPath) && is_file($oldPath)) {
+                    @unlink($oldPath);
+                } else {
+                    $oldPath2 = public_path('uploads/avatars/' . $user->avatar);
+                    if (file_exists($oldPath2) && is_file($oldPath2)) {
+                        @unlink($oldPath2);
+                    }
+                }
+            }
             $file = $request->file('avatar');
             $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
             if (!file_exists(public_path('uploads/avatars'))) {
@@ -437,6 +449,18 @@ class AuthController extends Controller
             $file->move(public_path('uploads/avatars'), $fileName);
             $user->avatar = 'uploads/avatars/' . $fileName;
         } elseif ($request->filled('avatar')) {
+            // Delete old file if exists
+            if ($user->avatar) {
+                $oldPath = public_path($user->avatar);
+                if (file_exists($oldPath) && is_file($oldPath)) {
+                    @unlink($oldPath);
+                } else {
+                    $oldPath2 = public_path('uploads/avatars/' . $user->avatar);
+                    if (file_exists($oldPath2) && is_file($oldPath2)) {
+                        @unlink($oldPath2);
+                    }
+                }
+            }
             $avatarData = $request->input('avatar');
             if (preg_match('/^data:image\/(\w+);base64,/', $avatarData, $type)) {
                 $avatarData = substr($avatarData, strpos($avatarData, ',') + 1);
@@ -445,10 +469,26 @@ class AuthController extends Controller
                     $decoded = base64_decode($avatarData);
                     if ($decoded !== false) {
                         $fileName = uniqid() . '.' . $type;
+                        $path = public_path('uploads/avatars/' . $fileName);
                         if (!file_exists(public_path('uploads/avatars'))) {
                             mkdir(public_path('uploads/avatars'), 0777, true);
                         }
-                        file_put_contents(public_path('uploads/avatars/' . $fileName), $decoded);
+                        
+                        // Compress image using PHP GD if available
+                        $img = @imagecreatefromstring($decoded);
+                        if ($img !== false) {
+                            if ($type === 'png') {
+                                imagepng($img, $path, 7);
+                            } elseif ($type === 'webp') {
+                                imagewebp($img, $path, 75);
+                            } else {
+                                imagejpeg($img, $path, 75);
+                            }
+                            imagedestroy($img);
+                        } else {
+                            file_put_contents($path, $decoded);
+                        }
+                        
                         $user->avatar = 'uploads/avatars/' . $fileName;
                     }
                 }
@@ -465,6 +505,35 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully',
+            'user' => $user
+        ]);
+    }
+
+    /**
+     * Delete authenticated user profile avatar.
+     */
+    public function deleteAvatar(Request $request)
+    {
+        $user = $request->user();
+        if ($user->avatar) {
+            // Remove file from disk
+            $filePath = public_path($user->avatar);
+            if (file_exists($filePath) && is_file($filePath)) {
+                @unlink($filePath);
+            } else {
+                $filePath2 = public_path('uploads/avatars/' . $user->avatar);
+                if (file_exists($filePath2) && is_file($filePath2)) {
+                    @unlink($filePath2);
+                }
+            }
+            
+            $user->avatar = null;
+            $user->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto profil berhasil dihapus.',
             'user' => $user
         ]);
     }

@@ -92,7 +92,8 @@
         *ngIf="selectedTab === 'profile'"
         [selectedTab]="selectedTab"
         [student]="student"
-        (saveAccountProfileEvent)="onSaveAccountProfile($event)">
+        (saveAccountProfileEvent)="onSaveAccountProfile($event)"
+        (deleteAvatarEvent)="onDeleteAvatar()">
       </app-student-profile-tab>
 
       <!-- TAB NILAI RAPOR SISWA -->

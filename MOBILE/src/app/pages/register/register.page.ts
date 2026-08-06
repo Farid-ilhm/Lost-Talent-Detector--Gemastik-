@@ -16,6 +16,7 @@ export class RegisterPage {
     email: '',
     phone: '',
     npsn: '',
+    address: '',
     institution_id: '',
     nisn: '',
     classroom: '',

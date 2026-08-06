@@ -274,6 +274,57 @@ class WebAuthController extends Controller
         return back()->with('success', 'Kode OTP baru telah berhasil dikirimkan ke email Anda.');
     }
 
+    public function contactSupport(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'subject' => ['required', 'string', 'max:255'],
+            'message' => ['required', 'string'],
+        ]);
+
+        $admins = User::where('role', 'admin')->get();
+
+        if ($admins->isEmpty()) {
+            try {
+                Mail::to('domiini1c.id@gmail.com')->send(
+                    new \App\Mail\ContactSupportMail(
+                        $request->name,
+                        $request->email,
+                        $request->subject,
+                        $request->message
+                    )
+                );
+            } catch (\Exception $e) {
+                Log::error("Failed to send fallback support email: " . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengirim email: ' . $e->getMessage()
+                ], 500);
+            }
+        } else {
+            foreach ($admins as $admin) {
+                try {
+                    Mail::to($admin->email)->send(
+                        new \App\Mail\ContactSupportMail(
+                            $request->name,
+                            $request->email,
+                            $request->subject,
+                            $request->message
+                        )
+                    );
+                } catch (\Exception $e) {
+                    Log::error("Failed to send admin support email to {$admin->email}: " . $e->getMessage());
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesan Anda berhasil dikirim!'
+        ]);
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();

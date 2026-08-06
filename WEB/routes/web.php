@@ -21,6 +21,7 @@ Route::post('/register', [WebAuthController::class, 'register']);
 Route::get('/verify-otp', [WebAuthController::class, 'showVerifyOtp'])->name('verify-otp.show');
 Route::post('/verify-otp', [WebAuthController::class, 'verifyOtp'])->name('verify-otp.post');
 Route::post('/resend-otp', [WebAuthController::class, 'resendWebOtp'])->name('resend-otp.post');
+Route::post('/contact', [WebAuthController::class, 'contactSupport'])->name('contact.post');
 Route::post('/logout', [WebAuthController::class, 'logout']);
 
 // Protected Dashboard Routes

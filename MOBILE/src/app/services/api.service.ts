@@ -33,6 +33,11 @@ export class ApiService {
     return this.http.put(`${this.apiUrl}/profile`, data, { headers });
   }
 
+  deleteAvatar(): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.delete(`${this.apiUrl}/profile/avatar`, { headers });
+  }
+
   uploadAchievement(data: { title: string; category: string; level: string; rank: string; description?: string }): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     return this.http.post(`${this.apiUrl}/student/achievements`, data, { headers });

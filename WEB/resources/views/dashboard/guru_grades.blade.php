@@ -68,8 +68,6 @@
                                     
                                     <input type="number" name="score" step="0.01" min="0" max="100" class="form-control" placeholder="Nilai" style="width: 80px; padding: 6px 10px; font-size: 0.85rem;" required>
                                     
-                                    <input type="text" name="notes" class="form-control" placeholder="Catatan minat/bakat..." style="width: 180px; padding: 6px 10px; font-size: 0.85rem;">
-                                    
                                     <button type="submit" class="btn-primary-dark" style="padding: 6px 14px; font-size: 0.8rem; border: none; cursor: pointer;">
                                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                                     </button>

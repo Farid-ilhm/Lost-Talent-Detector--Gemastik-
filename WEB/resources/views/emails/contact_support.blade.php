@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pendaftaran Institusi Baru</title>
+    <title>Pesan Kontak Layanan Baru</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #F7F5F0;
+            background-color: #f4f6f9;
             margin: 0;
             padding: 0;
-            color: #1C1917;
+            color: #333;
         }
         .container {
             max-width: 600px;
@@ -18,8 +18,8 @@
             background: #ffffff;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-            border: 1px solid #E2DDD5;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
         }
         .header {
             background: linear-gradient(135deg, #1c1917 0%, #44403c 100%);
@@ -39,12 +39,12 @@
         .greeting {
             font-size: 18px;
             font-weight: 600;
-            color: #1c1917;
+            color: #1e293b;
             margin-bottom: 12px;
         }
         .text {
             font-size: 15px;
-            color: #78716C;
+            color: #64748b;
             line-height: 1.6;
             margin-bottom: 24px;
         }
@@ -52,50 +52,47 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 28px;
-            background: #F7F5F0;
+            background: #f8fafc;
             border-radius: 12px;
             overflow: hidden;
-            border: 1px solid #E2DDD5;
+            border: 1px solid #e2e8f0;
         }
         .details-table td {
             padding: 14px 18px;
             font-size: 14px;
-            border-bottom: 1px solid #E2DDD5;
+            border-bottom: 1px solid #e2e8f0;
         }
         .details-table td.label {
             font-weight: 600;
-            color: #78716C;
+            color: #475569;
             width: 35%;
         }
         .details-table td.value {
-            color: #1c1917;
+            color: #0f172a;
             font-weight: 700;
         }
         .details-table tr:last-child td {
             border-bottom: none;
         }
-        .btn-container {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-        .btn {
-            background: linear-gradient(135deg, #1c1917 0%, #44403c 100%);
-            color: #ffffff !important;
-            padding: 14px 28px;
-            border-radius: 12px;
+        .message-box {
+            background-color: #fafaf9;
+            border-left: 4px solid #eab308;
+            padding: 20px;
+            border-radius: 4px 12px 12px 4px;
             font-size: 15px;
-            font-weight: 700;
-            text-decoration: none;
-            display: inline-block;
-            box-shadow: 0 4px 14px rgba(28, 25, 23, 0.4);
+            color: #1c1917;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            margin-bottom: 28px;
+            font-style: italic;
         }
         .footer {
-            background: #F7F5F0;
+            background: #f8fafc;
             padding: 20px;
             text-align: center;
             font-size: 12px;
-            color: #78716C;
-            border-top: 1px solid #E2DDD5;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
         }
     </style>
 </head>
@@ -107,38 +104,35 @@
         <div class="content">
             <div class="greeting">Halo, Administrator!</div>
             <div class="text">
-                Pemberitahuan sistem: Ada institusi baru yang telah mendaftarkan akun di platform <strong>Lost Talent Detector</strong> dan saat ini statusnya sedang menunggu persetujuan/verifikasi dari Anda.
+                Ada pesan baru yang dikirimkan oleh pengunjung melalui form Kontak Layanan di Landing Page:
             </div>
             
             <table class="details-table">
                 <tr>
-                    <td class="label">Nama Institusi</td>
-                    <td class="value">{{ $institutionUser->name }}</td>
+                    <td class="label">Nama Pengirim</td>
+                    <td class="value">{{ $name }}</td>
                 </tr>
                 <tr>
-                    <td class="label">NPSN</td>
-                    <td class="value">{{ $npsn }}</td>
+                    <td class="label">Alamat Email</td>
+                    <td class="value">{{ $email }}</td>
                 </tr>
                 <tr>
-                    <td class="label">Email Pendaftar</td>
-                    <td class="value">{{ $institutionUser->email }}</td>
+                    <td class="label">Subjek / Topik</td>
+                    <td class="value">{{ $msgSubject }}</td>
                 </tr>
                 <tr>
-                    <td class="label">No. Telepon</td>
-                    <td class="value">{{ $institutionUser->phone ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Waktu Daftar</td>
+                    <td class="label">Waktu Kirim</td>
                     <td class="value">{{ \Carbon\Carbon::now()->isoFormat('D MMMM YYYY, HH:mm') }} WIB</td>
                 </tr>
             </table>
 
-            <div class="btn-container">
-                <a href="{{ $dashboardUrl }}" class="btn" target="_blank">Buka Dashboard & Verifikasi</a>
+            <div class="greeting" style="font-size: 16px;">Isi Pesan:</div>
+            <div class="message-box">
+{{ $messageText }}
             </div>
 
             <div class="text" style="font-size: 13px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 20px;">
-                Catatan: Setelah Anda memverifikasi institusi ini, mereka akan dapat mendaftarkan guru pembimbing dan siswa mereka secara penuh ke platform.
+                Catatan: Anda dapat membalas email ini secara langsung untuk berkomunikasi dengan pengirim pesan.
             </div>
         </div>
         <div class="footer">

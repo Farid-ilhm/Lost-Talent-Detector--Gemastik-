@@ -46,7 +46,12 @@
         <!-- KONDISIONAL ROLE: INSTITUSI -->
         <ion-item *ngIf="userData.role === 'institusi'" style="--border-radius: 14px; margin-bottom: 10px;">
           <ion-label position="stacked">NPSN Sekolah/Kampus</ion-label>
-          <ion-input type="text" name="npsn" [(ngModel)]="userData.npsn" required></ion-input>
+          <ion-input type="text" name="npsn" [(ngModel)]="userData.npsn" placeholder="Masukkan NPSN..." required></ion-input>
+        </ion-item>
+
+        <ion-item *ngIf="userData.role === 'institusi'" style="--border-radius: 14px; margin-bottom: 10px;">
+          <ion-label position="stacked">Alamat Lengkap Institusi</ion-label>
+          <ion-textarea name="address" [(ngModel)]="userData.address" placeholder="Masukkan alamat lengkap..." rows="3" required></ion-textarea>
         </ion-item>
 
         <!-- KONDISIONAL DROPDOWN INSTITUSI -->

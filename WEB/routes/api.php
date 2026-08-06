@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
+    Route::delete('/profile/avatar', [AuthController::class, 'deleteAvatar']);
 
     // Student & General Public routes
     Route::get('/student/dashboard', [StudentApiController::class, 'getDashboard']);

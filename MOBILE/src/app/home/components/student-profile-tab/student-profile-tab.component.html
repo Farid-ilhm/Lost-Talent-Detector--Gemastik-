@@ -15,10 +15,17 @@
               {{ (student.user.name || 'S').charAt(0).toUpperCase() }}
             </span>
           </div>
-          <!-- Click to Upload overlay/button -->
-          <label for="avatarFile" style="margin-top: 12px; background: #EEF2FF; color: #4338CA; border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.76rem; font-weight: 800; display: flex; align-items: center; gap: 6px; cursor: pointer;">
-            <i class="fa-solid fa-camera"></i> Ubah Foto
-          </label>
+          <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px;">
+            <!-- Click to Upload overlay/button -->
+            <label for="avatarFile" style="background: #EEF2FF; color: #4338CA; border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.76rem; font-weight: 800; display: flex; align-items: center; gap: 6px; cursor: pointer; margin: 0;">
+              <i class="fa-solid fa-camera"></i> Ubah Foto
+            </label>
+            
+            <!-- Click to Delete button (Show only if student.user.avatar_url is set) -->
+            <button *ngIf="student.user.avatar_url" type="button" (click)="onDeleteAvatar()" style="background: #FEE2E2; color: #DC2626; border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.76rem; font-weight: 800; display: flex; align-items: center; gap: 6px; cursor: pointer; margin: 0;">
+              <i class="fa-solid fa-trash-can"></i> Hapus Foto
+            </button>
+          </div>
           <input type="file" id="avatarFile" accept="image/*" (change)="onAvatarSelected($event)" style="display: none;">
         </div>
 
