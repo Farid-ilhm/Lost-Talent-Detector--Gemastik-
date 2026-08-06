@@ -66,6 +66,7 @@ class AuthController extends Controller
             'role' => 'required|in:siswa,mahasiswa,umum,institusi',
             'phone' => 'nullable|string',
             'npsn' => 'required_if:role,institusi|nullable|string|unique:institutions,npsn',
+            'address' => 'required_if:role,institusi|nullable|string',
             'institution_id' => 'nullable|exists:institutions,id',
             'nisn' => 'required_if:role,siswa|nullable|string|unique:students,nisn',
             'classroom' => 'required_if:role,siswa|nullable|string|max:50',
@@ -106,6 +107,7 @@ class AuthController extends Controller
             Institution::create([
                 'user_id' => $user->id,
                 'npsn' => $request->npsn,
+                'address' => $request->address,
                 'type' => 'sekolah',
                 'is_verified' => false,
             ]);
@@ -406,7 +408,7 @@ class AuthController extends Controller
             'email' => 'sometimes|required|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string',
             'password' => 'sometimes|nullable|string|min:8|confirmed',
-            'avatar' => 'nullable|string', // URL or base64 profile picture
+            'avatar' => 'nullable', // Can be file or base64 string/URL
         ]);
 
         if ($validator->fails()) {
@@ -426,8 +428,33 @@ class AuthController extends Controller
         if ($request->has('phone')) {
             $user->phone = $request->phone;
         }
-        if ($request->has('avatar')) {
-            $user->avatar = $request->avatar;
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+            if (!file_exists(public_path('uploads/avatars'))) {
+                mkdir(public_path('uploads/avatars'), 0777, true);
+            }
+            $file->move(public_path('uploads/avatars'), $fileName);
+            $user->avatar = 'uploads/avatars/' . $fileName;
+        } elseif ($request->filled('avatar')) {
+            $avatarData = $request->input('avatar');
+            if (preg_match('/^data:image\/(\w+);base64,/', $avatarData, $type)) {
+                $avatarData = substr($avatarData, strpos($avatarData, ',') + 1);
+                $type = strtolower($type[1]);
+                if (in_array($type, ['jpg', 'jpeg', 'png', 'webp'])) {
+                    $decoded = base64_decode($avatarData);
+                    if ($decoded !== false) {
+                        $fileName = uniqid() . '.' . $type;
+                        if (!file_exists(public_path('uploads/avatars'))) {
+                            mkdir(public_path('uploads/avatars'), 0777, true);
+                        }
+                        file_put_contents(public_path('uploads/avatars/' . $fileName), $decoded);
+                        $user->avatar = 'uploads/avatars/' . $fileName;
+                    }
+                }
+            } else {
+                $user->avatar = $request->avatar;
+            }
         }
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);

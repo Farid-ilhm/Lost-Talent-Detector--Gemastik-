@@ -89,6 +89,7 @@ Route::middleware('auth')->group(function () {
 
     // General Profile Settings Route
     Route::post('/profile/change-password', [DashboardController::class, 'changePassword']);
+    Route::post('/profile/update', [DashboardController::class, 'updateProfileWeb']);
 
     // Notifications Routes
     Route::get('/notifications', [DashboardController::class, 'getNotifications']);

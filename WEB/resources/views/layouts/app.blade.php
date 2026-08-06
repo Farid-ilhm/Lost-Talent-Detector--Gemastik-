@@ -168,7 +168,145 @@
                     <i class="fa-solid fa-award" style="font-size: 0.8rem;"></i>
                     <span>{{ ucfirst(Auth::user()->role) }}</span>
                 </div>
+                @if(Auth::user()->role === 'guru')
+                    @php
+                        $teacher = Auth::user()->teacher;
+                        $institutionName = $teacher && $teacher->institution && $teacher->institution->user ? $teacher->institution->user->name : null;
+                    @endphp
+                    @if($institutionName)
+                        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fa-solid fa-school" style="color: #6366F1;"></i>
+                            <span>{{ $institutionName }}</span>
+                        </div>
+                    @endif
+                @endif
             </div>
+
+            @if(Auth::check() && Auth::user()->role === 'guru')
+                @php
+                    $teacher = Auth::user()->teacher;
+                    $pendingAchievements = [];
+                    $studentsList = [];
+                    if ($teacher) {
+                        $pendingAchievements = \App\Models\Achievement::whereHas('student', function ($q) use ($teacher) {
+                            $q->where('institution_id', $teacher->institution_id);
+                        })->where('is_verified', false)->with('student.user')->get();
+
+                        $studentsList = \App\Models\Student::where('institution_id', $teacher->institution_id)
+                            ->with(['user', 'classroom'])
+                            ->get();
+                    }
+                @endphp
+                <!-- Verifications Widget -->
+                <div class="activity-widget-card" style="margin-top: 10px; background-color: #FFFFFF; border-radius: var(--radius-md); padding: 18px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-soft);">
+                    <h4 style="font-size: 0.9rem; font-weight: 800; color: var(--text-dark); margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-clock-rotate-left" style="color: #D97706;"></i> Verifikasi Tertunda</span>
+                        <span style="font-size: 0.76rem; background: #FEF3C7; color: #D97706; padding: 2px 8px; border-radius: 99px;">{{ count($pendingAchievements) }}</span>
+                    </h4>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; padding-right: 4px;">
+                        @forelse($pendingAchievements as $ach)
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--border-subtle);">
+                                <div style="min-width: 0; flex: 1; padding-right: 8px;">
+                                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $ach->student->user->name }}</div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $ach->title }}</div>
+                                </div>
+                                <a href="/teacher/achievements" class="btn-primary-dark" style="height: 28px; padding: 0 10px; font-size: 0.72rem; border-radius: 6px; display: inline-flex; align-items: center; text-decoration: none; font-weight: 700; flex-shrink: 0; background-color: var(--accent-light); color: var(--text-dark);">
+                                    Tinjau
+                                </a>
+                            </div>
+                        @empty
+                            <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 12px 0;">
+                                <i class="fa-solid fa-circle-check" style="color: #10B981; font-size: 1.2rem; display: block; margin-bottom: 6px;"></i>
+                                Semua sertifikat terverifikasi!
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <!-- Students Widget -->
+                <div class="activity-widget-card" style="margin-top: 14px; background-color: #FFFFFF; border-radius: var(--radius-md); padding: 18px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-soft);">
+                    <h4 style="font-size: 0.9rem; font-weight: 800; color: var(--text-dark); margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-user-graduate" style="color: #10B981;"></i> Siswa Bimbingan</span>
+                        <span style="font-size: 0.76rem; background: var(--bg-pill-active); color: #047857; padding: 2px 8px; border-radius: 99px;">{{ count($studentsList) }}</span>
+                    </h4>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; padding-right: 4px;">
+                        @forelse($studentsList as $s)
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 4px 0;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: #1C1917; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; overflow: hidden; border: 1.5px solid var(--border-subtle);">
+                                    @if($s->user && $s->user->avatar)
+                                        <img src="{{ asset('uploads/avatars/' . $s->user->avatar) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    @else
+                                        <span>{{ strtoupper(substr($s->user->name ?? 'S', 0, 1)) }}</span>
+                                    @endif
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $s->user->name }}</div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $s->classroom->name ?? 'Umum' }} &bull; {{ $s->nisn ?? $s->nim ?? '-' }}</div>
+                                </div>
+                            </div>
+                        @empty
+                            <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 12px 0;">
+                                Belum ada siswa terdaftar.
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            @endif
+
+            @if(Auth::check() && Auth::user()->role === 'institusi')
+                @php
+                    $inst = \App\Models\Institution::where('user_id', Auth::user()->id)
+                        ->with(['teachers.user'])
+                        ->first();
+                @endphp
+                @if($inst)
+                    <!-- Contacts Widget -->
+                    <div class="activity-widget-card" style="margin-top: 10px; background-color: #FFFFFF; border-radius: var(--radius-md); padding: 18px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-soft);">
+                        <h4 style="font-size: 0.9rem; font-weight: 800; color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-circle-info" style="color: #4F46E5;"></i> Detail Informasi
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.82rem;">
+                            <div style="display: flex; flex-direction: column; gap: 4px; padding-bottom: 8px; border-bottom: 1px dashed var(--border-subtle);">
+                                <span style="color: var(--text-muted); font-weight: 700; font-size: 0.72rem; text-transform: uppercase;">No. Telepon / WhatsApp</span>
+                                <strong style="color: var(--text-dark);">{{ Auth::user()->phone ?? '-' }}</strong>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <span style="color: var(--text-muted); font-weight: 700; font-size: 0.72rem; text-transform: uppercase;">Alamat Lengkap</span>
+                                <span style="color: var(--text-dark); line-height: 1.4; font-weight: 500;">{{ $inst->address ?? 'Alamat belum diisi' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Teachers Widget -->
+                    <div class="activity-widget-card" style="margin-top: 14px; background-color: #FFFFFF; border-radius: var(--radius-md); padding: 18px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-soft);">
+                        <h4 style="font-size: 0.9rem; font-weight: 800; color: var(--text-dark); margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-chalkboard-user" style="color: #6366F1;"></i> Guru Terdaftar</span>
+                            <span style="font-size: 0.76rem; background: var(--bg-pill-active); color: #4338CA; padding: 2px 8px; border-radius: 99px;">{{ $inst->teachers->count() }}</span>
+                        </h4>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 10px; max-height: 220px; overflow-y: auto; padding-right: 4px;">
+                            @forelse($inst->teachers as $t)
+                                <div style="display: flex; align-items: center; gap: 10px; padding: 4px 0;">
+                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #1C1917; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; overflow: hidden; border: 1.5px solid var(--border-subtle);">
+                                        <img *ngIf="false" src=""> <!-- Placeholder fallback -->
+                                        <span>{{ strtoupper(substr($t->user->name, 0, 1)) }}</span>
+                                    </div>
+                                    <div style="flex: 1; min-width: 0;">
+                                        <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $t->user->name }}</div>
+                                        <div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $t->subject ?? 'Guru Pembina' }}</div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 12px 0;">
+                                    Belum ada guru terdaftar.
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                @endif
+            @endif
 
             @if(Auth::check() && Auth::user()->role === 'admin')
                 <!-- System Stats Widget -->
@@ -368,37 +506,78 @@
     @auth
     <!-- Settings Modal (Change Password) -->
     <div id="settings-modal" style="display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px);">
-        <div style="background-color: #FFFFFF; border-radius: 24px; max-width: 450px; width: 100%; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); position: relative; border: 1px solid var(--border-subtle); animation: modalFadeIn 0.3s ease;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="background-color: #FFFFFF; border-radius: 24px; max-width: 500px; width: 100%; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); position: relative; border: 1px solid var(--border-subtle); animation: modalFadeIn 0.3s ease; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-key" style="color: #6366F1;"></i> Ubah Kata Sandi
+                    <i class="fa-solid fa-gears" style="color: #4F46E5;"></i> Pengaturan Akun
                 </h3>
                 <button type="button" onclick="closeSettingsModal()" style="background: none; border: none; font-size: 1.2rem; color: var(--text-muted); cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--text-dark)'" onmouseout="this.style.color='var(--text-muted)'">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             
+            <!-- FORM 1: EDIT PROFILE -->
+            <form action="/profile/update" method="POST" style="margin-bottom: 24px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 20px;">
+                @csrf
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <i class="fa-solid fa-user-gear" style="color: #4F46E5; font-size: 1rem;"></i>
+                    <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-dark); margin: 0;">Edit Profil</h4>
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <label for="profile_name" class="form-label" style="font-weight: 700; font-size: 0.85rem;">Nama / Nama Institusi:</label>
+                    <input type="text" id="profile_name" name="name" class="form-control" value="{{ Auth::user()->name }}" required placeholder="Nama lengkap atau nama sekolah...">
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <label for="profile_phone" class="form-label" style="font-weight: 700; font-size: 0.85rem;">No. Telepon / WhatsApp:</label>
+                    <input type="text" id="profile_phone" name="phone" class="form-control" value="{{ Auth::user()->phone }}" placeholder="Contoh: 08123456789">
+                </div>
+
+                @if(Auth::user()->role === 'institusi')
+                @php
+                    $inst = \App\Models\Institution::where('user_id', Auth::user()->id)->first();
+                @endphp
+                <div style="margin-bottom: 16px;">
+                    <label for="profile_address" class="form-label" style="font-weight: 700; font-size: 0.85rem;">Alamat Lengkap Institusi:</label>
+                    <textarea id="profile_address" name="address" class="form-control" rows="2" required placeholder="Tulis alamat jalan, nomor, kecamatan, kabupaten...">{{ $inst ? $inst->address : '' }}</textarea>
+                </div>
+                @endif
+
+                <div style="text-align: right;">
+                    <button type="submit" class="btn-primary-dark" style="border: none; cursor: pointer; height: 38px; border-radius: 10px; padding: 0 16px; font-weight: 700; font-size: 0.82rem;">
+                        Simpan Profil
+                    </button>
+                </div>
+            </form>
+
+            <!-- FORM 2: CHANGE PASSWORD -->
             <form action="/profile/change-password" method="POST">
                 @csrf
-                <div style="margin-bottom: 16px;">
-                    <label for="current_password" class="form-label" style="font-weight: 700;">Kata Sandi Sekarang:</label>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <i class="fa-solid fa-key" style="color: #6366F1; font-size: 1rem;"></i>
+                    <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-dark); margin: 0;">Ubah Kata Sandi</h4>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <label for="current_password" class="form-label" style="font-weight: 700; font-size: 0.85rem;">Kata Sandi Sekarang:</label>
                     <input type="password" id="current_password" name="current_password" class="form-control" required placeholder="Masukkan kata sandi saat ini...">
                 </div>
-                <div style="margin-bottom: 16px;">
-                    <label for="new_password" class="form-label" style="font-weight: 700;">Kata Sandi Baru (min 8 karakter):</label>
+                <div style="margin-bottom: 12px;">
+                    <label for="new_password" class="form-label" style="font-weight: 700; font-size: 0.85rem;">Kata Sandi Baru (min 8 karakter):</label>
                     <input type="password" id="new_password" name="new_password" class="form-control" required minlength="8" placeholder="Masukkan kata sandi baru...">
                 </div>
                 <div style="margin-bottom: 20px;">
-                    <label for="new_password_confirmation" class="form-label" style="font-weight: 700;">Konfirmasi Kata Sandi Baru:</label>
+                    <label for="new_password_confirmation" class="form-label" style="font-weight: 700; font-size: 0.85rem;">Konfirmasi Kata Sandi Baru:</label>
                     <input type="password" id="new_password_confirmation" name="new_password_confirmation" class="form-control" required minlength="8" placeholder="Konfirmasi kata sandi baru...">
                 </div>
                 
                 <div style="display: flex; gap: 12px; align-items: center; justify-content: flex-end;">
-                    <button type="button" onclick="closeSettingsModal()" class="btn-primary-dark" style="background-color: var(--bg-pill); color: var(--text-dark); border: none; cursor: pointer; height: 42px; border-radius: 12px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;">
+                    <button type="button" onclick="closeSettingsModal()" class="btn-primary-dark" style="background-color: var(--bg-pill); color: var(--text-dark); border: none; cursor: pointer; height: 38px; border-radius: 10px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem;">
                         Batal
                     </button>
-                    <button type="submit" class="btn-primary-dark" style="border: none; cursor: pointer; height: 42px; border-radius: 12px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;">
-                        Simpan Perubahan
+                    <button type="submit" class="btn-primary-dark" style="border: none; cursor: pointer; height: 38px; border-radius: 10px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem;">
+                        Simpan Sandi
                     </button>
                 </div>
             </form>

@@ -44,6 +44,11 @@
             <input type="text" id="npsn" name="npsn" class="form-control" value="{{ old('npsn') }}" placeholder="Contoh: 10801234">
         </div>
 
+        <div id="address-container" style="display: none; margin-bottom: 16px;">
+            <label for="address" class="form-label">Alamat Lengkap Institusi:</label>
+            <textarea id="address" name="address" class="form-control">{{ old('address') }}</textarea>
+        </div>
+
         <div id="school-container" style="display: none; margin-bottom: 16px;">
             <label for="institution_id" class="form-label">Pilih Sekolah / Universitas Anda:</label>
             <select id="institution_id" name="institution_id" class="form-control">

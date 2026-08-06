@@ -101,7 +101,8 @@ export class RiasecTestPage implements OnInit {
     const toast = await this.toastController.create({
       message: 'Gagal memuat tes. Coba lagi nanti.',
       duration: 3000,
-      color: 'danger'
+      color: 'danger',
+      position: 'top'
     });
     await toast.present();
   }

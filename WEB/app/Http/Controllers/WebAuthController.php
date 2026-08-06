@@ -93,6 +93,7 @@ class WebAuthController extends Controller
             'role' => ['required', 'in:siswa,mahasiswa,umum,institusi'],
             'phone' => ['nullable', 'string'],
             'npsn' => ['required_if:role,institusi', 'nullable', 'string', 'unique:institutions,npsn'],
+            'address' => ['required_if:role,institusi', 'nullable', 'string'],
             'institution_id' => ['nullable', 'exists:institutions,id'],
             'nisn' => ['required_if:role,siswa', 'nullable', 'string', 'unique:students,nisn'],
             'classroom' => ['required_if:role,siswa', 'nullable', 'string', 'max:50'],
@@ -125,6 +126,7 @@ class WebAuthController extends Controller
             \App\Models\Institution::create([
                 'user_id' => $user->id,
                 'npsn' => $request->npsn,
+                'address' => $request->address,
                 'type' => 'sekolah',
                 'is_verified' => false,
             ]);

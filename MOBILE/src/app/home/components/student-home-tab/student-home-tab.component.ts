@@ -11,10 +11,20 @@ export class StudentHomeTabComponent {
   @Input() grades: any[] = [];
   @Input() achievements: any[] = [];
   @Input() aiAnalysis: any = null;
+  @Input() teachers: any[] = [];
   @Output() selectTabEvent = new EventEmitter<string>();
 
   selectTab(tabName: string) {
     this.selectTabEvent.emit(tabName);
+  }
+
+  formatWhatsApp(phone: string): string {
+    if (!phone) return '';
+    let clean = phone.replace(/\D/g, '');
+    if (clean.startsWith('0')) {
+      clean = '62' + clean.slice(1);
+    }
+    return clean;
   }
 
   getReadinessPercentage(): number {

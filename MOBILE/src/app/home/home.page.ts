@@ -18,6 +18,7 @@ export class HomePage {
   achievements: any[] = [];
   testResult: any = null;
   aiAnalysis: any = null;
+  teachers: any[] = [];
   isLoadingDashboard: boolean = false;
   dashboardError: string | null = null;
 
@@ -111,7 +112,14 @@ export class HomePage {
     private location: Location,
     private alertController: AlertController,
     private toastController: ToastController
-  ) {}
+  ) {
+    // Force all toasts in home page to appear at the top to avoid overlapping bottom nav menus
+    const originalCreate = this.toastController.create.bind(this.toastController);
+    this.toastController.create = (opts: any) => {
+      opts.position = 'top';
+      return originalCreate(opts);
+    };
+  }
 
   ionViewWillEnter() {
     if (!this.authService.isAuthenticated()) {
@@ -200,6 +208,7 @@ export class HomePage {
           this.achievements = data.achievements || [];
           this.testResult = data.test_result;
           this.aiAnalysis = data.ai_analysis;
+          this.teachers = data.teachers || [];
 
           // Fill inputs
           if (this.student) {
@@ -856,5 +865,14 @@ export class HomePage {
       ]
     });
     await alert.present();
+  }
+
+  formatWhatsApp(phone: string): string {
+    if (!phone) return '';
+    let clean = phone.replace(/\D/g, '');
+    if (clean.startsWith('0')) {
+      clean = '62' + clean.slice(1);
+    }
+    return clean;
   }
 }

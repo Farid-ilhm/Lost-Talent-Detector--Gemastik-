@@ -61,7 +61,8 @@ export class AiResultPage implements OnInit {
     const toast = await this.toastController.create({
       message: msg,
       duration: 2000,
-      color: color
+      color: color,
+      position: 'top'
     });
     await toast.present();
   }

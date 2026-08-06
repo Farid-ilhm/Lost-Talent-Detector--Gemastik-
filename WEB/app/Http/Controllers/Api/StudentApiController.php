@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\Achievement;
 use App\Models\InterestTest;
 use App\Models\InterestTestAnswer;
@@ -51,6 +52,13 @@ class StudentApiController extends Controller
         $testResult = InterestTestResult::where('student_id', $student->id)->latest()->first();
         $aiAnalysis = AiAnalysis::where('student_id', $student->id)->latest()->first();
 
+        $teachers = [];
+        if ($student->institution_id) {
+            $teachers = Teacher::where('institution_id', $student->institution_id)
+                ->with(['user'])
+                ->get();
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -65,6 +73,7 @@ class StudentApiController extends Controller
                 'achievements' => $achievements,
                 'test_result' => $testResult,
                 'ai_analysis' => $aiAnalysis,
+                'teachers' => $teachers,
             ]
         ]);
     }

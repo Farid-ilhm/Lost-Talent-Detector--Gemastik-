@@ -28,7 +28,7 @@ export class ApiService {
     return this.http.put(`${this.apiUrl}/student/interests-hobbies`, data, { headers });
   }
 
-  updateAccountProfile(data: { name: string; email: string }): Observable<any> {
+  updateAccountProfile(data: { name: string; email: string; avatar?: string }): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     return this.http.put(`${this.apiUrl}/profile`, data, { headers });
   }

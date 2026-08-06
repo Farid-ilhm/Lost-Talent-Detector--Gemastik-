@@ -1189,6 +1189,42 @@ class DashboardController extends Controller
     }
 
     /**
+     * Update Profile (Web)
+     */
+    public function updateProfileWeb(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect('/login');
+        }
+
+        $rules = [
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+        ];
+
+        if ($user->role === 'institusi') {
+            $rules['address'] = 'required|string';
+        }
+
+        $request->validate($rules);
+
+        $user->name = $request->name;
+        $user->phone = $request->phone;
+        $user->save();
+
+        if ($user->role === 'institusi') {
+            $institution = \App\Models\Institution::where('user_id', $user->id)->first();
+            if ($institution) {
+                $institution->address = $request->address;
+                $institution->save();
+            }
+        }
+
+        return redirect()->back()->with('success', 'Profil Anda berhasil diperbarui!');
+    }
+
+    /**
      * Get User Notifications
      */
     public function getNotifications()
