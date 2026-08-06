@@ -259,9 +259,6 @@ export class HomePage {
     if (this.announcementFilter === 'semua') {
       return this.announcements;
     }
-    if (this.announcementFilter === 'rekomendasi') {
-      return this.announcements.filter(a => a.is_recommended);
-    }
     return this.announcements.filter(a => a.category === this.announcementFilter);
   }
 
@@ -417,6 +414,28 @@ export class HomePage {
       ]
     });
     await alert.present();
+  }
+
+  async onSaveAccountProfile(event: { name: string; email: string }) {
+    this.apiService.updateAccountProfile(event).subscribe({
+      next: async (res: any) => {
+        const toast = await this.toastController.create({
+          message: 'Profil nama & email berhasil diperbarui.',
+          duration: 2000,
+          color: 'success'
+        });
+        await toast.present();
+        this.loadDashboardData();
+      },
+      error: async (err: any) => {
+        const alert = await this.alertController.create({
+          header: 'Gagal Update',
+          message: err.error?.message || 'Gagal memperbarui profil akun.',
+          buttons: ['OK']
+        });
+        await alert.present();
+      }
+    });
   }
 
   async onUpdateProfile() {

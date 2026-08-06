@@ -28,6 +28,11 @@ export class ApiService {
     return this.http.put(`${this.apiUrl}/student/interests-hobbies`, data, { headers });
   }
 
+  updateAccountProfile(data: { name: string; email: string }): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put(`${this.apiUrl}/profile`, data, { headers });
+  }
+
   uploadAchievement(data: { title: string; category: string; level: string; rank: string; description?: string }): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     return this.http.post(`${this.apiUrl}/student/achievements`, data, { headers });

@@ -8,11 +8,14 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class StudentProfileTabComponent {
   @Input() selectedTab: string = 'profile';
   @Input() student: any = null;
-  @Input() profileData: any = { hobbies: '', interests: '' };
+  @Output() saveAccountProfileEvent = new EventEmitter<{ name: string; email: string }>();
 
-  @Output() updateProfileEvent = new EventEmitter<void>();
-
-  onUpdateProfile() {
-    this.updateProfileEvent.emit();
+  onSaveAccountProfile() {
+    if (this.student && this.student.user) {
+      this.saveAccountProfileEvent.emit({
+        name: this.student.user.name,
+        email: this.student.user.email
+      });
+    }
   }
 }

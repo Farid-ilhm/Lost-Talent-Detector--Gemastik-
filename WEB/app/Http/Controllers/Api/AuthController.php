@@ -214,6 +214,31 @@ class AuthController extends Controller
         $user->email_verified_at = Carbon::now();
         $user->save();
 
+        if ($user->role === 'institusi') {
+            $admins = User::where('role', 'admin')->get();
+            $institution = \App\Models\Institution::where('user_id', $user->id)->first();
+            $npsn = $institution ? $institution->npsn : '-';
+
+            foreach ($admins as $admin) {
+                \App\Models\CustomNotification::create([
+                    'user_id' => $admin->id,
+                    'title' => 'Institusi Baru Mendaftar',
+                    'message' => 'Sekolah/Univ "' . $user->name . '" baru saja mendaftar dan menunggu verifikasi Anda.',
+                    'type' => 'system',
+                    'is_read' => false,
+                ]);
+
+                // Send email notification to each admin
+                try {
+                    \Illuminate\Support\Facades\Mail::to($admin->email)->send(
+                        new \App\Mail\NewInstitutionRegisteredMail($user, $npsn)
+                    );
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to send admin email notification for new institution via API: " . $e->getMessage());
+                }
+            }
+        }
+
         // Issue token
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -378,6 +403,7 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string',
             'password' => 'sometimes|nullable|string|min:8|confirmed',
             'avatar' => 'nullable|string', // URL or base64 profile picture
@@ -393,6 +419,9 @@ class AuthController extends Controller
 
         if ($request->has('name')) {
             $user->name = $request->name;
+        }
+        if ($request->has('email')) {
+            $user->email = $request->email;
         }
         if ($request->has('phone')) {
             $user->phone = $request->phone;

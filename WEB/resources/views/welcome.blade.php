@@ -245,7 +245,6 @@
             <div style="display: flex; gap: 20px;">
                 <a href="#beranda" style="color: var(--text-muted); text-decoration: none;">Beranda</a>
                 <a href="#penjelasan" style="color: var(--text-muted); text-decoration: none;">Peran Web & Mobile</a>
-                <a href="#fitur" style="color: var(--text-muted); text-decoration: none;">Fitur Utama</a>
                 <a href="/login" style="color: var(--text-muted); text-decoration: none; font-weight: 700; color: var(--text-dark);">Login</a>
                 <a href="/register" style="color: var(--text-muted); text-decoration: none; font-weight: 700; color: var(--text-dark);">Register</a>
             </div>

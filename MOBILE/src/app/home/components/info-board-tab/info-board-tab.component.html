@@ -15,9 +15,6 @@
     <button (click)="filterCategory('semua')" [style.background]="announcementFilter === 'semua' ? '#1C1917' : '#F5F5F4'" [style.color]="announcementFilter === 'semua' ? '#FFFFFF' : '#44403C'" style="border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer;">
       Semua
     </button>
-    <button (click)="filterCategory('rekomendasi')" [style.background]="announcementFilter === 'rekomendasi' ? '#4F46E5' : '#EEF2FF'" [style.color]="announcementFilter === 'rekomendasi' ? '#FFFFFF' : '#4338CA'" style="border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer;">
-      ⭐ Rekomendasi Bakat
-    </button>
     <button (click)="filterCategory('beasiswa')" [style.background]="announcementFilter === 'beasiswa' ? '#1C1917' : '#F5F5F4'" [style.color]="announcementFilter === 'beasiswa' ? '#FFFFFF' : '#44403C'" style="border: none; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer;">
       Beasiswa
     </button>
@@ -56,9 +53,6 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <span class="badge-pill" style="font-size: 0.72rem; text-transform: capitalize;">
             {{ item.category }}
-          </span>
-          <span *ngIf="item.is_recommended" style="background: #EEF2FF; color: #4338CA; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; gap: 4px;">
-            <i class="fa-solid fa-star"></i> Rekomendasi Bakat
           </span>
         </div>
 

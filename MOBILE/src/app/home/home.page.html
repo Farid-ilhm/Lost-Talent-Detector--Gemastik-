@@ -91,8 +91,7 @@
         *ngIf="selectedTab === 'profile'"
         [selectedTab]="selectedTab"
         [student]="student"
-        [profileData]="profileData"
-        (updateProfileEvent)="onUpdateProfile()">
+        (saveAccountProfileEvent)="onSaveAccountProfile($event)">
       </app-student-profile-tab>
 
       <!-- TAB NILAI RAPOR SISWA -->
@@ -186,7 +185,7 @@
 
     <ion-tab-button (click)="selectTab('talent')" [selected]="selectedTab === 'talent'">
       <ion-icon name="sparkles-outline"></ion-icon>
-      <ion-label>Tes & Analisa</ion-label>
+      <ion-label>Analisa</ion-label>
     </ion-tab-button>
   </ion-tab-bar>
 </ion-footer>

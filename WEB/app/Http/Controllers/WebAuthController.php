@@ -215,6 +215,9 @@ class WebAuthController extends Controller
 
         if ($user->role === 'institusi') {
             $admins = User::where('role', 'admin')->get();
+            $institution = \App\Models\Institution::where('user_id', $user->id)->first();
+            $npsn = $institution ? $institution->npsn : '-';
+
             foreach ($admins as $admin) {
                 \App\Models\CustomNotification::create([
                     'user_id' => $admin->id,
@@ -223,6 +226,15 @@ class WebAuthController extends Controller
                     'type' => 'system',
                     'is_read' => false,
                 ]);
+
+                // Send email notification to each admin
+                try {
+                    \Illuminate\Support\Facades\Mail::to($admin->email)->send(
+                        new \App\Mail\NewInstitutionRegisteredMail($user, $npsn)
+                    );
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to send admin email notification for new institution: " . $e->getMessage());
+                }
             }
         }
  
