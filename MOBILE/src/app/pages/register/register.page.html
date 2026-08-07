@@ -55,15 +55,19 @@
         </ion-item>
 
         <!-- KONDISIONAL DROPDOWN INSTITUSI -->
-        <ion-item *ngIf="userData.role === 'siswa' || userData.role === 'mahasiswa'" style="--border-radius: 14px; margin-bottom: 10px;">
+        <ion-item *ngIf="userData.role === 'siswa' || userData.role === 'mahasiswa'" style="--border-radius: 14px; margin-bottom: 6px;">
           <ion-label position="stacked">Sekolah / Kampus Asal</ion-label>
           <ion-select name="institution_id" [(ngModel)]="userData.institution_id">
-            <ion-select-option value="">-- Mandiri / Umum --</ion-select-option>
+            <ion-select-option value="">-- Pengguna Umum (Mandiri) --</ion-select-option>
             <ion-select-option *ngFor="let inst of institutions" [value]="inst.id">
               {{ inst.name }}
             </ion-select-option>
           </ion-select>
         </ion-item>
+        <div *ngIf="userData.role === 'siswa' || userData.role === 'mahasiswa'" style="font-size: 0.78rem; color: #78716C; margin: 0 16px 14px 16px; line-height: 1.4; display: flex; align-items: flex-start; gap: 6px;">
+          <i class="fa-solid fa-circle-info" style="color: #D97706; margin-top: 3px; font-size: 0.85rem;"></i>
+          <span>Jika nama sekolah/universitas Anda belum terdaftar dalam pilihan, silakan pilih opsi <strong>-- Pengguna Umum (Mandiri) --</strong>.</span>
+        </div>
 
         <!-- KONDISIONAL SISWA -->
         <div *ngIf="userData.role === 'siswa'">
@@ -122,4 +126,71 @@
       Sudah ada akun? <a routerLink="/login" style="color: #1C1917; font-weight: 800; text-decoration: underline;">Masuk Disini</a>
     </p>
   </div>
+
+  <!-- Custom Beautiful OTP Modal -->
+  <ion-modal [isOpen]="showOtpModal" [backdropDismiss]="false" style="--height: auto; --width: 90%; --max-width: 400px; --border-radius: 28px; --box-shadow: 0 28px 48px rgba(0,0,0,0.15); --background: #FDFBF7;">
+    <ng-template>
+      <div style="padding: 28px 24px; text-align: center; font-family: 'Plus Jakarta Sans', sans-serif;">
+        <!-- Top Shield Icon -->
+        <div style="margin: 0 auto 18px auto; width: 68px; height: 68px; background: #FAF0E4; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(217, 119, 6, 0.12);">
+          <i class="fa-solid fa-shield-halved" style="font-size: 2rem; color: #D97706;"></i>
+        </div>
+
+        <!-- Header Titles -->
+        <h2 style="font-size: 1.45rem; font-weight: 800; color: #1C1917; margin: 0; letter-spacing: -0.01em;">Verifikasi Kode OTP</h2>
+        <p style="font-size: 0.88rem; color: #78716C; line-height: 1.5; margin: 10px 0 24px 0;">
+          Kode OTP 6-digit telah dikirim ke alamat email<br>
+          <strong style="color: #1C1917; font-weight: 700; word-break: break-all;">{{ otpEmail }}</strong>
+        </p>
+
+        <!-- OTP Input Container (Displays 6 styled squares) -->
+        <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 28px;" (click)="focusOtpInput()">
+          <div *ngFor="let i of [0,1,2,3,4,5]" 
+               [style.border-color]="otpCode.length === i ? '#D97706' : (otpCode.length > i ? '#1C1917' : '#E8E5DC')"
+               [style.background]="otpCode.length === i ? '#FFFFFF' : '#F8F6F0'"
+               [style.box-shadow]="otpCode.length === i ? '0 0 0 3px rgba(217, 119, 6, 0.15)' : 'none'"
+               style="width: 44px; height: 50px; border: 2px solid; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; color: #1C1917; transition: all 0.2s; cursor: pointer;">
+            {{ otpCode[i] || '' }}
+          </div>
+        </div>
+
+        <!-- Hidden input overlay to capture input naturally -->
+        <input type="tel" 
+               #otpInput 
+               maxlength="6" 
+               [(ngModel)]="otpCode" 
+               (ngModelChange)="onOtpChange($event)"
+               style="position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px;" />
+
+        <!-- Actions -->
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <ion-button expand="block" 
+                      color="primary" 
+                      [disabled]="otpCode.length !== 6 || isVerifyingOtp" 
+                      (click)="verifyOtp()"
+                      style="font-weight: 800; height: 52px; --border-radius: 16px; margin: 0; --box-shadow: 0 6px 20px rgba(28, 25, 23, 0.15);">
+            <span *ngIf="!isVerifyingOtp">Verifikasi Akun</span>
+            <ion-spinner name="crescent" *ngIf="isVerifyingOtp" style="color: #FFFFFF;"></ion-spinner>
+          </ion-button>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding: 0 4px;">
+            <button type="button" 
+                    [disabled]="resendCountdown > 0 || isResendingOtp" 
+                    (click)="resendOtp()" 
+                    [style.color]="(resendCountdown > 0 || isResendingOtp) ? '#A8A29E' : '#D97706'"
+                    style="background: none; border: none; font-size: 0.85rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 6px 0;">
+              <i class="fa-solid fa-rotate-right" [class.fa-spin]="isResendingOtp"></i>
+              <span>Kirim Ulang {{ resendCountdown > 0 ? '(' + resendCountdown + 's)' : '' }}</span>
+            </button>
+
+            <button type="button" 
+                    (click)="closeOtpModal()" 
+                    style="background: none; border: none; font-size: 0.85rem; font-weight: 800; color: #78716C; cursor: pointer; padding: 6px 0;">
+              Batal
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
 </ion-content>

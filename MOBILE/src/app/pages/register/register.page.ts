@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
@@ -9,7 +9,7 @@ import { AlertController } from '@ionic/angular';
   templateUrl: './register.page.html',
   standalone: false,
 })
-export class RegisterPage {
+export class RegisterPage implements OnDestroy {
   userData = {
     role: 'siswa',
     name: '',
@@ -31,6 +31,16 @@ export class RegisterPage {
 
   showPassword = false;
   showConfirmPassword = false;
+
+  showOtpModal = false;
+  otpCode = '';
+  otpEmail = '';
+  isVerifyingOtp = false;
+  isResendingOtp = false;
+  resendCountdown = 0;
+  countdownInterval: any;
+
+  @ViewChild('otpInput', { static: false }) otpInput!: ElementRef;
 
 
   constructor(
@@ -106,87 +116,132 @@ export class RegisterPage {
     });
   }
 
-  async promptOtpVerification(email: string) {
-    const alert = await this.alertController.create({
-      header: 'Verifikasi Kode OTP',
-      subHeader: `Kode OTP 6-digit telah dikirim ke ${email}`,
-      inputs: [
-        {
-          name: 'otp_code',
-          type: 'text',
-          placeholder: 'Masukkan 6-digit OTP',
-          attributes: {
-            maxlength: 6,
-            inputmode: 'numeric'
-          }
-        }
-      ],
-      buttons: [
-        {
-          text: 'Kirim Ulang Email',
-          role: 'cancel',
-          handler: () => {
-            this.authService.resendOtp({ email }).subscribe({
-              next: async () => {
-                const toastAlert = await this.alertController.create({
-                  header: 'OTP Dikirim Ulang',
-                  message: 'Silakan periksa kotak masuk email Anda.',
-                  buttons: ['OK']
-                });
-                await toastAlert.present();
-                this.promptOtpVerification(email);
-              }
-            });
-          }
-        },
-        {
-          text: 'Verifikasi',
-          handler: (data) => {
-            if (!data.otp_code || data.otp_code.length !== 6) {
-              return false; // don't close alert
-            }
-            this.authService.verifyOtp({ email, otp_code: data.otp_code }).subscribe({
-              next: async (res: any) => {
-                const successAlert = await this.alertController.create({
-                  header: 'Verifikasi Berhasil!',
-                  message: 'Akun Anda telah aktif. Mengalihkan ke aplikasi...',
-                  buttons: [
-                    {
-                      text: 'OK',
-                      handler: () => {
-                        this.router.navigateByUrl('/home');
-                      }
-                    }
-                  ]
-                });
-                await successAlert.present();
-              },
-              error: async (err: any) => {
-                let errMessage = 'Kode OTP tidak valid atau telah expired.';
-                if (err.error && err.error.message) {
-                  errMessage = err.error.message;
-                }
-                const failAlert = await this.alertController.create({
-                  header: 'Verifikasi Gagal',
-                  message: errMessage,
-                  buttons: [
-                    {
-                      text: 'Coba Lagi',
-                      handler: () => {
-                        this.promptOtpVerification(email);
-                      }
-                    }
-                  ]
-                });
-                await failAlert.present();
-              }
-            });
-            return true;
-          }
-        }
-      ]
-    });
+  ngOnDestroy() {
+    this.clearCountdown();
+  }
 
-    await alert.present();
+  startCountdown() {
+    this.resendCountdown = 60;
+    this.clearCountdown();
+    this.countdownInterval = setInterval(() => {
+      if (this.resendCountdown > 0) {
+        this.resendCountdown--;
+      } else {
+        this.clearCountdown();
+      }
+    }, 1000);
+  }
+
+  clearCountdown() {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
+  }
+
+  focusOtpInput() {
+    setTimeout(() => {
+      if (this.otpInput && this.otpInput.nativeElement) {
+        this.otpInput.nativeElement.focus();
+      }
+    }, 200);
+  }
+
+  onOtpChange(value: any) {
+    if (value) {
+      const stringValue = String(value);
+      this.otpCode = stringValue.replace(/[^0-9]/g, '');
+      if (this.otpCode.length === 6) {
+        this.verifyOtp();
+      }
+    }
+  }
+
+  promptOtpVerification(email: string) {
+    this.otpEmail = email;
+    this.otpCode = '';
+    this.showOtpModal = true;
+    this.startCountdown();
+    this.focusOtpInput();
+  }
+
+  verifyOtp() {
+    if (this.otpCode.length !== 6 || this.isVerifyingOtp) {
+      return;
+    }
+    this.isVerifyingOtp = true;
+    this.authService.verifyOtp({ email: this.otpEmail, otp_code: this.otpCode }).subscribe({
+      next: async (res: any) => {
+        this.isVerifyingOtp = false;
+        this.showOtpModal = false;
+        this.clearCountdown();
+        
+        const successAlert = await this.alertController.create({
+          header: 'Verifikasi Berhasil!',
+          message: 'Akun Anda telah aktif. Mengalihkan ke aplikasi...',
+          buttons: [
+            {
+              text: 'OK',
+              handler: () => {
+                this.router.navigateByUrl('/home');
+              }
+            }
+          ]
+        });
+        await successAlert.present();
+      },
+      error: async (err: any) => {
+        this.isVerifyingOtp = false;
+        let errMessage = 'Kode OTP tidak valid atau telah expired.';
+        if (err.error && err.error.message) {
+          errMessage = err.error.message;
+        }
+        const failAlert = await this.alertController.create({
+          header: 'Verifikasi Gagal',
+          message: errMessage,
+          buttons: ['Coba Lagi']
+        });
+        await failAlert.present();
+      }
+    });
+  }
+
+  resendOtp() {
+    if (this.isResendingOtp || this.resendCountdown > 0) {
+      return;
+    }
+    this.isResendingOtp = true;
+    this.authService.resendOtp({ email: this.otpEmail }).subscribe({
+      next: async () => {
+        this.isResendingOtp = false;
+        this.otpCode = '';
+        this.startCountdown();
+        const toastAlert = await this.alertController.create({
+          header: 'OTP Dikirim Ulang',
+          message: 'Silakan periksa kotak masuk email Anda.',
+          buttons: ['OK']
+        });
+        await toastAlert.present();
+        this.focusOtpInput();
+      },
+      error: async (err: any) => {
+        this.isResendingOtp = false;
+        let errMessage = 'Gagal mengirim ulang OTP. Silakan coba lagi.';
+        if (err.error && err.error.message) {
+          errMessage = err.error.message;
+        }
+        const failAlert = await this.alertController.create({
+          header: 'Gagal Kirim Ulang',
+          message: errMessage,
+          buttons: ['OK']
+        });
+        await failAlert.present();
+      }
+    });
+  }
+
+  closeOtpModal() {
+    this.showOtpModal = false;
+    this.clearCountdown();
   }
 }
