@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pendaftaran Akun Baru - Lost Talent Detector</title>
-    <link rel="icon" type="image/png" href="{{ asset('icon.png') }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('LOGO APK.jpg') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/app_custom.css') }}">
     <style>
@@ -167,7 +167,7 @@
                     <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
                 </a>
                 <div style="margin: 0 auto 12px; width: 48px; height: 48px;">
-                    <img src="{{ asset('icon.png') }}" alt="Lost Talent Logo" style="width: 100%; height: 100%; border-radius: 14px; object-fit: cover;">
+                    <img src="{{ asset('LOGO APK.jpg') }}" alt="Lost Talent Logo" style="width: 100%; height: 100%; border-radius: 14px; object-fit: cover;">
                 </div>
                 <h2 style="font-size: 1.8rem; font-weight: 800; color: #1C1917; margin: 0; letter-spacing: -0.02em;">Pendaftaran Akun Baru</h2>
                 <p style="color: #78716C; font-size: 0.9rem; margin-top: 6px; margin-bottom: 0;">Lengkapi data profil Anda untuk memulai deteksi analisis bakat AI.</p>

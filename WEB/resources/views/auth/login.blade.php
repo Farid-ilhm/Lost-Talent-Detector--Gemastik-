@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk - Lost Talent Detector</title>
-    <link rel="icon" type="image/png" href="{{ asset('icon.png') }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('LOGO APK.jpg') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/app_custom.css') }}">
     <style>
@@ -143,7 +143,7 @@
         <div class="banner-side">
             <div>
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 64px;">
-                    <img src="{{ asset('icon.png') }}" alt="Lost Talent Logo" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
+                    <img src="{{ asset('LOGO APK.jpg') }}" alt="Lost Talent Logo" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
                     <span style="font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; color: #FFFFFF;">Lost Talent Detector</span>
                 </div>
                 
@@ -182,7 +182,7 @@
                 <div style="margin-bottom: 36px;">
                     <!-- Show logo on mobile only -->
                     <div style="display: none; align-items: center; gap: 10px; margin-bottom: 24px;" class="mobile-logo">
-                        <img src="{{ asset('icon.png') }}" alt="Lost Talent Logo" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover;">
+                        <img src="{{ asset('LOGO APK.jpg') }}" alt="Lost Talent Logo" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover;">
                         <span style="font-size: 1.1rem; font-weight: 800; color: #1C1917;">Lost Talent Detector</span>
                     </div>
                     <h2 style="font-size: 2rem; font-weight: 800; color: #1C1917; margin: 0; letter-spacing: -0.02em;">Selamat Datang</h2>

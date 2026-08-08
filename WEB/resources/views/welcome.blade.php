@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lost Talent Detector</title>
-    <link rel="icon" type="image/png" href="{{ asset('icon.png') }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('LOGO APK.jpg') }}">
     <!-- FontAwesome Icons -->
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -30,7 +30,7 @@
     <header class="landing-navbar">
         <div class="landing-navbar-inner">
             <a href="/" class="nav-brand">
-                <img src="{{ asset('icon.png') }}" alt="Lost Talent Detector Logo" style="width: 44px; height: 44px; border-radius: 14px; object-fit: cover;">
+                <img src="{{ asset('LOGO APK.jpg') }}" alt="Lost Talent Detector Logo" style="width: 44px; height: 44px; border-radius: 14px; object-fit: cover;">
                 <div>
                     <span style="display: block; line-height: 1.2;">Lost Talent Detector</span>
                     <span style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Intelijen Bakat AI</span>
@@ -332,7 +332,7 @@
                 <!-- Column 1: Brand Info -->
                 <div style="display: flex; flex-direction: column; gap: 16px; min-width: 250px;">
                     <a href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #FFFFFF;">
-                        <img src="{{ asset('icon.png') }}" alt="Lost Talent Logo" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
+                        <img src="{{ asset('LOGO APK.jpg') }}" alt="Lost Talent Logo" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
                         <div>
                             <span style="display: block; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;">Lost Talent Detector</span>
                             <span style="font-size: 0.7rem; font-weight: 700; color: #EAB308; text-transform: uppercase; letter-spacing: 0.05em;">Intelijen Bakat AI</span>
