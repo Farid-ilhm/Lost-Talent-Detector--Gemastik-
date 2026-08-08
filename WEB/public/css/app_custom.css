@@ -342,6 +342,18 @@ body {
     gap: 20px;
 }
 
+.cards-grid-2x2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+@media (max-width: 768px) {
+    .cards-grid-2x2 {
+        grid-template-columns: 1fr;
+    }
+}
+
 .pastel-card {
     border-radius: var(--radius-lg);
     padding: 24px;

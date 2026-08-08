@@ -168,7 +168,7 @@
                 </p>
             </div>
 
-            <div class="cards-grid">
+            <div class="cards-grid-2x2">
                 <!-- Card 1: Pink -->
                 <div class="pastel-card card-pink" style="padding: 28px;">
                     <div class="card-header-row">

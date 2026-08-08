@@ -33,7 +33,7 @@
 </div>
 
 <!-- Overview Stats Cards (4 Pastel Cards Grid) -->
-<div class="cards-grid" style="margin-top: 8px; margin-bottom: 8px;">
+<div class="cards-grid-2x2" style="margin-top: 8px; margin-bottom: 8px;">
     <!-- Card 1: Pink - User Info -->
     <div class="pastel-card card-pink">
         <div class="card-header-row">
@@ -172,7 +172,7 @@
     <!-- Form update minat & hobi -->
     <form action="/student/interests" method="POST">
         @csrf
-        <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;">Update Minat & Hobi</h4>
+        <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;">Update Hobi & Minat</h4>
         <div style="margin-bottom: 16px;">
             <label for="hobbies" class="form-label">Hobi (Pisahkan dengan koma):</label>
             <input type="text" id="hobbies" name="hobbies" class="form-control" value="{{ $student->hobbies ? implode(', ', $student->hobbies) : '' }}" placeholder="contoh: Coding, Robotik, Basket, Desain Grafis">
