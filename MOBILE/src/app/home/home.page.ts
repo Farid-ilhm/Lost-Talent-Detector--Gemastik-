@@ -13,7 +13,7 @@ import { AlertController, ToastController } from '@ionic/angular';
 })
 export class HomePage {
   student: any = null;
-  serverUrl: string = 'http://localhost:8000/';
+  serverUrl: string = 'https://losttalentdetector.my.id/';
   grades: any[] = [];
   achievements: any[] = [];
   testResult: any = null;
@@ -222,7 +222,7 @@ export class HomePage {
       },
       error: async (err: any) => {
         this.isLoadingDashboard = false;
-        this.dashboardError = err.error?.message || 'Gagal terhubung ke backend server API (http://localhost:8000). Pastikan server Laravel sudah berjalan.';
+        this.dashboardError = err.error?.message || 'Gagal terhubung ke backend server API (https://losttalentdetector.my.id).';
         const toast = await this.toastController.create({
           message: 'Gagal memuat data dashboard.',
           duration: 3000,

@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class ApiService {
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = 'https://losttalentdetector.my.id/api';
 
   constructor(
     private http: HttpClient,

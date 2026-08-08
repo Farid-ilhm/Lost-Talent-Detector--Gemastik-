@@ -12,7 +12,7 @@ export class StudentAchievementsTabComponent {
   @Input() selectedCerts: Set<number> = new Set<number>();
   @Input() student: any = null;
   @Input() selectedFileName: string = '';
-  @Input() serverUrl: string = 'http://localhost:8000/';
+  @Input() serverUrl: string = 'https://losttalentdetector.my.id/';
   @Input() newAchievement: any = {
     title: '',
     category: 'teknologi',

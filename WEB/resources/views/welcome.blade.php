@@ -375,9 +375,9 @@
                         <li style="margin-top: 8px;">
                             <span style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #78716C; margin-bottom: 6px;">Unduh Aplikasi</span>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <span style="background-color: #292524; color: #FFFFFF; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                <a href="/downloads/losttalent-detector.apk" download style="background-color: #292524; color: #FFFFFF; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border: 1px solid #44403C; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#44403C'" onmouseout="this.style.backgroundColor='#292524'">
                                     <i class="fa-solid fa-mobile-screen"></i> Android APK
-                                </span>
+                                </a>
                             </div>
                         </li>
                     </ul>

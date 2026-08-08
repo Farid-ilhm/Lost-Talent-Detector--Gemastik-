@@ -464,7 +464,7 @@ class StudentApiController extends Controller
             $openrouterKey = env('OPENROUTER_API_KEY') ?: (getenv('OPENROUTER_API_KEY') ?: ($_ENV['OPENROUTER_API_KEY'] ?? null));
 
             // Call Python AI Service (Multi-Engine: DeepSeek-R1 / Gemini + Local ML)
-            $response = \Illuminate\Support\Facades\Http::timeout(5)->post('http://127.0.0.1:5001/predict', [
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->post('https://ai.losttalentdetector.my.id/predict', [
                 'riasec' => $testResult ? $testResult->scores : new \stdClass(),
                 'grades' => $grades->groupBy('subject_name')->map(function ($items) {
                     return floatval($items->avg('score'));
