@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'MOBILE',
+  appId: 'com.ltdetector.app',
+  appName: 'Lost Talent Detector',
   webDir: 'www'
 };
 
