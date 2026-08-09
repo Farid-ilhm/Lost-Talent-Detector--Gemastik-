@@ -8,7 +8,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Custom Design System CSS -->
-    <link rel="stylesheet" href="{{ asset('css/app_custom.css') }}?v=1.2">
+    <link rel="stylesheet" href="{{ asset('css/app_custom.css') }}?v=1.3">
     
     <!-- Early global confirm override to catch inline handlers -->
     <script>
@@ -56,9 +56,18 @@
                 <img src="{{ asset('icon.png') }}" alt="Logo" style="width: 34px; height: 34px; border-radius: 10px; object-fit: cover;">
                 <span style="font-weight: 800; font-size: 1rem; color: var(--text-dark);">Lost Talent</span>
             </a>
-            <button type="button" class="mobile-menu-toggle" id="dashMobileMenuBtn" aria-label="Menu App Mobile">
-                <i class="fa-solid fa-bars"></i>
-            </button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="icon-btn-circle" title="Notifikasi System" onclick="toggleNotificationDropdown(event)" style="position: relative; width: 36px; height: 36px; font-size: 0.9rem;">
+                    <i class="fa-regular fa-bell"></i>
+                    <span id="notif-badge-mobile" style="display: none; position: absolute; top: -2px; right: -2px; background-color: #EF4444; color: #FFFFFF; font-size: 0.6rem; font-weight: 800; border-radius: 50%; width: 16px; height: 16px; align-items: center; justify-content: center; border: 2px solid #FFFFFF;">0</span>
+                </button>
+                <button class="icon-btn-circle" title="Pengaturan Akun" onclick="openSettingsModal()" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+                <button type="button" class="mobile-menu-toggle" id="dashMobileMenuBtn" aria-label="Menu App Mobile">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
         </header>
 
         <div class="mobile-dash-drawer" id="dashMobileDrawer">
@@ -519,13 +528,15 @@
                 .then(response => response.json())
                 .then(data => {
                     const badge = document.getElementById('notif-badge');
+                    const badgeMobile = document.getElementById('notif-badge-mobile');
                     const list = document.getElementById('notif-list');
-                    if (badge) {
+                    if (badge || badgeMobile) {
                         if (data.count > 0) {
-                            badge.textContent = data.count;
-                            badge.style.display = 'flex';
+                            if (badge) { badge.textContent = data.count; badge.style.display = 'flex'; }
+                            if (badgeMobile) { badgeMobile.textContent = data.count; badgeMobile.style.display = 'flex'; }
                         } else {
-                            badge.style.display = 'none';
+                            if (badge) badge.style.display = 'none';
+                            if (badgeMobile) badgeMobile.style.display = 'none';
                         }
                     }
                     if (list) {
@@ -582,7 +593,9 @@
             .then(data => {
                 if (data.status === 'success') {
                     const badge = document.getElementById('notif-badge');
+                    const badgeMobile = document.getElementById('notif-badge-mobile');
                     if (badge) badge.style.display = 'none';
+                    if (badgeMobile) badgeMobile.style.display = 'none';
                     const list = document.getElementById('notif-list');
                     if (list) {
                         list.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 12px;">Tidak ada notifikasi baru.</div>';

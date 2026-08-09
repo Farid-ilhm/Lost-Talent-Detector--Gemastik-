@@ -109,7 +109,7 @@
         <p style="color: var(--text-muted); font-size: 0.9rem;">Visualisasi persentase penyebaran peran pengguna aktif di dalam platform.</p>
     </div>
     
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: center; flex-wrap: wrap;">
+    <div class="admin-chart-grid">
         <!-- Left: Chart Canvas -->
         <div style="background-color: #FAFAF8; border: 1px solid var(--border-subtle); padding: 20px; border-radius: var(--radius-md); height: 320px; position: relative;">
             <canvas id="userRolesChart" style="max-height: 100%; max-width: 100%;"></canvas>
