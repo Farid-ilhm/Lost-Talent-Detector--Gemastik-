@@ -5,6 +5,12 @@ if (navbar) {
     window.addEventListener('scroll', () => {
         const currentScrollY = window.scrollY;
         
+        // Don't auto-hide navbar if mobile menu is open
+        const navMenuWrapper = document.getElementById('navMenuWrapper');
+        if (navMenuWrapper && navMenuWrapper.classList.contains('nav-menu-open')) {
+            return;
+        }
+
         if (currentScrollY <= 50) {
             navbar.classList.remove('nav-hidden');
             lastScrollY = currentScrollY;
@@ -20,6 +26,35 @@ if (navbar) {
         lastScrollY = currentScrollY;
     }, { passive: true });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navMenuWrapper = document.getElementById('navMenuWrapper');
+
+    if (mobileMenuBtn && navMenuWrapper) {
+        mobileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = navMenuWrapper.classList.toggle('nav-menu-open');
+            mobileMenuBtn.innerHTML = isOpen 
+                ? '<i class="fa-solid fa-xmark"></i>' 
+                : '<i class="fa-solid fa-bars"></i>';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (navbar && !navbar.contains(e.target) && navMenuWrapper.classList.contains('nav-menu-open')) {
+                navMenuWrapper.classList.remove('nav-menu-open');
+                mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+            }
+        });
+
+        navMenuWrapper.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenuWrapper.classList.remove('nav-menu-open');
+                mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+            });
+        });
+    }
+});
 
 function handleContactSubmit(event) {
     event.preventDefault();

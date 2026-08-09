@@ -50,6 +50,77 @@
     <div class="app-wrapper">
         <!-- 1. LEFT SIDEBAR NAVIGATION (Cleaned up, only active dashboard & logout) -->
         @auth
+        <!-- MOBILE TOP BAR FOR LOGGED IN USERS -->
+        <header class="mobile-dash-header">
+            <a href="/dashboard" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                <img src="{{ asset('LOGO APK.jpg') }}" alt="Logo" style="width: 34px; height: 34px; border-radius: 10px; object-fit: cover;">
+                <span style="font-weight: 800; font-size: 1rem; color: var(--text-dark);">Lost Talent</span>
+            </a>
+            <button type="button" class="mobile-menu-toggle" id="dashMobileMenuBtn" aria-label="Menu App Mobile">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </header>
+
+        <div class="mobile-dash-drawer" id="dashMobileDrawer">
+            <div class="mobile-drawer-inner">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="app-brand-icon" style="width: 36px; height: 36px; font-size: 0.85rem; background-color: var(--bg-pill-active); color: #FFF;">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                        </div>
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-dark);">{{ Auth::user()->name }}</div>
+                            <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">{{ Auth::user()->role }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="mobile-dash-nav" style="display: flex; flex-direction: column; gap: 8px; margin-top: 14px;">
+                    <a href="/dashboard" class="dash-mobile-link {{ Request::is('dashboard') ? 'active' : '' }}">
+                        <i class="fa-solid fa-border-all"></i> Dashboard Utama
+                    </a>
+                    @if(Auth::user()->role === 'admin')
+                        <a href="/admin/institutions" class="dash-mobile-link {{ Request::is('admin/institutions*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-school-flag"></i> Kelola Institusi
+                        </a>
+                        <a href="/admin/competitions" class="dash-mobile-link {{ Request::is('admin/competitions*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-trophy"></i> Kelola Kompetisi
+                        </a>
+                        <a href="/admin/users" class="dash-mobile-link {{ Request::is('admin/users*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-users"></i> Kelola Akun Pengguna
+                        </a>
+                    @elseif(Auth::user()->role === 'institusi')
+                        <a href="/institution/classrooms" class="dash-mobile-link {{ Request::is('institution/classrooms*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-door-open"></i> Kelola Kelas
+                        </a>
+                        <a href="/institution/teachers" class="dash-mobile-link {{ Request::is('institution/teachers*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-chalkboard-user"></i> Kelola Guru Pendamping
+                        </a>
+                        <a href="/institution/announcements" class="dash-mobile-link {{ Request::is('institution/announcements*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-bullhorn"></i> Pengumuman
+                        </a>
+                    @elseif(Auth::user()->role === 'guru')
+                        <a href="/teacher/achievements" class="dash-mobile-link {{ Request::is('teacher/achievements*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-trophy"></i> Verifikasi Prestasi
+                        </a>
+                        <a href="/teacher/grades" class="dash-mobile-link {{ Request::is('teacher/grades*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-pen-to-square"></i> Input Rapor
+                        </a>
+                        <a href="/teacher/students" class="dash-mobile-link {{ Request::is('teacher/students*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-users"></i> Kelola Akun Murid
+                        </a>
+                    @endif
+
+                    <form action="/logout" method="POST" style="margin-top: 12px;" onsubmit="return confirm('Apakah Anda yakin ingin keluar dari sistem?')">
+                        @csrf
+                        <button type="submit" class="dash-mobile-link" style="width: 100%; color: #DC2626; background: rgba(220, 38, 38, 0.08); border: none; text-align: left; cursor: pointer;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout (Keluar Sistem)
+                        </button>
+                    </form>
+                </nav>
+            </div>
+        </div>
+
         <aside class="left-sidebar">
             <div class="sidebar-top">
                 <a href="/dashboard" class="app-brand-icon" title="Dashboard Lost Talent Detector" style="background: transparent; overflow: hidden; padding: 0;">
@@ -700,6 +771,24 @@
                 closeModal();
             });
         })();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const dashBtn = document.getElementById('dashMobileMenuBtn');
+            const dashDrawer = document.getElementById('dashMobileDrawer');
+            if (dashBtn && dashDrawer) {
+                dashBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const open = dashDrawer.classList.toggle('open');
+                    dashBtn.innerHTML = open ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+                });
+                document.addEventListener('click', function(e) {
+                    if (!dashDrawer.contains(e.target) && !dashBtn.contains(e.target) && dashDrawer.classList.contains('open')) {
+                        dashDrawer.classList.remove('open');
+                        dashBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+                    }
+                });
+            }
+        });
     </script>
     <style>
     @keyframes modalFadeIn {

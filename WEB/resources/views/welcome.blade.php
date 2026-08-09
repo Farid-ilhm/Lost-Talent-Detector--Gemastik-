@@ -30,49 +30,57 @@
     <header class="landing-navbar">
         <div class="landing-navbar-inner">
             <a href="/" class="nav-brand">
-                <img src="{{ asset('LOGO APK.jpg') }}" alt="Lost Talent Detector Logo" style="width: 44px; height: 44px; border-radius: 14px; object-fit: cover;">
-                <div>
-                    <span style="display: block; line-height: 1.2;">Lost Talent Detector</span>
-                    <span style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Intelijen Bakat AI</span>
+                <img src="{{ asset('LOGO APK.jpg') }}" alt="Lost Talent Detector Logo" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
+                <div class="nav-brand-text">
+                    <span style="display: block; line-height: 1.2; font-weight: 800;">Lost Talent Detector</span>
+                    <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em;">Intelijen Bakat AI</span>
                 </div>
             </a>
 
-            <ul class="nav-links">
-                <li><a href="#beranda">Beranda</a></li>
-                <li><a href="#penjelasan">Web & Mobile App</a></li>
-                <li><a href="#fitur">Fitur & Modul</a></li>
-                <li><a href="#kontak">Kontak</a></li>
-                <li><a href="/login">Masuk / Login</a></li>
-            </ul>
+            <button type="button" class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Menu Navigasi">
+                <i class="fa-solid fa-bars"></i>
+            </button>
 
-            <div class="nav-auth-buttons">
-                <a href="/login" class="btn-primary-dark" style="padding: 10px 22px; font-size: 0.9rem;">
-                    <i class="fa-solid fa-right-to-bracket"></i> Masuk (Login)
-                </a>
-                <a href="/register" class="btn-primary-dark" style="padding: 10px 22px; font-size: 0.9rem; background-color: var(--bg-pill); color: var(--text-dark);">
-                    <i class="fa-solid fa-user-plus"></i> Pendaftaran
-                </a>
+            <div class="nav-menu-wrapper" id="navMenuWrapper">
+                <ul class="nav-links">
+                    <li><a href="#beranda">Beranda</a></li>
+                    <li><a href="#penjelasan">Web & Mobile</a></li>
+                    <li><a href="#fitur">Fitur & Modul</a></li>
+                    <li><a href="#kontak">Kontak</a></li>
+                </ul>
+
+                <div class="nav-auth-buttons">
+                    <a href="#download-apk" class="btn-apk-navbar" title="Unduh Aplikasi Android APK">
+                        <i class="fa-solid fa-mobile-screen-button"></i> App Mobile (APK)
+                    </a>
+                    <a href="/login" class="btn-primary-dark" style="padding: 9px 18px; font-size: 0.88rem;">
+                        <i class="fa-solid fa-right-to-bracket"></i> Masuk
+                    </a>
+                    <a href="/register" class="btn-primary-dark" style="padding: 9px 18px; font-size: 0.88rem; background-color: var(--bg-pill); color: var(--text-dark);">
+                        <i class="fa-solid fa-user-plus"></i> Pendaftaran
+                    </a>
+                </div>
             </div>
         </div>
     </header>
 
 
     <!-- CONTAINER UTAMA LANDING PAGE -->
-    <main style="max-width: 1200px; margin: 84px auto 0; padding: 40px 24px; display: flex; flex-direction: column; gap: 48px;">
+    <main class="landing-container" style="max-width: 1200px; margin: 84px auto 0; padding: 40px 24px; display: flex; flex-direction: column; gap: 48px;">
 
 
         <!-- 2. HERO SECTION PUBLIK -->
-        <section id="beranda" class="landing-hero-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; align-items: center; background: linear-gradient(135deg, #FFFFFF 0%, #FAF8F5 100%);">
+        <section id="beranda" class="landing-hero-card hero-grid-section" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; align-items: center; background: linear-gradient(135deg, #FFFFFF 0%, #FAF8F5 100%);">
             <div>
-                <h1 style="font-size: 2.8rem; font-weight: 800; line-height: 1.15; color: var(--text-dark); margin-bottom: 20px;">
+                <h1 class="hero-title" style="font-size: 2.8rem; font-weight: 800; line-height: 1.15; color: var(--text-dark); margin-bottom: 20px;">
                     Deteksi Bakat Terpendam & Kembangkan Masa Depan
                 </h1>
 
-                <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 32px;">
+                <p class="hero-desc" style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 32px;">
                     Platform terpadu analisis potensi diri siswa & mahasiswa melalui integrasi nilai akademik, sertifikat prestasi terverifikasi, dan tes kuesioner minat psikometrik RIASEC berbasis Artificial Intelligence.
                 </p>
 
-                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <div class="hero-btn-group" style="display: flex; gap: 16px; flex-wrap: wrap;">
                     <a href="/login" class="btn-primary-dark" style="padding: 16px 32px; font-size: 1rem;">
                         <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang
                     </a>
@@ -83,7 +91,7 @@
             </div>
 
             <!-- Quick Overview Card Grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="hero-quick-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                 <div class="pastel-card card-pink" style="padding: 20px; min-height: 140px;">
                     <div style="font-size: 1.8rem; margin-bottom: 8px;"><i class="fa-solid fa-graduation-cap"></i></div>
                     <div style="font-weight: 800; font-size: 1rem;">Nilai Rapor</div>
@@ -220,7 +228,7 @@
         </section>
 
         <!-- SECTION KONTAK / HUBUNGI KAMI -->
-        <section id="kontak" class="landing-hero-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px; align-items: start; background-color: #FFFFFF; padding: 48px;">
+        <section id="kontak" class="landing-hero-card contact-section" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 48px; align-items: start; background-color: #FFFFFF; padding: 48px;">
             <div style="display: flex; flex-direction: column; gap: 24px;">
                 <div>
                     <span style="background-color: #FEF3C7; color: #D97706; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; display: inline-block; margin-bottom: 12px;">
@@ -259,12 +267,12 @@
                 </div>
             </div>
 
-            <div style="background-color: #FFFFFF; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--border-subtle); padding: 32px; width: 100%; box-sizing: border-box;">
+            <div class="contact-form-card" style="background-color: #FFFFFF; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--border-subtle); padding: 32px; width: 100%; box-sizing: border-box;">
                 <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin-top: 0; margin-bottom: 24px;">Kirim Pesan Langsung</h3>
                 
                 <form id="contactForm" onsubmit="handleContactSubmit(event)">
                     @csrf
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div class="form-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                         <div>
                             <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Nama Lengkap</label>
                             <input type="text" name="name" required placeholder="Masukkan nama..." style="width: 100%; border: 1px solid #E7E5E4; background-color: #F5F5F4; border-radius: 12px; padding: 12px 16px; font-size: 0.95rem; color: #1C1917; box-sizing: border-box; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#A8A29E'" onblur="this.style.borderColor='#E7E5E4'">
@@ -304,13 +312,13 @@
         </section>
 
         <!-- 5. CALL TO ACTION BOX -->
-        <section class="landing-hero-card" style="background-color: #1C1917; color: #FFFFFF; padding: 40px 48px;">
+        <section class="landing-hero-card cta-section" style="background-color: #1C1917; color: #FFFFFF; padding: 40px 48px;">
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
                 <div style="max-width: 600px;">
                     <h3 style="font-size: 1.8rem; font-weight: 800; color: #FFFFFF;">Siap Menemukan Potensi Bakat Terbaik Anda?</h3>
                     <p style="color: #A8A29E; font-size: 1.05rem; margin-top: 8px;">Dapatkan analisis intelijen bakat lengkap & rekomendasi perlombaan secara gratis sekarang.</p>
                 </div>
-                <div style="display: flex; gap: 14px;">
+                <div class="cta-btn-group" style="display: flex; gap: 14px; flex-wrap: wrap;">
                     <a href="/login" class="btn-primary-dark" style="background-color: #FFFFFF; color: #1C1917; padding: 14px 28px; font-size: 1rem;">
                         <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang
                     </a>
@@ -327,7 +335,7 @@
     <footer style="background-color: #1C1917; color: #E7E5E4; padding: 64px 24px 32px; border-top: 1px solid #292524; font-size: 0.9rem;">
         <div style="max-width: 1200px; margin: 0 auto;">
             <!-- Top Footer Grid -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; margin-bottom: 48px;">
+            <div class="footer-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; margin-bottom: 48px;">
                 
                 <!-- Column 1: Brand Info -->
                 <div style="display: flex; flex-direction: column; gap: 16px; min-width: 250px;">
@@ -372,11 +380,11 @@
                     <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
                         <li><a href="/login" style="color: #A8A29E; text-decoration: none; font-size: 0.88rem; transition: color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#A8A29E'">Login (Masuk)</a></li>
                         <li><a href="/register" style="color: #A8A29E; text-decoration: none; font-size: 0.88rem; transition: color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#A8A29E'">Registrasi (Daftar Baru)</a></li>
-                        <li style="margin-top: 8px;">
+                        <li id="download-apk" style="margin-top: 8px; scroll-margin-top: 100px;">
                             <span style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #78716C; margin-bottom: 6px;">Unduh Aplikasi</span>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <a href="/downloads/losttalent-detector.apk" download style="background-color: #292524; color: #FFFFFF; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border: 1px solid #44403C; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#44403C'" onmouseout="this.style.backgroundColor='#292524'">
-                                    <i class="fa-solid fa-mobile-screen"></i> Android APK
+                                <a href="/downloads/losttalent-detector.apk" download style="background-color: #292524; color: #FFFFFF; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; border: 1px solid #059669; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#059669'" onmouseout="this.style.backgroundColor='#292524'">
+                                    <i class="fa-solid fa-mobile-screen" style="color: #34D399; font-size: 1.1rem;"></i> Android APK
                                 </a>
                             </div>
                         </li>

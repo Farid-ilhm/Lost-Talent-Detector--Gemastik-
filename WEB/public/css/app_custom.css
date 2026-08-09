@@ -24,6 +24,10 @@
     --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -78,6 +82,11 @@ body {
     color: var(--text-dark);
     font-weight: 800;
     font-size: 1.25rem;
+    white-space: nowrap;
+}
+
+.nav-brand-text {
+    white-space: nowrap;
 }
 
 .nav-brand-logo {
@@ -95,7 +104,7 @@ body {
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 28px;
+    gap: 22px;
     list-style: none;
 }
 
@@ -103,7 +112,8 @@ body {
     text-decoration: none;
     color: var(--text-dark);
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
+    white-space: nowrap;
     transition: color 0.2s;
 }
 
@@ -111,10 +121,63 @@ body {
     color: #000000;
 }
 
+.nav-menu-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.btn-apk-navbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    background-color: rgba(5, 150, 105, 0.08);
+    color: #059669;
+    border: 1px solid rgba(5, 150, 105, 0.3);
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 0.84rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.btn-apk-navbar:hover {
+    background-color: #059669;
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+}
+
+.mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    font-size: 1.35rem;
+    color: var(--text-dark);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 10px;
+    transition: background-color 0.2s;
+}
+
+.mobile-menu-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.mobile-dash-header {
+    display: none;
+}
+
+.mobile-dash-drawer {
+    display: none;
+}
+
 .nav-auth-buttons {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    white-space: nowrap;
 }
 
 /* APP WRAPPER & LAYOUT (DASHBOARD) */
@@ -685,16 +748,279 @@ body {
 .alert-danger { background-color: #FBE3E2; color: #991B1B; }
 .alert-warning { background-color: #FEF3C7; color: #92400E; }
 
-/* RESPONSIVE MEDIA QUERIES */
+/* RESPONSIVE MEDIA QUERIES & MOBILE DESIGN */
 @media (max-width: 1024px) {
     .right-panel { display: none; }
 }
 
 @media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+
     .left-sidebar { display: none; }
-    .main-layout { padding: 16px; }
-    .hero-title { font-size: 1.8rem; }
-    .landing-navbar { flex-direction: column; gap: 16px; }
+    .main-layout { padding: 16px 12px; }
+
+    /* LANDING NAVBAR RESPONSIVE */
+    .landing-navbar-inner {
+        padding: 12px 16px;
+        position: relative;
+    }
+
+    .nav-brand-text span:first-child {
+        font-size: 0.95rem !important;
+    }
+
+    .nav-brand-text span:last-child {
+        font-size: 0.62rem !important;
+    }
+
+    .mobile-menu-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-menu-wrapper {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: rgba(247, 245, 240, 0.98);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding: 20px 20px 24px;
+        border-bottom: 1px solid var(--border-subtle);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        gap: 16px;
+        z-index: 999;
+    }
+
+    .nav-menu-wrapper.nav-menu-open {
+        display: flex !important;
+        animation: slideDownNav 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        width: 100%;
+        gap: 6px;
+        align-items: stretch;
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+
+    .nav-links a {
+        display: block;
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background-color: rgba(0, 0, 0, 0.03);
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-align: left;
+    }
+
+    .nav-auth-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+        margin-top: 6px;
+    }
+
+    .nav-auth-buttons a, .btn-apk-navbar {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px !important;
+    }
+
+    /* LANDING PAGE LAYOUT & CARDS */
+    main.landing-container {
+        margin-top: 72px !important;
+        padding: 16px 12px !important;
+        gap: 24px !important;
+    }
+
+    .landing-hero-card {
+        padding: 24px 16px !important;
+        border-radius: 20px !important;
+    }
+
+    .hero-grid-section {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
+
+    .hero-title {
+        font-size: 1.7rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 14px !important;
+    }
+
+    .hero-desc {
+        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+        margin-bottom: 20px !important;
+    }
+
+    .hero-btn-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px !important;
+    }
+
+    .hero-btn-group a {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px !important;
+    }
+
+    .hero-quick-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+
+    .hero-quick-grid .pastel-card {
+        padding: 14px !important;
+        min-height: 110px !important;
+    }
+
+    .cards-grid-2x2 {
+        display: grid;
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .contact-section {
+        grid-template-columns: 1fr !important;
+        padding: 24px 16px !important;
+        gap: 28px !important;
+    }
+
+    .contact-section h2 {
+        font-size: 1.6rem !important;
+    }
+
+    .contact-form-card {
+        padding: 20px 16px !important;
+        border-radius: 16px !important;
+    }
+
+    .form-grid-2col {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .cta-section {
+        padding: 28px 20px !important;
+        border-radius: 20px !important;
+    }
+
+    .cta-section h3 {
+        font-size: 1.4rem !important;
+    }
+
+    .cta-btn-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px !important;
+    }
+
+    .cta-btn-group a {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px !important;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 28px !important;
+    }
+
+    /* DASHBOARD MOBILE APP HEADER & DRAWER */
+    .mobile-dash-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: rgba(247, 245, 240, 0.98);
+        border-bottom: 1px solid var(--border-subtle);
+        position: sticky;
+        top: 0;
+        z-index: 990;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .mobile-dash-drawer {
+        display: none;
+        position: fixed;
+        top: 59px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+    }
+
+    .mobile-dash-drawer.open {
+        display: block;
+    }
+
+    .mobile-drawer-inner {
+        background: var(--bg-main);
+        padding: 20px;
+        border-bottom-left-radius: 24px;
+        border-bottom-right-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        animation: slideDownNav 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dash-mobile-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 14px;
+        background: #FFFFFF;
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        border: 1px solid var(--border-subtle);
+        transition: all 0.2s;
+    }
+
+    .dash-mobile-link.active {
+        background: var(--bg-pill-active);
+        color: #FFFFFF;
+        border-color: var(--bg-pill-active);
+    }
+
+    /* TABLE RESPONSIVE WRAPPER */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-quick-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+}
+
+@keyframes slideDownNav {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* PASSWORD VISIBILITY TOGGLE */
