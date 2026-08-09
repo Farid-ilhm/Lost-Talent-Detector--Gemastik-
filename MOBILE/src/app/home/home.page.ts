@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController, ToastController, NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -110,6 +110,7 @@ export class HomePage {
     private router: Router,
     private route: ActivatedRoute,
     private location: Location,
+    private navCtrl: NavController,
     private alertController: AlertController,
     private toastController: ToastController
   ) {
@@ -123,7 +124,7 @@ export class HomePage {
 
   ionViewWillEnter() {
     if (!this.authService.isAuthenticated()) {
-      this.router.navigateByUrl('/login');
+      this.navCtrl.navigateRoot('/login', { replaceUrl: true });
       return;
     }
     this.userRole = this.authService.getUserRole();
@@ -891,11 +892,11 @@ export class HomePage {
           handler: () => {
             this.authService.logout().subscribe({
               next: () => {
-                this.router.navigateByUrl('/login');
+                this.navCtrl.navigateRoot('/login', { replaceUrl: true, animated: true, animationDirection: 'back' });
               },
               error: () => {
                 this.authService.clearStorage();
-                this.router.navigateByUrl('/login');
+                this.navCtrl.navigateRoot('/login', { replaceUrl: true, animated: true, animationDirection: 'back' });
               }
             });
           }

@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lost Talent Detector</title>
-    <link rel="icon" type="image/jpeg" href="{{ asset('LOGO APK.jpg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('icon.png') }}">
     <!-- FontAwesome Icons -->
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Custom Design System CSS -->
-    <link rel="stylesheet" href="{{ asset('css/app_custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app_custom.css') }}?v=1.2">
     <style>
         .landing-hero-card {
             background-color: #FFFFFF;
@@ -30,7 +30,7 @@
     <header class="landing-navbar">
         <div class="landing-navbar-inner">
             <a href="/" class="nav-brand">
-                <img src="{{ asset('LOGO APK.jpg') }}" alt="Lost Talent Detector Logo" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
+                <img src="{{ asset('icon.png') }}" alt="Lost Talent Detector Logo" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
                 <div class="nav-brand-text">
                     <span style="display: block; line-height: 1.2; font-weight: 800;">Lost Talent Detector</span>
                     <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em;">Intelijen Bakat AI</span>
@@ -76,18 +76,9 @@
                     Deteksi Bakat Terpendam & Kembangkan Masa Depan
                 </h1>
 
-                <p class="hero-desc" style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 32px;">
+                <p class="hero-desc" style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 0;">
                     Platform terpadu analisis potensi diri siswa & mahasiswa melalui integrasi nilai akademik, sertifikat prestasi terverifikasi, dan tes kuesioner minat psikometrik RIASEC berbasis Artificial Intelligence.
                 </p>
-
-                <div class="hero-btn-group" style="display: flex; gap: 16px; flex-wrap: wrap;">
-                    <a href="/login" class="btn-primary-dark" style="padding: 16px 32px; font-size: 1rem;">
-                        <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang
-                    </a>
-                    <a href="/register" class="btn-primary-dark" style="padding: 16px 32px; font-size: 1rem; background-color: var(--bg-pill); color: var(--text-dark);">
-                        <i class="fa-solid fa-user-plus"></i> Daftar Akun Baru
-                    </a>
-                </div>
             </div>
 
             <!-- Quick Overview Card Grid -->
@@ -340,7 +331,7 @@
                 <!-- Column 1: Brand Info -->
                 <div style="display: flex; flex-direction: column; gap: 16px; min-width: 250px;">
                     <a href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #FFFFFF;">
-                        <img src="{{ asset('LOGO APK.jpg') }}" alt="Lost Talent Logo" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
+                        <img src="{{ asset('icon.png') }}" alt="Lost Talent Logo" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
                         <div>
                             <span style="display: block; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;">Lost Talent Detector</span>
                             <span style="font-size: 0.7rem; font-weight: 700; color: #EAB308; text-transform: uppercase; letter-spacing: 0.05em;">Intelijen Bakat AI</span>

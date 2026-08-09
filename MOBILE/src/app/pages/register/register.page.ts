@@ -2,7 +2,7 @@ import { Component, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-register',
@@ -47,6 +47,7 @@ export class RegisterPage implements OnDestroy {
     private authService: AuthService,
     private apiService: ApiService,
     private router: Router,
+    private navCtrl: NavController,
     private alertController: AlertController
   ) {}
 
@@ -90,7 +91,7 @@ export class RegisterPage implements OnDestroy {
               {
                 text: 'OK',
                 handler: () => {
-                  this.router.navigateByUrl('/login');
+                  this.navCtrl.navigateRoot('/login', { replaceUrl: true });
                 }
               }
             ]
@@ -183,7 +184,7 @@ export class RegisterPage implements OnDestroy {
             {
               text: 'OK',
               handler: () => {
-                this.router.navigateByUrl('/home');
+                this.navCtrl.navigateRoot('/home', { replaceUrl: true });
               }
             }
           ]

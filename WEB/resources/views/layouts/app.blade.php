@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lost Talent Detector</title>
-    <link rel="icon" type="image/jpeg" href="{{ asset('LOGO APK.jpg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('icon.png') }}">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Custom Design System CSS -->
-    <link rel="stylesheet" href="{{ asset('css/app_custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app_custom.css') }}?v=1.2">
     
     <!-- Early global confirm override to catch inline handlers -->
     <script>
@@ -53,7 +53,7 @@
         <!-- MOBILE TOP BAR FOR LOGGED IN USERS -->
         <header class="mobile-dash-header">
             <a href="/dashboard" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-                <img src="{{ asset('LOGO APK.jpg') }}" alt="Logo" style="width: 34px; height: 34px; border-radius: 10px; object-fit: cover;">
+                <img src="{{ asset('icon.png') }}" alt="Logo" style="width: 34px; height: 34px; border-radius: 10px; object-fit: cover;">
                 <span style="font-weight: 800; font-size: 1rem; color: var(--text-dark);">Lost Talent</span>
             </a>
             <button type="button" class="mobile-menu-toggle" id="dashMobileMenuBtn" aria-label="Menu App Mobile">
@@ -124,7 +124,7 @@
         <aside class="left-sidebar">
             <div class="sidebar-top">
                 <a href="/dashboard" class="app-brand-icon" title="Dashboard Lost Talent Detector" style="background: transparent; overflow: hidden; padding: 0;">
-                    <img src="{{ asset('LOGO APK.jpg') }}" alt="Lost Talent Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;">
+                    <img src="{{ asset('icon.png') }}" alt="Lost Talent Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;">
                 </a>
 
                 

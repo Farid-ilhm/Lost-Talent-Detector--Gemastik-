@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-login',
@@ -20,19 +20,20 @@ export class LoginPage implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private navCtrl: NavController,
     private alertController: AlertController
   ) {}
 
   ngOnInit() {
     if (this.authService.isAuthenticated()) {
-      this.router.navigateByUrl('/home');
+      this.navCtrl.navigateRoot('/home', { replaceUrl: true });
     }
   }
 
   async onLogin() {
     this.authService.login(this.credentials).subscribe({
       next: (res) => {
-        this.router.navigateByUrl('/home');
+        this.navCtrl.navigateRoot('/home', { replaceUrl: true, animated: true, animationDirection: 'forward' });
       },
       error: async (err) => {
         const msg = err.error?.message || 'Email atau password salah.';
