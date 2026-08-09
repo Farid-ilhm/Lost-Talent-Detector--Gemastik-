@@ -3,7 +3,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
-import { AlertController, ToastController, NavController } from '@ionic/angular';
+import { AlertController, ToastController, NavController, Platform } from '@ionic/angular';
+import { App } from '@capacitor/app';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -33,8 +35,10 @@ export class HomePage {
   isSelectingCerts: boolean = false;
   selectedCerts: Set<number> = new Set<number>();
 
-  // Sidebar state
+  // Sidebar & Back button state
   isSidebarOpen: boolean = false;
+  private backButtonSubscription?: Subscription;
+  private lastBackPressOnHome = 0;
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -111,6 +115,7 @@ export class HomePage {
     private route: ActivatedRoute,
     private location: Location,
     private navCtrl: NavController,
+    private platform: Platform,
     private alertController: AlertController,
     private toastController: ToastController
   ) {
@@ -129,6 +134,7 @@ export class HomePage {
     }
     this.userRole = this.authService.getUserRole();
     this.userName = this.authService.getUserName();
+    this.registerBackButtonHandler();
 
     // Sync active tab from query param if available
     const urlTab = this.route.snapshot.queryParamMap.get('tab');
@@ -145,6 +151,59 @@ export class HomePage {
       this.loadInstitutionData();
       this.loadAnnouncements();
     }
+  }
+
+  ionViewWillLeave() {
+    if (this.backButtonSubscription) {
+      this.backButtonSubscription.unsubscribe();
+    }
+  }
+
+  registerBackButtonHandler() {
+    if (this.backButtonSubscription) {
+      this.backButtonSubscription.unsubscribe();
+    }
+    this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(100, async () => {
+      // 1. Close sidebar if open
+      if (this.isSidebarOpen) {
+        this.closeSidebar();
+        return;
+      }
+
+      // 2. Return to Beranda tab if currently in another menu tab
+      if (this.selectedTab !== 'home') {
+        this.selectTab('home');
+        return;
+      }
+
+      // 3. Already on Beranda tab: double tap to exit app
+      const now = Date.now();
+      if (now - this.lastBackPressOnHome < 2000) {
+        const alert = await this.alertController.create({
+          header: 'Keluar Aplikasi',
+          message: 'Apakah Anda yakin ingin keluar dari aplikasi Lost Talent Detector?',
+          buttons: [
+            { text: 'Batal', role: 'cancel' },
+            {
+              text: 'Keluar',
+              handler: () => {
+                App.exitApp();
+              }
+            }
+          ]
+        });
+        await alert.present();
+      } else {
+        this.lastBackPressOnHome = now;
+        const toast = await this.toastController.create({
+          message: 'Tekan sekali lagi untuk keluar dari aplikasi',
+          duration: 2000,
+          color: 'dark',
+          position: 'top'
+        });
+        await toast.present();
+      }
+    });
   }
 
   isStudentRole(): boolean {
