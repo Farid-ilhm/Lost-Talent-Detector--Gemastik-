@@ -39,7 +39,7 @@
 }
 
 .sidebar-header {
-  padding: 24px 20px 20px 20px;
+  padding: calc(max(env(safe-area-inset-top, 0px), 32px) + 12px) 20px 20px 20px;
   border-bottom: 1px solid #F1F5F9;
   display: flex;
   align-items: center;
@@ -83,7 +83,7 @@
 }
 
 .sidebar-footer {
-  padding: 16px 20px 24px 20px;
+  padding: 16px 20px calc(max(env(safe-area-inset-bottom, 0px), 16px) + 8px) 20px;
   border-top: 1px solid #F1F5F9;
   font-size: 0.78rem;
   color: #94A3B8;

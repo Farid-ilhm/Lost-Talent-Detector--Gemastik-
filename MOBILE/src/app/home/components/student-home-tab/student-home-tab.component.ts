@@ -13,6 +13,11 @@ export class StudentHomeTabComponent {
   @Input() aiAnalysis: any = null;
   @Input() teachers: any[] = [];
   @Output() selectTabEvent = new EventEmitter<string>();
+  isCardExpanded: boolean = false;
+
+  toggleCard() {
+    this.isCardExpanded = !this.isCardExpanded;
+  }
 
   selectTab(tabName: string) {
     this.selectTabEvent.emit(tabName);

@@ -13,13 +13,13 @@ export class AppComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    // Show splash briefly then fade out
+    // Show premium splash screen then smoothly zoom & fade out
     setTimeout(() => {
       this.isExiting = true;
       setTimeout(() => {
         this.showSplash = false;
-      }, 350);
-    }, 1200);
+      }, 600);
+    }, 1600);
   }
 }
 

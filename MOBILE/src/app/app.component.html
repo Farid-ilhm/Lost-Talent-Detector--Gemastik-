@@ -1,9 +1,21 @@
-<!-- PURE LOGO SPLASHSCREEN (Native App Style) -->
+<!-- PREMIUM GLASS & GRADIENT SPLASHSCREEN -->
 <div *ngIf="showSplash" class="splash-screen" [class.exiting]="isExiting">
-  <img src="assets/icon.png" alt="Lost Talent Detector Logo" class="splash-logo" />
+  <div class="splash-bg-glow"></div>
+  <div class="splash-content">
+    <div class="logo-wrapper">
+      <img src="assets/icon.png" alt="Lost Talent Detector Logo" class="splash-logo" />
+      <div class="logo-ring"></div>
+    </div>
+    <h1 class="splash-title">Lost Talent Detector</h1>
+    <p class="splash-subtitle">Discover & Develop Potential</p>
+  </div>
+  <div class="splash-footer">
+    <div class="splash-loader"></div>
+  </div>
 </div>
 
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
 </ion-app>
+
 

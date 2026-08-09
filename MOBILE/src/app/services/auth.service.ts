@@ -7,8 +7,7 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  // Configurable base URL. Change to your computer's IP address (e.g., http://192.168.1.5:8000/api) 
-  // if testing on a physical mobile device or emulator.
+  // Configurable base URL for production online hosting server
   private apiUrl = 'https://losttalentdetector.my.id/api';
 
   constructor(private http: HttpClient) {}
